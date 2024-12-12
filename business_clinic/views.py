@@ -5,7 +5,6 @@ from .serializers import (
     IssueSubCategorySerializer,
     NatureOfIndustryCategorySerializer,
     NatureOfIndustrySubCategorySerializer,
-    NatureOfIndustrySubSubCategorySerializer,
     Business_ClinicSerializer,
 )
 from .models import (
@@ -13,7 +12,6 @@ from .models import (
     IssueSubCategory,
     NatureOfIndustryCategory,
     NatureOfIndustrySubCategory,
-    NatureOfIndustrySubSubCategory,
     Business_Clinic,
 )
 
@@ -33,9 +31,6 @@ class NatureOfIndustrySubCategoryListCreateView(generics.ListCreateAPIView):
     queryset = NatureOfIndustrySubCategory.objects.all()
     serializer_class = NatureOfIndustrySubCategorySerializer
 
-class NatureOfIndustrySubSubCategoryListCreateView(generics.ListCreateAPIView):
-    queryset = NatureOfIndustrySubSubCategory.objects.all()
-    serializer_class = NatureOfIndustrySubSubCategorySerializer
 
 class BusinessClinicListCreateView(generics.ListCreateAPIView):
     queryset = Business_Clinic.objects.all()

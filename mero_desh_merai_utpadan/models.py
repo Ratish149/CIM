@@ -13,11 +13,6 @@ class NatureOfIndustrySubCategory(models.Model):
     def __str__(self):
         return self.name
 
-class NatureOfIndustrySubSubCategory(models.Model):
-    sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE)
-    name=models.CharField(max_length=255)
-    def __str__(self):
-        return self.name
 
 class MeroDeshMeraiUtpadan(models.Model):
 
@@ -54,11 +49,12 @@ class MeroDeshMeraiUtpadan(models.Model):
     contact_alternate_number=models.CharField(max_length=255,null=True,blank=True)
     contact_email=models.EmailField(null=True,blank=True)
     
-    nature_of_industry_sub_sub_category=models.ForeignKey(NatureOfIndustrySubSubCategory, on_delete=models.CASCADE)
+    nature_of_industry_sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE)
+    
     product_market=models.CharField(max_length=255,choices=MARKET_CHOICES)
     raw_material=models.CharField(max_length=255,choices=RAW_MATERIAL_CHOICES)
-    member_of_cim=models.BooleanField(default=False)
-    know_about_mdmu=models.BooleanField(default=False)
+    member_of_cim=models.BooleanField(default=False,null=True,blank=True)
+    know_about_mdmu=models.BooleanField(default=False,null=True,blank=True)
 
     already_used_logo=models.BooleanField(default=False,null=True,blank=True)
     interested_in_logo=models.BooleanField(default=False,null=True,blank=True)

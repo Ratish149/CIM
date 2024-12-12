@@ -24,11 +24,6 @@ class NatureOfIndustrySubCategory(models.Model):
     def __str__(self):
         return self.name
 
-class NatureOfIndustrySubSubCategory(models.Model):
-    sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE)
-    name=models.CharField(max_length=255)
-    def __str__(self):
-        return self.name
 
 class Business_Clinic(models.Model):
     INDUSTRY_CHOICES=(
@@ -39,12 +34,19 @@ class Business_Clinic(models.Model):
         ('Medium','Medium'),
         ('Large','Large'),
     )
+    PROGRESS_STATUS=(
+        ('Issue Registere and dicumented','Issue Registere and dicumented'),
+        ('Issue under desk study','Issue under desk study'),
+        ('Issue forwarded to concern department','Issue forwarded to concern department'),
+        ('Issue solve','Issue solve')
+    )
     
     issue=models.TextField()
     issue_image=models.ImageField(upload_to='images/',null=True,blank=True)
     
     issue_sub_category=models.ForeignKey(IssueSubCategory, on_delete=models.CASCADE)
     
+    progress_status=models.CharField(max_length=255,choices=PROGRESS_STATUS)
     name_of_company=models.CharField(max_length=255)
     address_province=models.CharField(max_length=255)
     address_district=models.CharField(max_length=255)
@@ -57,9 +59,9 @@ class Business_Clinic(models.Model):
     contact_alternate_number=models.CharField(max_length=255,null=True,blank=True)
     contact_email=models.EmailField(null=True,blank=True)
 
-    nature_of_industry_sub_sub_category=models.ForeignKey(NatureOfIndustrySubSubCategory, on_delete=models.CASCADE)
+    nature_of_industry_sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE)
 
-    member_of_CIM=models.BooleanField(default=False)
+    member_of_CIM=models.BooleanField(default=False,null=True,blank=True)
 
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
