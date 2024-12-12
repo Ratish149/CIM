@@ -63,7 +63,7 @@ class MeroDeshMeraiUtpadan(models.Model):
     already_used_logo=models.BooleanField(default=False,null=True,blank=True)
     interested_in_logo=models.BooleanField(default=False,null=True,blank=True)
 
-    self_declaration=models.BooleanField(default=False,null=True,blank=True)
+    self_declaration=models.BooleanField(default=False)
     
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
