@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'business_clinic',
     'mero_desh_merai_utpadan',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
