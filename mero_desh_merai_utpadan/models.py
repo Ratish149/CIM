@@ -2,17 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-class IssueCategory(models.Model):
-    name=models.CharField(max_length=255)
-    def __str__(self):
-        return self.name
-    
-class IssueSubCategory(models.Model):
-    category=models.ForeignKey(IssueCategory, on_delete=models.CASCADE)
-    name=models.CharField(max_length=255)
-    def __str__(self):
-        return self.name
-
 class NatureOfIndustryCategory(models.Model):
     name=models.CharField(max_length=255)
     def __str__(self):
@@ -30,7 +19,8 @@ class NatureOfIndustrySubSubCategory(models.Model):
     def __str__(self):
         return self.name
 
-class Business_Clinic(models.Model):
+class MeroDeshMeraiUtpadan(models.Model):
+
     INDUSTRY_CHOICES=(
         ('Startup','Startup'),
         ('Micro','Micro'),
@@ -39,12 +29,19 @@ class Business_Clinic(models.Model):
         ('Medium','Medium'),
         ('Large','Large'),
     )
-    
-    issue=models.TextField()
-    issue_image=models.ImageField(upload_to='images/',null=True,blank=True)
-    
-    issue_sub_category=models.ForeignKey(IssueSubCategory, on_delete=models.CASCADE)
-    
+
+    MARKET_CHOICES=(
+        ('Domestic','Domestic'),
+        ('International','International'),
+        ('Both','Both'),
+    )
+    RAW_MATERIAL_CHOICES=(
+        ('Local','Local'),
+        ('International','International'),
+        ('Both','Both'),
+    )
+
+
     name_of_company=models.CharField(max_length=255)
     address_province=models.CharField(max_length=255)
     address_district=models.CharField(max_length=255)
@@ -53,17 +50,23 @@ class Business_Clinic(models.Model):
     address_street=models.CharField(max_length=255)
     contact_name=models.CharField(max_length=255)
     contact_number=models.CharField(max_length=255)
-    contact_designation=models.CharField(max_length=255)    
+    contact_designation=models.CharField(max_length=255)
     contact_alternate_number=models.CharField(max_length=255,null=True,blank=True)
     contact_email=models.EmailField(null=True,blank=True)
-
+    
     nature_of_industry_sub_sub_category=models.ForeignKey(NatureOfIndustrySubSubCategory, on_delete=models.CASCADE)
+    product_market=models.CharField(max_length=255,choices=MARKET_CHOICES)
+    raw_material=models.CharField(max_length=255,choices=RAW_MATERIAL_CHOICES)
+    member_of_cim=models.BooleanField(default=False)
+    know_about_mdmu=models.BooleanField(default=False)
 
-    member_of_CIM=models.BooleanField(default=False)
+    already_used_logo=models.BooleanField(default=False,null=True,blank=True)
+    interested_in_logo=models.BooleanField(default=False,null=True,blank=True)
 
+    self_declaration=models.BooleanField(default=False,null=True,blank=True)
+    
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
-
 
     def __str__(self):
         return self.name_of_company
