@@ -36,7 +36,6 @@ class MeroDeshMeraiUtpadan(models.Model):
         ('Both','Both'),
     )
 
-
     name_of_company=models.CharField(max_length=255)
     address_province=models.CharField(max_length=255)
     address_district=models.CharField(max_length=255)
@@ -48,7 +47,7 @@ class MeroDeshMeraiUtpadan(models.Model):
     contact_designation=models.CharField(max_length=255)
     contact_alternate_number=models.CharField(max_length=255,null=True,blank=True)
     contact_email=models.EmailField(null=True,blank=True)
-    
+    nature_of_industry_category=models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE)
     nature_of_industry_sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE)
     
     product_market=models.CharField(max_length=255,choices=MARKET_CHOICES)
