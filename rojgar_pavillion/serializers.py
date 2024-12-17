@@ -4,7 +4,8 @@ from .models import Registration, Participant
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
-        exclude = ['registration', 'is_free_entry']
+        read_only_fields = ['is_free_entry']
+        exclude = ['registration']
 
 class RegistrationSerializer(serializers.ModelSerializer):
     participants = ParticipantSerializer(many=True)

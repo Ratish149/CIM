@@ -1,8 +1,6 @@
 from rest_framework import generics, status
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser,JSONParser
-from django.db import transaction
 from .models import Registration, Topic,TimeSlot
 from .serializers import RegistrationSerializer
 
@@ -10,7 +8,6 @@ class RegistrationView(generics.ListCreateAPIView):
     queryset = Registration.objects.all()
     serializer_class = RegistrationSerializer
     parser_classes = (MultiPartParser, FormParser,JSONParser)
-
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
