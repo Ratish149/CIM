@@ -1,9 +1,15 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-from .models import Topic, TimeSlot, TrainingSession, Registration, Participant
+from unfold.admin import ModelAdmin,TabularInline
+from .models import Topic, TimeSlot, Registration, Participant
 
-admin.site.register(Topic,ModelAdmin)
-admin.site.register(TimeSlot,ModelAdmin)
-admin.site.register(TrainingSession,ModelAdmin)
-admin.site.register(Registration,ModelAdmin)
-admin.site.register(Participant,ModelAdmin)
+class ParticipantInline(TabularInline):
+    model = Participant
+    extra = 1
+
+class RegistrationAdmin(ModelAdmin):
+    inlines = [ParticipantInline]
+
+admin.site.register(Topic, ModelAdmin)
+admin.site.register(TimeSlot, ModelAdmin)
+admin.site.register(Registration, RegistrationAdmin)
+admin.site.register(Participant, ModelAdmin)

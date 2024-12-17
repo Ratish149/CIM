@@ -5,34 +5,27 @@ from django.utils import timezone
 class Topic(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=200)
-    # start_date = models.DateField()
-    # end_date = models.DateField()
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.name
     
 class TimeSlot(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='time_slots')
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.TimeField(default=timezone.now)
+    end_time = models.TimeField(default=timezone.now)
     max_participants = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.topic.name}: {self.start_time.strftime('%I:%M %p')} - {self.end_time.strftime('%I:%M %p')}"
-
-class TrainingSession(models.Model):
-    time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE, related_name='training_sessions')
-    date = models.DateField()
     current_participants = models.IntegerField(default=0)
 
     def is_available(self):
-        return self.current_participants < self.time_slot.max_participants
+        return self.current_participants < self.max_participants
     
     def available_spots(self):
-        return self.time_slot.max_participants - self.current_participants
+        return self.max_participants - self.current_participants
 
     def __str__(self):
-        return f"{self.time_slot.topic.name} - {self.date} - {self.time_slot}"
+        return f"{self.topic.name}: {self.start_time.strftime('%I:%M %p')} - {self.end_time.strftime('%I:%M %p')}"
     
 class Registration(models.Model):
     REGISTRATION_TYPES = [
@@ -50,7 +43,7 @@ class Registration(models.Model):
         'EXPO_ACCESS': 2100
     }
 
-    training_session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
+    time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
     registration_type = models.CharField(max_length=20, choices=REGISTRATION_TYPES)
     
     total_participants = models.IntegerField(validators=[MinValueValidator(1)])
@@ -78,7 +71,7 @@ class Registration(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.training_session.time_slot.topic.name} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+        return f"{self.time_slot.topic.name} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
 
 class Participant(models.Model):
     QUALIFICATIONS = [

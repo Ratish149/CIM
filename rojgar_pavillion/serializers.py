@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Registration, Participant, TrainingSession
+from .models import Registration, Participant
 
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,7 +12,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
         fields = [
-            'id', 'training_session', 'registration_type',
+            'id', 'time_slot', 'registration_type',
             'total_price', 'payment_method', 'payment_screenshot',
             'agreed_to_no_refund', 'is_early_bird', 'is_expo_access',
             'created_at', 'participants'
@@ -34,17 +34,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 "At least one participant is required"
             )
 
-        # Validate training session availability
-        training_session = data['training_session']
-        if not training_session.is_available():
+        # Validate time slot availability
+        time_slot = data['time_slot']
+        if not time_slot.is_available():
             raise serializers.ValidationError(
-                "This training session is full"
+                "This time slot is full"
             )
 
-        if (training_session.current_participants + len(participants) > 
-            training_session.time_slot.max_participants):
+        if (time_slot.current_participants + len(participants) > 
+            time_slot.max_participants):
             raise serializers.ValidationError(
-                "Not enough spots available in this session"
+                "Not enough spots available in this time slot"
             )
 
         return data
@@ -73,5 +73,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 is_free_entry=is_free,
                 **participant_data
             )
+
+        # Update current participants in time slot
+        time_slot = validated_data['time_slot']
+        time_slot.current_participants += validated_data['total_participants']
+        time_slot.save()
 
         return registration

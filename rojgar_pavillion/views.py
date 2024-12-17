@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser,JSONParser
 from django.db import transaction
-from .models import Registration, Topic, TrainingSession
+from .models import Registration, Topic,TimeSlot
 from .serializers import RegistrationSerializer
 
 class RegistrationView(generics.ListCreateAPIView):
@@ -18,12 +18,6 @@ class RegistrationView(generics.ListCreateAPIView):
         
         try:
             registration = serializer.save()
-            
-            # Update training session participant count
-            training_session = registration.training_session
-            training_session.current_participants += registration.total_participants
-            training_session.save()
-            
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
