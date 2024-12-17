@@ -28,11 +28,10 @@ class RegistrationView(generics.ListCreateAPIView):
 class AvailableSessionsView(generics.GenericAPIView):
     def get(self, request):
         """
-        Get available topics with their time slots and sessions
+        Get available topics with their time slots and remaining available spots
         """
         topics = Topic.objects.prefetch_related(
-            'time_slots',
-            'time_slots__training_sessions'
+            'time_slots'  # Prefetch time slots for each topic
         )
         
         data = []
@@ -44,23 +43,20 @@ class AvailableSessionsView(generics.GenericAPIView):
             }
             
             for slot in topic.time_slots.all():
+                # Calculate remaining available spots
+                remaining_spots = slot.max_participants - slot.current_participants
+                
                 slot_data = {
                     'id': slot.id,
                     'start_time': slot.start_time,
                     'end_time': slot.end_time,
                     'max_participants': slot.max_participants,
-                    'sessions': []
+                    'current_participants': slot.current_participants,
+                    'remaining_spots': remaining_spots  # Added remaining spots
                 }
                 
-                for session in slot.training_sessions.all():
-                    if session.is_available():
-                        slot_data['sessions'].append({
-                            'id': session.id,
-                            'date': session.date,
-                            'available_spots': session.available_spots()
-                        })
-                
-                if slot_data['sessions']:
+                # Only add the slot if there are remaining spots
+                if remaining_spots > 0:
                     topic_data['time_slots'].append(slot_data)
             
             if topic_data['time_slots']:
