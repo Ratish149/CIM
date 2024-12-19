@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question, Answer, Document
+from .models import Question, Answer, Document,SavedAnswer
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,10 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields=['question', 'question_detail','document', 'is_true']
+
+class SavedAnswerSerializer(serializers.ModelSerializer):
+    answers = AnswerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SavedAnswer
+        fields = ['id', 'total_score', 'created_at', 'answers']
