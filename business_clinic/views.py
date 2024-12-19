@@ -5,14 +5,14 @@ from .serializers import (
     IssueSubCategorySerializer,
     NatureOfIndustryCategorySerializer,
     NatureOfIndustrySubCategorySerializer,
-    Business_ClinicSerializer,
+    IssueSerializer,
 )
 from .models import (
     IssueCategory,
     IssueSubCategory,
     NatureOfIndustryCategory,
     NatureOfIndustrySubCategory,
-    Business_Clinic,
+    Issue,
 )
 
 class IssueCategoryListCreateView(generics.ListCreateAPIView):
@@ -33,5 +33,5 @@ class NatureOfIndustrySubCategoryListCreateView(generics.ListCreateAPIView):
 
 
 class BusinessClinicListCreateView(generics.ListCreateAPIView):
-    queryset = Business_Clinic.objects.all()
-    serializer_class = Business_ClinicSerializer
+    queryset = Issue.objects.all()
+    serializer_class = IssueSerializer

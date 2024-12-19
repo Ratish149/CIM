@@ -25,7 +25,7 @@ class NatureOfIndustrySubCategory(models.Model):
         return self.name
 
 
-class Business_Clinic(models.Model):
+class Issue(models.Model):
     INDUSTRY_CHOICES=(
         ('Startup','Startup'),
         ('Micro','Micro'),
@@ -44,10 +44,18 @@ class Business_Clinic(models.Model):
     issue=models.TextField()
     issue_image=models.ImageField(upload_to='images/',null=True,blank=True)
     
-    issue_category=models.ForeignKey(IssueCategory, on_delete=models.CASCADE)
-    issue_sub_category=models.ForeignKey(IssueSubCategory, on_delete=models.CASCADE)
+    issue_category=models.ForeignKey(IssueCategory, on_delete=models.CASCADE,null=True,blank=True)
+    issue_sub_category=models.ForeignKey(IssueSubCategory, on_delete=models.CASCADE,null=True,blank=True)
     
-    progress_status=models.CharField(max_length=255,choices=PROGRESS_STATUS)
+    is_industry_specific=models.BooleanField(default=False,null=True,blank=True)
+    is_common_issue=models.BooleanField(default=False,null=True,blank=True)
+    is_specific_policy_related=models.BooleanField(default=False,null=True,blank=True)
+    is_procedural_hurdle=models.BooleanField(default=False,null=True,blank=True)
+    is_implementation_level=models.BooleanField(default=False,null=True,blank=True)
+    is_policy_level=models.BooleanField(default=False,null=True,blank=True)
+    is_capacity_scaleup_needed=models.BooleanField(default=False,null=True,blank=True)
+    
+    progress_status=models.CharField(max_length=255,choices=PROGRESS_STATUS,null=True,blank=True)
     name_of_company=models.CharField(max_length=255)
     address_province=models.CharField(max_length=255)
     address_district=models.CharField(max_length=255)

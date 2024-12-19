@@ -1,13 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser,JSONParser
-from .models import Registration, Topic,TimeSlot
-from .serializers import RegistrationSerializer
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from .models import Registration, Topic, TimeSlot
+from .serializers import RegistrationSerializer, TopicSerializer, TimeSlotSerializer
 
 class RegistrationView(generics.ListCreateAPIView):
     queryset = Registration.objects.all()
     serializer_class = RegistrationSerializer
-    parser_classes = (MultiPartParser, FormParser,JSONParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -15,6 +15,11 @@ class RegistrationView(generics.ListCreateAPIView):
         
         try:
             registration = serializer.save()
+            # Increase the current participants count
+            time_slot = registration.time_slot
+            time_slot.current_participants += registration.total_participants
+            time_slot.save()
+
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
@@ -25,41 +30,18 @@ class RegistrationView(generics.ListCreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-class AvailableSessionsView(generics.GenericAPIView):
-    def get(self, request):
+class AvailableSessionsView(generics.ListAPIView):
+    serializer_class = TopicSerializer
+    
+    def get_queryset(self):
         """
-        Get available topics with their time slots and remaining available spots
+        Get active topics with available time slots
         """
-        topics = Topic.objects.prefetch_related(
-            'time_slots'  # Prefetch time slots for each topic
-        )
-        
-        data = []
-        for topic in topics:
-            topic_data = {
-                'id': topic.id,
-                'name': topic.name,
-                'time_slots': []
-            }
-            
-            for slot in topic.time_slots.all():
-                # Calculate remaining available spots
-                remaining_spots = slot.max_participants - slot.current_participants
-                
-                slot_data = {
-                    'id': slot.id,
-                    'start_time': slot.start_time,
-                    'end_time': slot.end_time,
-                    'max_participants': slot.max_participants,
-                    'current_participants': slot.current_participants,
-                    'remaining_spots': remaining_spots  # Added remaining spots
-                }
-                
-                # Only add the slot if there are remaining spots
-                if remaining_spots > 0:
-                    topic_data['time_slots'].append(slot_data)
-            
-            if topic_data['time_slots']:
-                data.append(topic_data)
-        
-        return Response(data)
+        return Topic.objects.filter(
+            is_active=True
+        ).prefetch_related('time_slots')
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['include_available_spots'] = True
+        return context

@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'mero_desh_merai_utpadan',
     'rest_framework',
     'rojgar_pavillion'
+
+
 ]
 
 MIDDLEWARE = [
@@ -151,4 +153,4 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'bdevil149@gmail.com'
-EMAIL_HOST_PASSWORD = 'nfkn jlen xdih fwqb'
+EMAIL_HOST_PASSWORD = 'zyif nifs ussp gagm'
