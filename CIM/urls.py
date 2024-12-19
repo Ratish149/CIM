@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/business_clinic/',include('business_clinic.urls')),
     path('api/mdmu/',include('mero_desh_merai_utpadan.urls')),
     path('api/rojgar_pavillion/',include('rojgar_pavillion.urls')),
+    path('api/koshi_quality_standard/',include('koshi_quality_standard.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Add this line

@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'business_clinic',
     'mero_desh_merai_utpadan',
     'rest_framework',
-    'rojgar_pavillion'
+    'rojgar_pavillion',
+    'koshi_quality_standard',
 
 
 ]
