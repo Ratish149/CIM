@@ -13,6 +13,8 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = ['id','question_text','category','document']
 
 class AnswerSerializer(serializers.ModelSerializer):
+    question_detail = QuestionSerializer(source='question', read_only=True)  # Add this for nested question details
+
     class Meta:
         model = Answer
-        fields=['question', 'document', 'is_true']
+        fields=['question', 'question_detail','document', 'is_true']

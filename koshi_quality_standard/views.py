@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
-from .models import Question, Document
+from .models import Question, Document,Answer
 from .serializers import QuestionSerializer, AnswerSerializer
 
 # Create your views here.
@@ -11,6 +11,7 @@ class QuestionListCreateView(generics.ListCreateAPIView):
     serializer_class = QuestionSerializer
 
 class AnswerListCreateView(generics.ListCreateAPIView):
+    queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
 
     def create(self, request, *args, **kwargs):
@@ -28,6 +29,7 @@ class AnswerListCreateView(generics.ListCreateAPIView):
             # Calculate score
             if is_true:
                 total_score += document.points
+                print (f'totalscore: {total_score}')
 
         return Response({
             'total_score': total_score,
