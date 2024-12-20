@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +27,13 @@ SECRET_KEY = 'django-insecure-hrt9j8ug34vzvx95pb9$oyyf3e1a%+b8np@h8h2==(9dw=e-@8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['1662-111-119-49-122.ngrok-free.app','127.0.0.1']
 
-
+CSRF_TRUSTED_ORIGINS = [
+   'https://1662-111-119-49-122.ngrok-free.app',
+   'http://1662-111-119-49-122.ngrok-free.app',  # Added HTTP version just in case
+   'http://127.0.0.1'   
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,8 +47,13 @@ INSTALLED_APPS = [
     'business_clinic',
     'mero_desh_merai_utpadan',
     'rest_framework',
-    'rojgar_pavillion',
+    'rest_framework_simplejwt',  
     'koshi_quality_standard',
+    'accounts',
+    'business_registration',
+    'events',
+    'wish_and_offers',
+    'qr_code',
 
 
 ]
@@ -131,7 +141,24 @@ STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 30
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
