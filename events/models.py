@@ -1,5 +1,23 @@
 from django.db import models
 from accounts.models import CustomUser
+from django.utils.text import slugify
+
+
+class SlugMixin:
+    
+    def generate_unique_slug(self):
+        base_slug = slugify(self.title)
+        slug = base_slug
+        counter = 1
+        model = self.__class__
+        while model.objects.filter(slug=slug).exclude(id=self.id).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        self.slug = slug
+
+    def save(self, *args, **kwargs):
+        self.generate_unique_slug()
+        super().save(*args, **kwargs)
 
 class Tag(models.Model):
     name=models.CharField(max_length=100,unique=True)
@@ -8,8 +26,9 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
-class Event(models.Model):
+class Event(SlugMixin,models.Model):
     title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200,unique=True,blank=True)
     description = models.TextField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
@@ -33,7 +52,6 @@ class Attendee(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.event.title}"
-
 
 class Sponsor(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='sponsors')

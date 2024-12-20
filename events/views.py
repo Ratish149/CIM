@@ -21,6 +21,7 @@ class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventDetailSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = 'slug'
 
 class AttendeeListCreateView(generics.ListCreateAPIView):
     serializer_class = AttendeeSerializer

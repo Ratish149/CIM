@@ -17,6 +17,7 @@ class CustomUser(AbstractUser):
    date_of_birth = models.DateField(null=True, blank=True)
    phone_number = models.CharField(max_length=15, blank=True)
    address = models.TextField(blank=True)
+   avatar=models.FileField(upload_to='avatar/', null=True, blank=True)
    designation = models.CharField(max_length=100, choices=DESIGNATION_CHOICES,default='Other')
    alternate_no = models.CharField(max_length=20, blank=True, null=True)
 

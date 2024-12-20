@@ -35,12 +35,14 @@ class AttendeeSmallSerializer(serializers.ModelSerializer):
 class EventListSerializer(serializers.ModelSerializer):
     organizer = UserSerializer(read_only=True)
     attendees_count = serializers.SerializerMethodField()
-    tags = TagSerializer(many=True, read_only=True)  # Add this line
-
+    attendees = AttendeeSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
+    sponsor = SponsorSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description','tags','start_date', 'end_date', 'location', 'organizer', 'attendees_count', 'thumbnail']
+        fields = ['id', 'title', 'description', 'tags', 'start_date', 'end_date', 'location', 'organizer', 
+                  'attendees_count', 'thumbnail', 'slug', 'sponsor', 'attendees']
 
     def get_attendees_count(self, obj):
         return obj.attendees.count()
@@ -56,4 +58,4 @@ class EventDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'title', 'description', 'start_date', 'end_date', 'location', 'organizer', 
-                  'attendees', 'sponsors', 'agenda_items', 'created_at', 'updated_at', 'thumbnail','wishes','offers']
+                  'attendees', 'sponsors', 'agenda_items', 'created_at', 'updated_at', 'thumbnail','wishes','offers','slug']

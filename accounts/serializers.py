@@ -9,7 +9,7 @@ class FileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id', 'email', 'username', 'password', 'bio', 'date_of_birth', 'phone_number', 'address','designation', 'alternate_no')
+        fields = ('id', 'email', 'username', 'password', 'bio', 'date_of_birth', 'phone_number', 'address','designation', 'alternate_no','avatar')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -32,4 +32,4 @@ class OrganizationSerializer(serializers.ModelSerializer):
 class UserSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'email','avatar')

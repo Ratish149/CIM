@@ -53,7 +53,7 @@ class Wish(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Wish by {self.user.username} for {self.event.title if self.event else 'No Event'}"
+        return f"{self.title} Wish by {self.user.username} for {self.event.title if self.event else 'No Event'}"
 
 class Offer(models.Model):
     OFFER_STATUS = [
@@ -77,7 +77,7 @@ class Offer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Offer by {self.user.username} for {self.event.title if self.event else 'No Event'}"
+        return f"{self.title} Offer by {self.user.username} for {self.event.title if self.event else 'No Event'}"
 
 class Match(models.Model):
     wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches')
