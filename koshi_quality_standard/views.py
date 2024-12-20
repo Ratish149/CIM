@@ -18,7 +18,7 @@ class AnswerListCreateView(generics.ListCreateAPIView):
         answers_data = request.data.get('answers', [])
         total_score = 0
 
-        saved_answers = SavedAnswer.objects.create(total_score=0)  # We'll update the score later
+        saved_answers = SavedAnswer.objects.create(total_score=0)
 
 
         for answer_data in answers_data:
@@ -28,6 +28,10 @@ class AnswerListCreateView(generics.ListCreateAPIView):
 
             question = Question.objects.get(id=question_id)
             document = Document.objects.get(id=document_id)
+            if document.question_id != question.id:
+               return Response({
+                   'error': f'Document {document_id} does not belong to question {question_id}'
+               }, status=400)
 
             # # Create and save the answer
             # Answer.objects.create(

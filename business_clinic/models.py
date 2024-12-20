@@ -38,7 +38,8 @@ class Issue(models.Model):
         ('Issue Registere and documented','Issue Registere and documented'),
         ('Issue under desk study','Issue under desk study'),
         ('Issue forwarded to concern department','Issue forwarded to concern department'),
-        ('Issue solve','Issue solve')
+        ('Issue solve','Issue solve'),
+        ('Issue rejected','Issue rejected'),
     )
     
     issue=models.TextField()
