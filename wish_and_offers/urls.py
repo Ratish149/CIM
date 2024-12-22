@@ -5,7 +5,8 @@ from .views import (
     WishListCreateView,
     WishRetrieveUpdateDestroyView,
     OfferListCreateView,
-    OfferRetrieveUpdateDestroyView
+    OfferRetrieveUpdateDestroyView,
+    MatchListView
 )
 
 urlpatterns = [
@@ -20,4 +21,7 @@ urlpatterns = [
     # Event-specific Wish and Offer URLs
     path('events/<int:event_id>/wishes/', WishListCreateView.as_view(), name='event-wish-list-create'),
     path('events/<int:event_id>/offers/', OfferListCreateView.as_view(), name='event-offer-list-create'),
+
+    path('matches/', MatchListView.as_view(), name='match-list'),  # URL for listing matches
+
 ]

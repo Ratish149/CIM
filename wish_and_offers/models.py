@@ -92,6 +92,10 @@ class Wish(Detail):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the original save method
+        self.update_match_percentages()  # Update match percentages for all offers
+        self.update_highest_match_percentage()  # Check and update highest match percentage for all wishes
+
+    def update_match_percentages(self):
         matches = Match.find_matches_for_wish(self.id)
         highest_score = 0
         for match, score in matches:
@@ -103,6 +107,15 @@ class Wish(Detail):
         if highest_score > 80:  # Update match percentage in Wish
             self.match_percentage = highest_score
             super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
+
+    def update_highest_match_percentage(self):
+        # Check for all offers to see if any has a higher match percentage
+        offers = Offer.objects.filter(status='Pending')
+        for offer in offers:
+            score = Match.calculate_match_score(self, offer)
+            if score > self.match_percentage:
+                self.match_percentage = score
+                self.save(update_fields=['match_percentage'])  # Update the match_percentage field
 
 class Offer(Detail):
     OFFER_STATUS = [
@@ -130,6 +143,10 @@ class Offer(Detail):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the original save method
+        self.update_match_percentages()  # Update match percentages for all wishes
+        self.update_highest_match_percentage()  # Check and update highest match percentage for all offers
+
+    def update_match_percentages(self):
         matches = Match.find_matches_for_offer(self.id)
         highest_score = 0
         for match, score in matches:
@@ -141,6 +158,15 @@ class Offer(Detail):
         if highest_score > 80:  # Update match percentage in Offer
             self.match_percentage = highest_score
             super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
+
+    def update_highest_match_percentage(self):
+        # Check for all wishes to see if any has a higher match percentage
+        wishes = Wish.objects.filter(status='Pending')
+        for wish in wishes:
+            score = Match.calculate_match_score(wish, self)
+            if score > self.match_percentage:
+                self.match_percentage = score
+                self.save(update_fields=['match_percentage'])  # Update the match_percentage field
 
 class Match(models.Model):
     wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches')
