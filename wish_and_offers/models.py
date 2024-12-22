@@ -5,32 +5,32 @@ from events.models import Event
 
 class Detail(models.Model):
     DESIGNATION_CHOICES = [
-      ('CEO', 'Chief Executive Officer'),
-      ('CFO', 'Chief Financial Officer'),
-      ('CTO', 'Chief Technology Officer'),
-      ('CMO', 'Chief Marketing Officer'),
-      ('COO', 'Chief Operating Officer'),
-      ('CIO', 'Chief Information Officer'),
-      ('CSO', 'Chief Security Officer'),
-      ('Other', 'Other'),
-   ]
-    full_name=models.CharField(max_length=100)
-    designation=models.CharField(max_length=100,choices=DESIGNATION_CHOICES)
-    mobile_no=models.CharField(max_length=15)
-    alternate_no=models.CharField(max_length=15,null=True,blank=True)
-    email=models.EmailField()
-    company_name=models.CharField(max_length=100)
-    address=models.CharField(max_length=200)
-    country=models.CharField(max_length=100,default='Nepal',null=True,blank=True)
-    province=models.CharField(max_length=100,null=True,blank=True)
-    municipality=models.CharField(max_length=100,null=True,blank=True)
-    ward=models.CharField(max_length=100,null=True,blank=True)
-    company_website=models.URLField(null=True,blank=True)
-    image=models.FileField(upload_to='wish_and_offers/images',null=True,blank=True)
+        ('CEO', 'Chief Executive Officer'),
+        ('CFO', 'Chief Financial Officer'),
+        ('CTO', 'Chief Technology Officer'),
+        ('CMO', 'Chief Marketing Officer'),
+        ('COO', 'Chief Operating Officer'),
+        ('CIO', 'Chief Information Officer'),
+        ('CSO', 'Chief Security Officer'),
+        ('Other', 'Other'),
+    ]
+    full_name = models.CharField(max_length=100)
+    designation = models.CharField(max_length=100, choices=DESIGNATION_CHOICES)
+    mobile_no = models.CharField(max_length=15)
+    alternate_no = models.CharField(max_length=15, null=True, blank=True)
+    email = models.EmailField()
+    company_name = models.CharField(max_length=100)
+    address = models.CharField(max_length=200)
+    country = models.CharField(max_length=100, default='Nepal', null=True, blank=True)
+    province = models.CharField(max_length=100, null=True, blank=True)
+    municipality = models.CharField(max_length=100, null=True, blank=True)
+    ward = models.CharField(max_length=100, null=True, blank=True)
+    company_website = models.URLField(null=True, blank=True)
+    image = models.FileField(upload_to='wish_and_offers/images', null=True, blank=True)
 
-    def __str__(self):
-        return f'{self.full_name} - {self.company_name}'
-    
+    class Meta:
+        abstract = True
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
@@ -70,10 +70,10 @@ class Wish(Detail):
         ('Service', 'Service'),
     ]
 
-    title=models.CharField(max_length=200,default="")
+    title = models.CharField(max_length=200, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wishes', null=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishes', blank=True, null=True)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='wishes', blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_wishes', blank=True, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='service_wishes', blank=True, null=True)
     status = models.CharField(max_length=10, choices=WISH_STATUS, default='Pending')
     wish_type = models.CharField(max_length=10, choices=WISH_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)

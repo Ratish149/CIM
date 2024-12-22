@@ -53,10 +53,7 @@ INSTALLED_APPS = [
     'business_registration',
     'events',
     'wish_and_offers',
-    'qr_code',
     'corsheaders',
-
-
 ]
 
 MIDDLEWARE = [
