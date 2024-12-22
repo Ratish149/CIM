@@ -2,6 +2,13 @@ from django.db import models
 from difflib import SequenceMatcher
 from accounts.models import CustomUser, Organization
 from events.models import Event
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db import transaction
+
+# Global flag to prevent recursion
+is_handling_signal = False
+is_handling_wish_signal = False
 
 class Detail(models.Model):
     DESIGNATION_CHOICES = [
@@ -78,9 +85,24 @@ class Wish(Detail):
     wish_type = models.CharField(max_length=10, choices=WISH_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    match_percentage = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.title} for {self.event.title if self.event else 'No Event'}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Call the original save method
+        matches = Match.find_matches_for_wish(self.id)
+        highest_score = 0
+        for match, score in matches:
+            if score > highest_score:
+                highest_score = score
+            if score > 80:  # Save match if score is greater than 80%
+                Match.objects.create(wish=self, offer=match.offer, match_percentage=score)
+
+        if highest_score > 80:  # Update match percentage in Wish
+            self.match_percentage = highest_score
+            super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
 
 class Offer(Detail):
     OFFER_STATUS = [
@@ -93,7 +115,7 @@ class Offer(Detail):
         ('Product', 'Product'),
         ('Service', 'Service'),
     ]
-    title=models.CharField(max_length=200,default="")
+    title = models.CharField(max_length=200, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='offers', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
@@ -101,15 +123,31 @@ class Offer(Detail):
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    match_percentage = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.title} for {self.event.title if self.event else 'No Event'}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Call the original save method
+        matches = Match.find_matches_for_offer(self.id)
+        highest_score = 0
+        for match, score in matches:
+            if score > highest_score:
+                highest_score = score
+            if score > 80:  # Save match if score is greater than 80%
+                Match.objects.create(wish=match.wish, offer=self, match_percentage=score)
+
+        if highest_score > 80:  # Update match percentage in Offer
+            self.match_percentage = highest_score
+            super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
 
 class Match(models.Model):
     wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches')
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='matches')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    match_percentage = models.FloatField(default=0)
 
     def __str__(self):
         return f"Match: {self.wish.full_name} with {self.offer.full_name}"
@@ -132,10 +170,13 @@ class Match(models.Model):
         if (wish.product and offer.product and wish.product == offer.product) or \
            (wish.service and offer.service and wish.service == offer.service):
             score += weights['exact_match']
+        
         # Check for category match
-        elif (wish.product and offer.product and wish.product.category and offer.product.category and 
+        elif (wish.product and offer.product and 
+              wish.product.category and offer.product.category and 
               wish.product.category == offer.product.category) or \
-             (wish.service and offer.service and wish.service.category and offer.service.category and 
+             (wish.service and offer.service and 
+              wish.service.category and offer.service.category and 
               wish.service.category == offer.service.category):
             score += weights['category_match']
 
@@ -147,7 +188,7 @@ class Match(models.Model):
         max_score += weights['title_similarity']
 
         # Calculate percentage
-        percentage_score = (score / max_score) * 100
+        percentage_score = (score / max_score) * 100 if max_score > 0 else 0
 
         return round(percentage_score, 2)
 

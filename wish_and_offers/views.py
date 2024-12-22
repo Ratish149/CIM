@@ -10,9 +10,10 @@ class WishListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         event_id = self.kwargs.get('event_id')
+        queryset = Wish.objects.all()
         if event_id:
-            return Wish.objects.filter(event_id=event_id)
-        return Wish.objects.all()
+            queryset = queryset.filter(event_id=event_id)
+        return queryset.order_by('created_at')  # Specify the ordering here
 
     def perform_create(self, serializer):
         event_id = self.kwargs.get('event_id')
@@ -27,13 +28,12 @@ class WishRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class OfferListCreateView(generics.ListCreateAPIView):
     serializer_class = OfferSerializer
 
-
     def get_queryset(self):
         event_id = self.kwargs.get('event_id')
+        queryset = Offer.objects.all()
         if event_id:
-            return Offer.objects.filter(event_id=event_id)
-        return Offer.objects.all()
-
+            queryset = queryset.filter(event_id=event_id)
+        return queryset.order_by('created_at')  # Specify the ordering here
     def perform_create(self, serializer):
         event_id = self.kwargs.get('event_id')
         event = Event.objects.get(pk=event_id) if event_id else None
