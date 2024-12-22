@@ -3,6 +3,8 @@ from difflib import SequenceMatcher
 from accounts.models import CustomUser, Organization
 from events.models import Event
 
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()

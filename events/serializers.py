@@ -54,8 +54,13 @@ class EventDetailSerializer(serializers.ModelSerializer):
     offers = OfferSmallSerializer(many=True, read_only=True)
     sponsors = SponsorSerializer(many=True, read_only=True)
     agenda_items = AgendaItemSerializer(many=True, read_only=True)
+    attendees_count = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'location', 'organizer', 
-                  'attendees', 'sponsors', 'agenda_items', 'created_at', 'updated_at', 'thumbnail','wishes','offers','slug']
+        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'location', 'organizer', 'attendees_count',
+                  'attendees', 'sponsors', 'agenda_items', 'created_at', 'updated_at', 'thumbnail','wishes','offers','slug','tags']
+    
+    def get_attendees_count(self, obj):
+        return obj.attendees.count()
