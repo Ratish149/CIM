@@ -24,22 +24,20 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'image', 'category']
 
 class WishSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
     product = ProductSerializer(read_only=True)
     service = ServiceSerializer(read_only=True)
 
     class Meta:
         model = Wish
-        fields = ['id', 'title', 'user', 'event', 'product', 'service', 'status', 'wish_type', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'event', 'product', 'service', 'status', 'wish_type', 'created_at', 'updated_at']
 
 class OfferSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
     product = ProductSerializer(read_only=True)
     service = ServiceSerializer(read_only=True)
 
     class Meta:
         model = Offer
-        fields = ['id', 'title', 'user', 'event', 'product', 'service', 'status', 'offer_type', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'event', 'product', 'service', 'status', 'offer_type', 'created_at', 'updated_at']
 
 
 class WishSmallSerializer(serializers.ModelSerializer):

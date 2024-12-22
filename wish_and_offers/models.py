@@ -3,8 +3,34 @@ from difflib import SequenceMatcher
 from accounts.models import CustomUser, Organization
 from events.models import Event
 
+class Detail(models.Model):
+    DESIGNATION_CHOICES = [
+      ('CEO', 'Chief Executive Officer'),
+      ('CFO', 'Chief Financial Officer'),
+      ('CTO', 'Chief Technology Officer'),
+      ('CMO', 'Chief Marketing Officer'),
+      ('COO', 'Chief Operating Officer'),
+      ('CIO', 'Chief Information Officer'),
+      ('CSO', 'Chief Security Officer'),
+      ('Other', 'Other'),
+   ]
+    full_name=models.CharField(max_length=100)
+    designation=models.CharField(max_length=100,choices=DESIGNATION_CHOICES)
+    mobile_no=models.CharField(max_length=15)
+    alternate_no=models.CharField(max_length=15,null=True,blank=True)
+    email=models.EmailField()
+    company_name=models.CharField(max_length=100)
+    address=models.CharField(max_length=200)
+    country=models.CharField(max_length=100,default='Nepal',null=True,blank=True)
+    province=models.CharField(max_length=100,null=True,blank=True)
+    municipality=models.CharField(max_length=100,null=True,blank=True)
+    ward=models.CharField(max_length=100,null=True,blank=True)
+    company_website=models.URLField(null=True,blank=True)
+    image=models.FileField(upload_to='wish_and_offers/images',null=True,blank=True)
 
-
+    def __str__(self):
+        return f'{self.full_name} - {self.company_name}'
+    
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
@@ -32,7 +58,7 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
-class Wish(models.Model):
+class Wish(Detail):
     WISH_STATUS = [
         ('Pending', 'Pending'),
         ('Accepted', 'Accepted'),
@@ -45,7 +71,6 @@ class Wish(models.Model):
     ]
 
     title=models.CharField(max_length=200,default="")
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='wishes')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wishes', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishes', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='wishes', blank=True, null=True)
@@ -55,9 +80,9 @@ class Wish(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title} Wish by {self.user.username} for {self.event.title if self.event else 'No Event'}"
+        return f"{self.title} for {self.event.title if self.event else 'No Event'}"
 
-class Offer(models.Model):
+class Offer(Detail):
     OFFER_STATUS = [
         ('Pending', 'Pending'),
         ('Accepted', 'Accepted'),
@@ -69,26 +94,25 @@ class Offer(models.Model):
         ('Service', 'Service'),
     ]
     title=models.CharField(max_length=200,default="")
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='offers')
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='offers', null=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='offers1', null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers2', blank=True, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers3', blank=True, null=True)
     status = models.CharField(max_length=10, choices=OFFER_STATUS, default='Pending')
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title} Offer by {self.user.username} for {self.event.title if self.event else 'No Event'}"
+        return f"{self.title} for {self.event.title if self.event else 'No Event'}"
 
 class Match(models.Model):
-    wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches')
+    wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches1')
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='matches')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Match: {self.wish.user.username} with {self.offer.user.username}"
+        return f"Match: {self.wish.full_name} with {self.offer.full_name}"
 
     @staticmethod
     def are_titles_similar(title1, title2, threshold=0.6):
