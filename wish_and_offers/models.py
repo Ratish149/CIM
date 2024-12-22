@@ -94,9 +94,9 @@ class Offer(Detail):
         ('Service', 'Service'),
     ]
     title=models.CharField(max_length=200,default="")
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='offers1', null=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers2', blank=True, null=True)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers3', blank=True, null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='offers', null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     status = models.CharField(max_length=10, choices=OFFER_STATUS, default='Pending')
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -106,7 +106,7 @@ class Offer(Detail):
         return f"{self.title} for {self.event.title if self.event else 'No Event'}"
 
 class Match(models.Model):
-    wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches1')
+    wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches')
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='matches')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
