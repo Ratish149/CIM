@@ -24,4 +24,7 @@ urlpatterns = [
 
     path('matches/', MatchListView.as_view(), name='match-list'),  # URL for listing matches
 
+    path('wishes/<int:pk>/matched-offers/', WishRetrieveUpdateDestroyView.as_view(), name='matched-offers'),
+    path('offers/<int:pk>/matched-wishes/', OfferRetrieveUpdateDestroyView.as_view(), name='matched-wishes'),
+
 ]

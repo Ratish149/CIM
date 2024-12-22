@@ -4,6 +4,8 @@ from rest_framework import generics, permissions
 from .models import Wish, Offer, Match
 from .serializers import WishSerializer, OfferSerializer, MatchSerializer
 from events.models import Event
+from rest_framework.response import Response
+from rest_framework import status
 
 class WishListCreateView(generics.ListCreateAPIView):
     serializer_class = WishSerializer
@@ -22,7 +24,13 @@ class WishListCreateView(generics.ListCreateAPIView):
 class WishRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Wish.objects.all()
     serializer_class = WishSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        wish_id = self.kwargs.get('pk')  # Get the wish ID from the URL
+        matched_offers = Match.objects.filter(wish_id=wish_id)  # Fetch matches related to the wish
+        serializer = MatchSerializer(matched_offers, many=True)  # Serialize the matched offers
+        return Response(serializer.data)  # Return the serialized data
+
 
 class OfferListCreateView(generics.ListCreateAPIView):
     serializer_class = OfferSerializer
@@ -41,8 +49,14 @@ class OfferListCreateView(generics.ListCreateAPIView):
 class OfferRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        offer_id = self.kwargs.get('pk')  # Get the offer ID from the URL
+        matched_wishes = Match.objects.filter(offer_id=offer_id)  # Fetch matches related to the offer
+        serializer = MatchSerializer(matched_wishes, many=True)  # Serialize the matched wishes
+        return Response(serializer.data)  # Return the serialized data
+
 
 class MatchListView(generics.ListAPIView):
-    queryset = Match.objects.all()  # Get all matches
+    queryset = Match.objects.all().order_by('id')  # Order by a specific field, e.g., 'id'
     serializer_class = MatchSerializer  # Use the MatchSerializer
