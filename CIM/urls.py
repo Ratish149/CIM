@@ -28,4 +28,5 @@ urlpatterns = [
     path('api/business_registration/',include('business_registration.urls')),
     path('api/events/',include('events.urls')),
     path('api/wish_and_offers/',include('wish_and_offers.urls')),
+    path('api/contact/',include('contact.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Add this line
