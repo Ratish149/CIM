@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'business_registration',
     'events',
     'wish_and_offers',
+    'contact',
     'corsheaders',
 ]
 
