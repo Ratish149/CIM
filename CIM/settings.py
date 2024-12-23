@@ -30,8 +30,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-   'http://79fa-103-163-182-23.ngrok-free.app',
-   'https://79fa-103-163-182-23.ngrok-free.app',  # Added HTTP version just in case
+   'http://22a5-103-156-26-69.ngrok-free.app',
+   'https://22a5-103-156-26-69.ngrok-free.app',  # Added HTTP version just in case
    'http://127.0.0.1'   
 ]
 # Application definition

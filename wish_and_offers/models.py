@@ -5,6 +5,9 @@ from events.models import Event
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import transaction
+from django.core.mail import send_mail  # Import send_mail for sending emails
+from django.template.loader import render_to_string  # Import for rendering email templates
+from django.utils.html import strip_tags  # Import for stripping HTML tags
 
 # Global flag to prevent recursion
 is_handling_signal = False
@@ -103,6 +106,7 @@ class Wish(Detail):
                 highest_score = score
             if score > 80:  # Save match if score is greater than 80%
                 Match.objects.create(wish=self, offer=match.offer, match_percentage=score)
+                self.send_match_email(self, match.offer)  # Send email notification
 
         if highest_score > 80:  # Update match percentage in Wish
             self.match_percentage = highest_score
@@ -116,6 +120,15 @@ class Wish(Detail):
             if score > self.match_percentage:
                 self.match_percentage = score
                 self.save(update_fields=['match_percentage'])  # Update the match_percentage field
+
+    def send_match_email(self, wish, offer):
+        subject = "Your Wish has been Matched!"
+        html_message = render_to_string('email_templates/match_notification.html', {'wish': wish, 'offer': offer})
+        plain_message = strip_tags(html_message)
+        from_email = 'your_email@example.com'  # Replace with your email
+        recipient_list = [wish.email, offer.email]  # Assuming both Wish and Offer have an email field
+
+        send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
 
 class Offer(Detail):
     OFFER_STATUS = [
@@ -154,6 +167,7 @@ class Offer(Detail):
                 highest_score = score
             if score > 80:  # Save match if score is greater than 80%
                 Match.objects.create(wish=match.wish, offer=self, match_percentage=score)
+                self.send_match_email(match.wish, self)  # Send email notification
 
         if highest_score > 80:  # Update match percentage in Offer
             self.match_percentage = highest_score
@@ -167,6 +181,15 @@ class Offer(Detail):
             if score > self.match_percentage:
                 self.match_percentage = score
                 self.save(update_fields=['match_percentage'])  # Update the match_percentage field
+
+    def send_match_email(self, wish, offer):
+        subject = "Your Offer has been Matched!"
+        html_message = render_to_string('email_templates/match_notification.html', {'wish': wish, 'offer': offer})
+        plain_message = strip_tags(html_message)
+        from_email = 'your_email@example.com'  # Replace with your email
+        recipient_list = [wish.email, offer.email]  # Assuming both Wish and Offer have an email field
+
+        send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
 
 class Match(models.Model):
     wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches')

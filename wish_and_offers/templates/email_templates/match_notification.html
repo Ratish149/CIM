@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        p {
+            color: #555;
+            line-height: 1.5;
+        }
+        .highlight {
+            color: #007BFF;
+            font-weight: bold;
+        }
+        .details {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .details p {
+            margin: 5px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .divider {
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Congratulations!</h1>
+        <p>Your <span class="highlight">{{ offer.title }}</span> has been matched with a wish for <span class="highlight">{{ wish.title }}</span>.</p>
+        <div class="divider"></div>
+        <p>Details:</p>
+        <div class="details">
+            <p><strong>Wish:</strong> {{ wish.full_name }} ({{ wish.designation }})</p>
+            <p><strong>Mobile:</strong> {{ wish.mobile_no }}</p>
+            <p><strong>Email:</strong> {{ wish.email }}</p>
+            <p><strong>Company:</strong> {{ wish.company_name }}</p>
+        </div>
+        <div class="details">
+            <p><strong>Offer:</strong> {{ offer.full_name }} ({{ offer.designation }})</p>
+            <p><strong>Mobile:</strong> {{ offer.mobile_no }}</p>
+            <p><strong>Email:</strong> {{ offer.email }}</p>
+            <p><strong>Company:</strong> {{ offer.company_name }}</p>
+        </div>
+        <p>Thank you for using our service!</p>
+    </div>
+    <div class="footer">
+        <p>&copy; {{ current_year }} B2B. All rights reserved.</p>
+    </div>
+</body>
+</html>
