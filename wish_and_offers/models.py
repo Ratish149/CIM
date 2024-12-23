@@ -51,7 +51,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    hs_code = models.CharField(max_length=20, unique=True)
+    hs_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
     description = models.TextField()
     image = models.FileField(upload_to='product_images/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
@@ -88,7 +88,7 @@ class Wish(Detail):
     wish_type = models.CharField(max_length=10, choices=WISH_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    match_percentage = models.FloatField(default=0)
+    match_percentage = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.title} for {self.event.title if self.event else 'No Event'}"
@@ -108,9 +108,20 @@ class Wish(Detail):
                 Match.objects.create(wish=self, offer=match.offer, match_percentage=score)
                 self.send_match_email(self, match.offer)  # Send email notification
 
+                # Update the offer's match_percentage if the score is greater
+                if score > match.offer.match_percentage:
+                    match.offer.match_percentage = score
+                    match.offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the offer
+
         if highest_score > 80:  # Update match percentage in Wish
             self.match_percentage = highest_score
             super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
+
+            # Update the offer's match_percentage if the highest score is greater
+            for match, score in matches:
+                if score == highest_score:
+                    match.offer.match_percentage = highest_score
+                    match.offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the offer
 
     def update_highest_match_percentage(self):
         # Check for all offers to see if any has a higher match percentage
@@ -120,6 +131,11 @@ class Wish(Detail):
             if score > self.match_percentage:
                 self.match_percentage = score
                 self.save(update_fields=['match_percentage'])  # Update the match_percentage field
+                
+                # Update the offer's match_percentage if the score is greater
+                if score > offer.match_percentage:
+                    offer.match_percentage = score
+                    offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the offer
 
     def send_match_email(self, wish, offer):
         subject = "Your Wish has been Matched!"
@@ -149,7 +165,7 @@ class Offer(Detail):
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    match_percentage = models.FloatField(default=0)
+    match_percentage = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.title} for {self.event.title if self.event else 'No Event'}"
@@ -169,9 +185,20 @@ class Offer(Detail):
                 Match.objects.create(wish=match.wish, offer=self, match_percentage=score)
                 self.send_match_email(match.wish, self)  # Send email notification
 
+                # Update the wish's match_percentage if the score is greater
+                if score > match.wish.match_percentage:
+                    match.wish.match_percentage = score
+                    match.wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the wish
+
         if highest_score > 80:  # Update match percentage in Offer
             self.match_percentage = highest_score
             super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
+
+            # Update the wish's match_percentage if the highest score is greater
+            for match, score in matches:
+                if score == highest_score:
+                    match.wish.match_percentage = highest_score
+                    match.wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the wish
 
     def update_highest_match_percentage(self):
         # Check for all wishes to see if any has a higher match percentage
@@ -181,6 +208,11 @@ class Offer(Detail):
             if score > self.match_percentage:
                 self.match_percentage = score
                 self.save(update_fields=['match_percentage'])  # Update the match_percentage field
+                
+                # Update the wish's match_percentage if the score is greater
+                if score > wish.match_percentage:
+                    wish.match_percentage = score
+                    wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the wish
 
     def send_match_email(self, wish, offer):
         subject = "Your Offer has been Matched!"
@@ -196,7 +228,7 @@ class Match(models.Model):
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='matches')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    match_percentage = models.FloatField(default=0)
+    match_percentage = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Match: {self.wish.full_name} with {self.offer.full_name}"
@@ -237,10 +269,9 @@ class Match(models.Model):
         max_score += weights['title_similarity']
 
         # Calculate percentage
-        percentage_score = (score / max_score) * 100 if max_score > 0 else 0
+        percentage_score = round((score / max_score) * 100) if max_score > 0 else 0
 
-        return round(percentage_score, 2)
-
+        return percentage_score  # Return as an integer
     @classmethod
     def find_matches(cls):
         matches = []

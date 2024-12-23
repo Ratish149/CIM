@@ -6,7 +6,10 @@ from .views import (
     WishRetrieveUpdateDestroyView,
     OfferListCreateView,
     OfferRetrieveUpdateDestroyView,
-    MatchListView
+    MatchListView,
+    ProductListCreateView,
+    ServiceListCreateView,
+    CategoryListView
 )
 
 urlpatterns = [
@@ -19,12 +22,18 @@ urlpatterns = [
     path('offers/<int:pk>/', OfferRetrieveUpdateDestroyView.as_view(), name='offer-retrieve-update-destroy'),
     
     # Event-specific Wish and Offer URLs
-    path('events/<int:event_id>/wishes/', WishListCreateView.as_view(), name='event-wish-list-create'),
-    path('events/<int:event_id>/offers/', OfferListCreateView.as_view(), name='event-offer-list-create'),
+    path('events/<slug:event_slug>/wishes/', WishListCreateView.as_view(), name='wish-list-create'),
+    path('events/<slug:event_slug>/wishes/<int:pk>/', WishRetrieveUpdateDestroyView.as_view(), name='wish-detail'),
+    path('events/<slug:event_slug>/offers/', OfferListCreateView.as_view(), name='offer-list-create'),
+    path('events/<slug:event_slug>/offers/<int:pk>/', OfferRetrieveUpdateDestroyView.as_view(), name='offer-detail'),
 
     path('matches/', MatchListView.as_view(), name='match-list'),  # URL for listing matches
 
     path('wishes/<int:pk>/matched-offers/', WishRetrieveUpdateDestroyView.as_view(), name='matched-offers'),
     path('offers/<int:pk>/matched-wishes/', OfferRetrieveUpdateDestroyView.as_view(), name='matched-wishes'),
+
+    path('products/', ProductListCreateView.as_view(), name='product-list-create'),  # Updated URL for listing and creating products
+    path('services/', ServiceListCreateView.as_view(), name='service-list-create'),  # Updated URL for listing and creating services
+    path('categories/', CategoryListView.as_view(), name='category-list'),  # New URL for listing categories
 
 ]
