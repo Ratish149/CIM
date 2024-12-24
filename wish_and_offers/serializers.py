@@ -51,9 +51,43 @@ class OfferSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
 
+class WishWithOffersSerializer(serializers.ModelSerializer):
+    offers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Wish
+        fields = ['id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
+                  'email', 'company_name', 'address', 'country', 'province',
+                  'municipality', 'ward', 'company_website', 'image',
+                  'title', 'event', 'product', 'service', 'status', 
+                  'wish_type', 'match_percentage', 'created_at', 'updated_at', 'offers']
+
+    def get_offers(self, obj):
+        # Retrieve offers related to this wish through the Match model
+        matches = Match.objects.filter(wish=obj)
+        offers = [match.offer for match in matches]
+        return OfferSerializer(offers, many=True).data
+
+class OfferWithWishesSerializer(serializers.ModelSerializer):
+    wishes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Offer
+        fields = ['id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
+                  'email', 'company_name', 'address', 'country', 'province',
+                  'municipality', 'ward', 'company_website', 'image',
+                  'title', 'event', 'product', 'service', 'status', 
+                  'offer_type', 'match_percentage', 'created_at', 'updated_at', 'wishes']
+
+    def get_wishes(self, obj):
+        # Retrieve wishes related to this offer through the Match model
+        matches = Match.objects.filter(offer=obj)
+        wishes = [match.wish for match in matches]
+        return WishSerializer(wishes, many=True).data
+
 class MatchSerializer(serializers.ModelSerializer):
-    wish = WishSerializer(read_only=True)
-    offer = OfferSerializer(read_only=True)
+    wish = WishWithOffersSerializer(read_only=True)
+    offer = OfferWithWishesSerializer(read_only=True)
 
     class Meta:
         model = Match

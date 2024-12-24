@@ -2,7 +2,7 @@
 
 from rest_framework import generics, permissions
 from .models import Wish, Offer, Match, Product, Service, Category
-from .serializers import WishSerializer, OfferSerializer, MatchSerializer, ProductSerializer, ServiceSerializer, CategorySerializer
+from .serializers import WishSerializer, OfferSerializer, MatchSerializer, ProductSerializer, ServiceSerializer, CategorySerializer, WishWithOffersSerializer, OfferWithWishesSerializer
 from events.models import Event
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,9 +27,12 @@ class WishRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         wish_id = self.kwargs.get('pk')
-        matched_offers = Match.objects.filter(wish_id=wish_id)
-        serializer = MatchSerializer(matched_offers, many=True)
-        return Response(serializer.data)
+        # Retrieve the specific wish object
+        wish = self.get_object()  # This will use the default behavior to get the wish by ID
+        # Use the new serializer to get wish with offers
+        wish_serializer = WishWithOffersSerializer(wish)
+        
+        return Response(wish_serializer.data)
 
 
 class OfferListCreateView(generics.ListCreateAPIView):
@@ -52,9 +55,12 @@ class OfferRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         offer_id = self.kwargs.get('pk')
-        matched_wishes = Match.objects.filter(offer_id=offer_id)
-        serializer = MatchSerializer(matched_wishes, many=True)
-        return Response(serializer.data)
+        # Retrieve the specific offer object
+        offer = self.get_object()  # This will use the default behavior to get the offer by ID
+        # Use the new serializer to get offer with wishes
+        offer_serializer = OfferWithWishesSerializer(offer)
+        
+        return Response(offer_serializer.data)
 
 
 class MatchListView(generics.ListAPIView):
