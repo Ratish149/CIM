@@ -13,6 +13,7 @@ class Contact(models.Model):
     
 class Newsletter(models.Model):
     email = models.EmailField()
+    subscribed=models.BooleanField(default=True)
 
     def __str__(self):
         return self.email
