@@ -32,3 +32,13 @@ class NewsletterView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UnsubscribeAPIView(APIView):
+    def post(self, request, email):
+        try:
+            newsletter = Newsletter.objects.get(email=email)
+            newsletter.subscribed = False
+            newsletter.save()
+            return Response({"message": "Successfully unsubscribed."}, status=status.HTTP_200_OK)
+        except Newsletter.DoesNotExist:
+            return Response({"error": "Email not found."}, status=status.HTTP_404_NOT_FOUND)
