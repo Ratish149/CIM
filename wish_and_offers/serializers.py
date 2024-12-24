@@ -33,7 +33,7 @@ class WishSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
             'email', 'company_name', 'address', 'country', 'province',
             'municipality', 'ward', 'company_website', 'image',
-            'title', 'event', 'product', 'service', 'status', 'wish_type',
+            'title', 'event', 'product', 'service', 'status', 'wish_type','match_percentage',
             'created_at', 'updated_at'
         ]
 
@@ -47,7 +47,7 @@ class OfferSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
             'email', 'company_name', 'address', 'country', 'province',
             'municipality', 'ward', 'company_website', 'image',
-            'title', 'event', 'product', 'service', 'status', 'offer_type',
+            'title', 'event', 'product', 'service', 'status', 'offer_type','match_percentage',
             'created_at', 'updated_at'
         ]
 
