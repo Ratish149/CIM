@@ -61,6 +61,17 @@ class MatchListView(generics.ListAPIView):
     queryset = Match.objects.all().order_by('id')
     serializer_class = MatchSerializer
 
+    def get_queryset(self):
+        wish_id = self.request.query_params.get('wish_id')
+        offer_id = self.request.query_params.get('offer_id')
+        
+        if wish_id:
+            return Match.objects.filter(wish_id=wish_id).order_by('id')
+        elif offer_id:
+            return Match.objects.filter(offer_id=offer_id).order_by('id')
+        
+        return super().get_queryset()  # Return all matches if no filters are applied
+
 class ProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.all().order_by('name')
     serializer_class = ProductSerializer

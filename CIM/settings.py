@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'events',
     'wish_and_offers',
     'contact',
+    'bds_service',
     'corsheaders',
 ]
 
