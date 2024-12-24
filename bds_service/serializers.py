@@ -12,6 +12,9 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BDSServiceSerializer(serializers.ModelSerializer):
+    category = BDSCategorySerializer()
+    tags = TagsSerializer(many=True)
+
     class Meta:
         model = BDSService
         fields = '__all__'
