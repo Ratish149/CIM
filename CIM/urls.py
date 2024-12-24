@@ -30,4 +30,5 @@ urlpatterns = [
     path('api/wish_and_offers/',include('wish_and_offers.urls')),
     path('api/contact/',include('contact.urls')),
     path('api/bds/',include('bds_service.urls')),
+    path('api/business_information/',include('business_information.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Add this line
