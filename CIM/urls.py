@@ -32,4 +32,3 @@ urlpatterns = [
     path('api/bds/',include('bds_service.urls')),
     path('api/business_information/',include('business_information.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)  # Add this line
