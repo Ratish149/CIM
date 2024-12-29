@@ -6,7 +6,7 @@ from .serializers import (
 )
 
 class EventListCreateView(generics.ListCreateAPIView):
-    queryset = Event.objects.all().order_by('-created_at')
+    queryset = Event.objects.filter(status='Published').order_by('-created_at')
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
@@ -16,6 +16,17 @@ class EventListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(organizer=self.request.user)
+class GetFeaturedEvents(generics.ListAPIView):
+    serializer_class = EventListSerializer
+
+    def get_queryset(self):
+        return Event.objects.filter(status='Published', is_featured=True).order_by('-created_at')
+
+class GetPopularEvents(generics.ListAPIView):
+    serializer_class = EventListSerializer
+
+    def get_queryset(self):
+        return Event.objects.filter(status='Published', is_popular=True).order_by('-created_at')
 
 class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
@@ -76,3 +87,4 @@ class AgendaItemRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
 
     def get_queryset(self):
         return AgendaItem.objects.filter(event_id=self.kwargs['event_id'])
+
