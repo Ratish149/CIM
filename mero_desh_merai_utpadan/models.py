@@ -50,6 +50,12 @@ class MeroDeshMeraiUtpadan(models.Model):
     nature_of_industry_category=models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE)
     nature_of_industry_sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE)
     
+    is_other_manufacturing_industries=models.BooleanField(default=False,null=True,blank=True)
+    is_hotel_and_other_service_industries=models.BooleanField(default=False,null=True,blank=True)
+    is_It_service=models.BooleanField(default=False,null=True,blank=True)
+    is_agro_NTFPs=models.BooleanField(default=False,null=True,blank=True)
+    is_others=models.BooleanField(default=False,null=True,blank=True)
+
     product_market=models.CharField(max_length=255,choices=MARKET_CHOICES)
     raw_material=models.CharField(max_length=255,choices=RAW_MATERIAL_CHOICES)
     member_of_cim=models.BooleanField(default=False,null=True,blank=True)
