@@ -19,7 +19,7 @@ class WishListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
         event = Event.objects.get(pk=event_id) if event_id else None
-        wish, matches = serializer.save(event=event)  # Capture the created wish and its matches
+        wish = serializer.save(event=event)  # Capture the created wish and its matches
         
         # Retrieve matches for the created wish
         match_objects = Match.objects.filter(wish=wish)
@@ -54,7 +54,7 @@ class OfferListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
         event = Event.objects.get(pk=event_id) if event_id else None
-        offer, matches = serializer.save(event=event)  # Capture the created offer and its matches
+        offer = serializer.save(event=event)  # Capture the created offer and its matches
         
         # Retrieve matches for the created offer
         match_objects = Match.objects.filter(offer=offer)
