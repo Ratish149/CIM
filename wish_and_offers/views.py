@@ -19,7 +19,14 @@ class WishListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
         event = Event.objects.get(pk=event_id) if event_id else None
-        serializer.save(event=event)
+        wish, matches = serializer.save(event=event)  # Capture the created wish and its matches
+        
+        # Retrieve matches for the created wish
+        match_objects = Match.objects.filter(wish=wish)
+        return Response({
+            'wish': WishWithOffersSerializer(wish).data,
+            'matches': MatchSerializer(match_objects, many=True).data  # Serialize the matches
+        }, status=status.HTTP_201_CREATED)
 
 class WishRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Wish.objects.all()
@@ -47,7 +54,14 @@ class OfferListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
         event = Event.objects.get(pk=event_id) if event_id else None
-        serializer.save(event=event)
+        offer, matches = serializer.save(event=event)  # Capture the created offer and its matches
+        
+        # Retrieve matches for the created offer
+        match_objects = Match.objects.filter(offer=offer)
+        return Response({
+            'offer': OfferWithWishesSerializer(offer).data,
+            'matches': MatchSerializer(match_objects, many=True).data  # Serialize the matches
+        }, status=status.HTTP_201_CREATED)
 
 class OfferRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Offer.objects.all()
