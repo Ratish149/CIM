@@ -11,7 +11,7 @@ class NatureOfIndustrySubCategory(models.Model):
     category=models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE)
     name=models.CharField(max_length=255)
     def __str__(self):
-        return self.name
+        return f'{self.name} - {self.category.name}'
 
 
 class MeroDeshMeraiUtpadan(models.Model):
