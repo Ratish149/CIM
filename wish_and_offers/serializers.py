@@ -1,7 +1,7 @@
 # wish_and_offers/serializers.py
 
 from rest_framework import serializers
-from .models import Wish, Offer, Product, Service, Category, Match
+from .models import Wish, Offer, Product, Service, Category, Match, HSCode
 from accounts.serializers import UserSerializer
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -102,3 +102,16 @@ class OfferSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
         fields = ['id', 'title','product', 'service', 'status', 'offer_type', 'created_at', 'updated_at']
+
+class HSCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HSCode
+        fields = ['id', 'hs_code', 'description']
+
+class HSCodeFileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+
+    def validate_file(self, value):
+        if not value.name.endswith('.csv'):
+            raise serializers.ValidationError("Only CSV files are allowed")
+        return value

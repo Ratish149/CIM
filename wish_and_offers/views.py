@@ -1,11 +1,13 @@
 # wish_and_offers/views.py
 
 from rest_framework import generics, permissions
-from .models import Wish, Offer, Match, Product, Service, Category
-from .serializers import WishSerializer, OfferSerializer, MatchSerializer, ProductSerializer, ServiceSerializer, CategorySerializer, WishWithOffersSerializer, OfferWithWishesSerializer
+from .models import Wish, Offer, Match, Product, Service, Category, HSCode
+from .serializers import WishSerializer, OfferSerializer, MatchSerializer, ProductSerializer, ServiceSerializer, CategorySerializer, WishWithOffersSerializer, OfferWithWishesSerializer, HSCodeSerializer, HSCodeFileUploadSerializer
 from events.models import Event
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
+import csv
 
 class WishListCreateView(generics.ListCreateAPIView):
     serializer_class = WishSerializer
@@ -103,3 +105,52 @@ class ServiceListCreateView(generics.ListCreateAPIView):
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
+
+class HSCodeListView(generics.ListAPIView):
+    queryset = HSCode.objects.all()
+    serializer_class = HSCodeSerializer
+    # search_fields = ['hs_code']
+
+class HSCodeBulkUploadView(APIView):
+    serializer_class = HSCodeFileUploadSerializer
+
+    def post(self, request, *args, **kwargs):
+        csv_file = request.FILES.get('file')
+        if not csv_file:
+            return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Decode the file to a text stream and parse it
+            file_data = csv_file.read().decode('utf-8-sig').splitlines()  # Use 'utf-8-sig' to handle BOM
+            reader = csv.DictReader(file_data)
+            
+            success_count = 0
+            skip_count = 0
+
+            for row in reader:
+                hs_code = row.get('hs_code')
+                description = row.get('description')
+
+                if not hs_code or not description:
+                    skip_count += 1
+                    continue
+
+                if HSCode.objects.filter(hs_code=hs_code, description=description).exists():
+                    skip_count += 1
+                    continue
+
+                try:
+                    HSCode.objects.create(hs_code=hs_code, description=description)
+                    success_count += 1
+                except Exception as e:
+                    skip_count += 1
+                    print(f"Failed to insert row: {row}. Error: {e}")  # Debugging
+
+            return Response({
+                "message": "CSV file data uploaded successfully!",
+                "records_created": success_count,
+                "records_skipped": skip_count
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

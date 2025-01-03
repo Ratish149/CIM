@@ -59,6 +59,13 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name} ({self.hs_code})"
 
+class HSCode(models.Model):
+    hs_code = models.CharField(max_length=20, unique=True)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.hs_code
+
 class Service(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
