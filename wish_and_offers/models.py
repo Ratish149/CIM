@@ -101,27 +101,24 @@ class Wish(Detail):
     def update_match_percentages(self):
         matches = Match.find_matches_for_wish(self.id)
         highest_score = 0
+        highest_offer = None
+
         for match, score in matches:
             if score > highest_score:
                 highest_score = score
-            if score > 80:  # Save match if score is greater than 80%
+                highest_offer = match.offer
+
+            if score > 80:  # Only create Match record and send email for scores > 80%
                 Match.objects.create(wish=self, offer=match.offer, match_percentage=score)
                 self.send_match_email(self, match.offer)  # Send email notification
 
-                # Update the offer's match_percentage if the score is greater
-                if score > match.offer.match_percentage:
-                    match.offer.match_percentage = score
-                    match.offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the offer
-
-        if highest_score > 80:  # Update match percentage in Wish
-            self.match_percentage = highest_score
-            super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
-
-            # Update the offer's match_percentage if the highest score is greater
-            for match, score in matches:
-                if score == highest_score:
-                    match.offer.match_percentage = highest_score
-                    match.offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the offer
+        # Update match percentages with the highest score found
+        if highest_offer:
+            highest_offer.match_percentage = highest_score
+            highest_offer.save(update_fields=['match_percentage'])
+        
+        self.match_percentage = highest_score
+        super().save(update_fields=['match_percentage'])
 
     def update_highest_match_percentage(self):
         # Check for all offers to see if any has a higher match percentage
@@ -135,7 +132,7 @@ class Wish(Detail):
                 # Update the offer's match_percentage if the score is greater
                 if score > offer.match_percentage:
                     offer.match_percentage = score
-                    offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the offer
+                    offer.save(update_fields=['match_percentage'])
 
     def send_match_email(self, wish, offer):
         subject = "Your Wish has been Matched!"
@@ -178,27 +175,24 @@ class Offer(Detail):
     def update_match_percentages(self):
         matches = Match.find_matches_for_offer(self.id)
         highest_score = 0
+        highest_wish = None
+
         for match, score in matches:
             if score > highest_score:
                 highest_score = score
-            if score > 80:  # Save match if score is greater than 80%
+                highest_wish = match.wish
+
+            if score > 80:  # Only create Match record and send email for scores > 80%
                 Match.objects.create(wish=match.wish, offer=self, match_percentage=score)
                 self.send_match_email(match.wish, self)  # Send email notification
 
-                # Update the wish's match_percentage if the score is greater
-                if score > match.wish.match_percentage:
-                    match.wish.match_percentage = score
-                    match.wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the wish
-
-        if highest_score > 80:  # Update match percentage in Offer
-            self.match_percentage = highest_score
-            super().save(update_fields=['match_percentage'])  # Save only the match_percentage field
-
-            # Update the wish's match_percentage if the highest score is greater
-            for match, score in matches:
-                if score == highest_score:
-                    match.wish.match_percentage = highest_score
-                    match.wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the wish
+        # Update match percentages with the highest score found
+        if highest_wish:
+            highest_wish.match_percentage = highest_score
+            highest_wish.save(update_fields=['match_percentage'])
+        
+        self.match_percentage = highest_score
+        super().save(update_fields=['match_percentage'])
 
     def update_highest_match_percentage(self):
         # Check for all wishes to see if any has a higher match percentage
