@@ -1,56 +1,54 @@
 from rest_framework import serializers
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import IssueCategory,IssueSubCategory,NatureOfIndustryCategory,NatureOfIndustrySubCategory,Issue
-
-class IssueCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = IssueCategory
-        fields = '__all__'
-
-class IssueSubCategorySerializer(serializers.ModelSerializer):
-    category=IssueCategorySerializer(read_only=True)
-    class Meta:
-        model = IssueSubCategory
-        fields = '__all__'
+from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, Issue
 
 class NatureOfIndustryCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = NatureOfIndustryCategory
-        fields = '__all__'
+        fields = ['id', 'name']
 
 class NatureOfIndustrySubCategorySerializer(serializers.ModelSerializer):
-    category=NatureOfIndustryCategorySerializer(read_only=True)
+    category = NatureOfIndustryCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=NatureOfIndustryCategory.objects.all(),
+        source='category',
+        write_only=True
+    )
+
     class Meta:
         model = NatureOfIndustrySubCategory
-        fields = '__all__'
+        fields = ['id', 'name', 'category', 'category_id']
 
 class IssueSerializer(serializers.ModelSerializer):
-    issue_category=serializers.PrimaryKeyRelatedField(queryset=IssueCategory.objects.all(),required=False)
-    
-    issue_sub_category = serializers.PrimaryKeyRelatedField(queryset=IssueSubCategory.objects.all(),required=False)  # For input
-    issue_sub_category_detail = IssueSubCategorySerializer(source='issue_sub_category', read_only=True)  # For output
-    
-    nature_of_industry_category = serializers.PrimaryKeyRelatedField(queryset=NatureOfIndustryCategory.objects.all(), required=True)  # Assuming this is still required
-    nature_of_industry_sub_category = serializers.PrimaryKeyRelatedField(queryset=NatureOfIndustrySubCategory.objects.all(), required=False)  # Set required=False
-    nature_of_industry_sub_category_detail = NatureOfIndustrySubCategorySerializer(source='nature_of_industry_sub_category', read_only=True)  # For output# For output
+    nature_of_industry_category = serializers.PrimaryKeyRelatedField(
+        queryset=NatureOfIndustryCategory.objects.all()
+    )
+    nature_of_industry_sub_category = serializers.PrimaryKeyRelatedField(
+        queryset=NatureOfIndustrySubCategory.objects.all()
+    )
+    nature_of_industry_category_detail = NatureOfIndustryCategorySerializer(
+        source='nature_of_industry_category',
+        read_only=True
+    )
+    nature_of_industry_sub_category_detail = NatureOfIndustrySubCategorySerializer(
+        source='nature_of_industry_sub_category',
+        read_only=True
+    )
+
     class Meta:
         model = Issue
         fields = '__all__'
 
     def create(self, validated_data):
-        # Create the Business_Clinic instance
         issue = Issue.objects.create(**validated_data)
-        print(issue)
-
-        issue.save()
-        # Send confirmation email
-        self.send_confirmation_email(issue)
-
+        
+        if issue.contact_email:
+            self.send_confirmation_email(issue)
+        
         return issue
 
     def send_confirmation_email(self, issue):
-        # Email content
         subject = 'Thank You for Registering Your Issues at CIM Business Clinic'
         message = f"""
 Dear Industrialists,
@@ -68,12 +66,10 @@ Warm regards,
 Chamber of Industries Morang (CIM)
         """
 
-        recipient_list = [issue.contact_email]  # Assuming the model has an 'email' field
-
         send_mail(
             subject,
             message,
             settings.DEFAULT_FROM_EMAIL,
-            recipient_list,
+            [issue.contact_email],
             fail_silently=False,
         )

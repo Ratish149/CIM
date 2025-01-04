@@ -1,82 +1,106 @@
 from django.db import models
 
-# Create your models here.
-
-class IssueCategory(models.Model):
-    name=models.CharField(max_length=255)
-    def __str__(self):
-        return self.name
-    
-class IssueSubCategory(models.Model):
-    category=models.ForeignKey(IssueCategory, on_delete=models.CASCADE)
-    name=models.CharField(max_length=255)
-    def __str__(self):
-        return self.name
-
 class NatureOfIndustryCategory(models.Model):
-    name=models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name_plural = "Nature of Industry Categories"
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
 class NatureOfIndustrySubCategory(models.Model):
-    category=models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE)
-    name=models.CharField(max_length=255)
-    def __str__(self):
-        return self.name
+    category = models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE, related_name='subcategories')
+    name = models.CharField(max_length=255)
 
+    class Meta:
+        verbose_name_plural = "Nature of Industry Sub Categories"
+        ordering = ['category', 'name']
+
+    def __str__(self):
+        return f"{self.category.name} - {self.name}"
 
 class Issue(models.Model):
-    INDUSTRY_CHOICES=(
-        ('Startup','Startup'),
-        ('Micro','Micro'),
-        ('Cottage','Cottage'),
-        ('Small','Small'),
-        ('Medium','Medium'),
-        ('Large','Large'),
+    INDUSTRY_SIZE_CHOICES = [
+        ('Startup', 'Startup'),
+        ('Micro', 'Micro'),
+        ('Cottage', 'Cottage'),
+        ('Small', 'Small'),
+        ('Medium', 'Medium'),
+        ('Large', 'Large'),
+    ]
+    
+    PROGRESS_STATUS_CHOICES = [
+        ('Issue Registered and Documented', 'Issue Registered and Documented'),
+        ('Issue Under Desk Study', 'Issue Under Desk Study'),
+        ('Issue Forwarded to Concerned Department', 'Issue Forwarded to Concerned Department'),
+        ('Issue Solved', 'Issue Solved'),
+        ('Issue Rejected', 'Issue Rejected'),
+    ]
+
+    NATURE_OF_ISSUE_CHOICES = [
+        ('Energy', 'Energy'),
+        ('Human Resources – Labour', 'Human Resources – Labour'),
+        ('Tax & Revenue', 'Tax & Revenue'),
+        ('Bank & Finance', 'Bank & Finance'),
+        ('Export', 'Export'),
+        ('Import Substitution & Domestic Product Promotion', 'Import Substitution & Domestic Product Promotion'),
+        ('Transport & Transit', 'Transport & Transit'),
+        ('Local Government', 'Local Government'),
+        ('Provincial Government', 'Provincial Government'),
+        ('Other', 'Other'),
+    ]
+
+    # Issue Details
+    title = models.CharField(max_length=255, help_text="Brief title of the issue",default='')
+    description = models.TextField(verbose_name="Issue Description",default='')
+    issue_image = models.FileField( null=True, blank=True)
+    
+    # Categorization
+    nature_of_issue = models.CharField(max_length=255,choices=NATURE_OF_ISSUE_CHOICES,default='Other')
+    industry_specific_or_common_issue = models.BooleanField(default=False)
+    policy_related_or_procedural_issue = models.BooleanField(default=False)
+    implementation_level_policy_level_or_capacity_scale = models.BooleanField(default=False)
+    
+    # Industry Information
+    industry_size = models.CharField(max_length=20, choices=INDUSTRY_SIZE_CHOICES,default='Other')
+    nature_of_industry_category = models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE,default=None)
+    nature_of_industry_sub_category = models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE,default=None)
+    
+    # Company Information
+    name_of_company = models.CharField(max_length=255,default='')
+    member_of_CIM = models.BooleanField(default=False)
+    
+    # Address Information
+    address_province = models.CharField(max_length=255,default='')
+    address_district = models.CharField(max_length=255,default='')
+    address_municipality = models.CharField(max_length=255,default='')
+    address_ward = models.CharField(max_length=255,default='')
+    address_street = models.CharField(max_length=255,default='')
+    
+    # Contact Information
+    contact_name = models.CharField(max_length=255,default='')
+    contact_designation = models.CharField(max_length=255,default='')
+    contact_number = models.CharField(max_length=255,default='')
+    contact_alternate_number = models.CharField(max_length=255, blank=True, null=True)
+    contact_email = models.EmailField(blank=True, null=True)
+    
+    # Status and Tracking
+    progress_status = models.CharField(
+        max_length=50,
+        choices=PROGRESS_STATUS_CHOICES,
+        default='Issue Registered and Documented'
     )
-    PROGRESS_STATUS=(
-        ('Issue Registere and documented','Issue Registere and documented'),
-        ('Issue under desk study','Issue under desk study'),
-        ('Issue forwarded to concern department','Issue forwarded to concern department'),
-        ('Issue solve','Issue solve'),
-        ('Issue rejected','Issue rejected'),
-    )
     
-    issue=models.TextField()
-    issue_image=models.ImageField(upload_to='images/',null=True,blank=True)
-    
-    issue_category=models.ForeignKey(IssueCategory, on_delete=models.CASCADE,null=True,blank=True)
-    issue_sub_category=models.ForeignKey(IssueSubCategory, on_delete=models.CASCADE,null=True,blank=True)
-    
-    is_industry_specific=models.BooleanField(default=False,null=True,blank=True)
-    is_common_issue=models.BooleanField(default=False,null=True,blank=True)
-    is_specific_policy_related=models.BooleanField(default=False,null=True,blank=True)
-    is_procedural_hurdle=models.BooleanField(default=False,null=True,blank=True)
-    is_implementation_level=models.BooleanField(default=False,null=True,blank=True)
-    is_policy_level=models.BooleanField(default=False,null=True,blank=True)
-    is_capacity_scaleup_needed=models.BooleanField(default=False,null=True,blank=True)
-    
-    progress_status=models.CharField(max_length=255,choices=PROGRESS_STATUS,null=True,blank=True)
-    name_of_company=models.CharField(max_length=255)
-    address_province=models.CharField(max_length=255)
-    address_district=models.CharField(max_length=255)
-    address_municipality=models.CharField(max_length=255)
-    address_ward=models.CharField(max_length=255)
-    address_street=models.CharField(max_length=255)
-    contact_name=models.CharField(max_length=255)
-    contact_number=models.CharField(max_length=255)
-    contact_designation=models.CharField(max_length=255)    
-    contact_alternate_number=models.CharField(max_length=255,null=True,blank=True)
-    contact_email=models.EmailField(null=True,blank=True)
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    nature_of_industry_category=models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE)
-    nature_of_industry_sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE)
-
-    member_of_CIM=models.BooleanField(default=False,null=True,blank=True)
-
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)
-
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Issue"
+        verbose_name_plural = "Issues"
 
     def __str__(self):
-        return self.name_of_company
+        return f"{self.title} - {self.name_of_company}"
