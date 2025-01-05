@@ -195,8 +195,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'bdevil149@gmail.com'
-EMAIL_HOST_PASSWORD = 'zyif nifs ussp gagm'
+EMAIL_HOST_USER = 'biratexpo2025@gmail.com'
+EMAIL_HOST_PASSWORD = 'bokk emuw glri hybr'
 
 
 TINYMCE_DEFAULT_CONFIG = {
