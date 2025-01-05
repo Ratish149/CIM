@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 import csv
+from rest_framework import filters
 
 class WishListCreateView(generics.ListCreateAPIView):
     serializer_class = WishSerializer
@@ -109,7 +110,20 @@ class CategoryListView(generics.ListAPIView):
 class HSCodeListView(generics.ListAPIView):
     queryset = HSCode.objects.all()
     serializer_class = HSCodeSerializer
-    # search_fields = ['hs_code']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=hs_code', 'description']
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        if not queryset.exists():
+            return Response(
+                {"error": "No matching HS codes found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class HSCodeBulkUploadView(APIView):
     serializer_class = HSCodeFileUploadSerializer
