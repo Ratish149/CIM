@@ -12,6 +12,7 @@ from django.utils.html import strip_tags  # Import for stripping HTML tags
 # Global flag to prevent recursion
 is_handling_signal = False
 is_handling_wish_signal = False
+is_handling_offer_signal = False
 
 class Detail(models.Model):
     DESIGNATION_CHOICES = [
@@ -100,9 +101,17 @@ class Wish(Detail):
         return f"{self.title} for {self.event.title if self.event else 'No Event'}"
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Call the original save method
-        self.update_match_percentages()  # Update match percentages for all offers
-        self.update_highest_match_percentage()  # Check and update highest match percentage for all wishes
+        global is_handling_wish_signal
+        if not is_handling_wish_signal:
+            try:
+                is_handling_wish_signal = True
+                super().save(*args, **kwargs)
+                self.update_match_percentages()
+                self.update_highest_match_percentage()
+            finally:
+                is_handling_wish_signal = False
+        else:
+            super().save(*args, **kwargs)
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_wish(self.id)
@@ -174,9 +183,17 @@ class Offer(Detail):
         return f"{self.title} for {self.event.title if self.event else 'No Event'}"
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Call the original save method
-        self.update_match_percentages()  # Update match percentages for all wishes
-        self.update_highest_match_percentage()  # Check and update highest match percentage for all offers
+        global is_handling_offer_signal
+        if not is_handling_offer_signal:
+            try:
+                is_handling_offer_signal = True
+                super().save(*args, **kwargs)
+                self.update_match_percentages()
+                self.update_highest_match_percentage()
+            finally:
+                is_handling_offer_signal = False
+        else:
+            super().save(*args, **kwargs)
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_offer(self.id)
