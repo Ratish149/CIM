@@ -66,4 +66,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'attendees', 'sponsors', 'agenda_items', 'created_at', 'updated_at', 'thumbnail','wishes','offers','slug','tags']
     
     def get_attendees_count(self, obj):
-        return obj.attendees.count()
+        # Count both Wish and Offer details associated with this event
+        wish_count = obj.wishes.filter(status='Pending').count()
+        offer_count = obj.offers.filter(status='Pending').count()
+        return wish_count + offer_count
