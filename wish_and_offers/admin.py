@@ -1,9 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from .models import Category, Product, Service,Wish,Offer,Match,HSCode
-
 # Register your models here.
-
 admin.site.register(Category,ModelAdmin)
 admin.site.register(Product,ModelAdmin)
 admin.site.register(Service,ModelAdmin)

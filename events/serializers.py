@@ -45,7 +45,10 @@ class EventListSerializer(serializers.ModelSerializer):
                   'attendees_count', 'thumbnail', 'slug', 'sponsor', 'attendees']
 
     def get_attendees_count(self, obj):
-        return obj.attendees.count()
+        # Count both Wish and Offer details associated with this event
+        wish_count = obj.wishes.filter(status='Pending').count()
+        offer_count = obj.offers.filter(status='Pending').count()
+        return wish_count + offer_count
 
 class EventDetailSerializer(serializers.ModelSerializer):
     organizer = UserSerializer(read_only=True)
