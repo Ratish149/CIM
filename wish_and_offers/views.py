@@ -108,10 +108,13 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
 
 class HSCodeListView(generics.ListAPIView):
-    queryset = HSCode.objects.all()
+    queryset = HSCode.objects.all().order_by('hs_code')
     serializer_class = HSCodeSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['=hs_code', 'description']
+    page_size = 10  # Number of items per page
+    page_size_query_param = 'page_size'  # Allow client to override page size
+    max_page_size = 100  # Maximum limit of items per page
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -121,6 +124,11 @@ class HSCodeListView(generics.ListAPIView):
                 {"error": "No matching HS codes found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
