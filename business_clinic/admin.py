@@ -21,16 +21,17 @@ class IssueAdmin(ModelAdmin):
         'nature_of_issue',
         'industry_size',
         'progress_status',
-        'created_at'
+        'share_contact_details',
+        'forward_to_authority',
+        'implementation_level',
     ]
     list_filter = [
-        'nature_of_issue',
-        'industry_size',
         'progress_status',
-        'member_of_CIM',
+        'share_contact_details',
+        'forward_to_authority',
+        'implementation_level',
         'industry_specific_or_common_issue',
         'policy_related_or_procedural_issue',
-        'implementation_level_policy_level_or_capacity_scale'
     ]
     search_fields = [
         'title',
@@ -47,7 +48,7 @@ class IssueAdmin(ModelAdmin):
                 'nature_of_issue',
                 'industry_specific_or_common_issue',
                 'policy_related_or_procedural_issue',
-                'implementation_level_policy_level_or_capacity_scale'
+                'implementation_level'
             )
         }),
         ('Industry Information', {

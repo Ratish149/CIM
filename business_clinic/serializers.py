@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from django.core.mail import send_mail
+from django.core.mail import send_mail,EmailMessage
 from django.conf import settings
-from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, Issue
+from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, Issue, IssueAction
 
 class NatureOfIndustryCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,6 +20,14 @@ class NatureOfIndustrySubCategorySerializer(serializers.ModelSerializer):
         model = NatureOfIndustrySubCategory
         fields = ['id', 'name', 'category', 'category_id']
 
+class IssueActionSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
+
+    class Meta:
+        model = IssueAction
+        fields = '__all__'
+        read_only_fields = ('created_at', 'created_by')
+
 class IssueSerializer(serializers.ModelSerializer):
     nature_of_industry_category = serializers.PrimaryKeyRelatedField(
         queryset=NatureOfIndustryCategory.objects.all()
@@ -35,6 +43,7 @@ class IssueSerializer(serializers.ModelSerializer):
         source='nature_of_industry_sub_category',
         read_only=True
     )
+    actions = IssueActionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Issue
@@ -51,25 +60,26 @@ class IssueSerializer(serializers.ModelSerializer):
     def send_confirmation_email(self, issue):
         subject = 'Thank You for Registering Your Issues at CIM Business Clinic'
         message = f"""
-Dear Industrialists,
+        Dear Industrialists,
 
-Namaste.
+        Namaste.
+        Thank you for registering your issues at the CIM Business Clinic. The CIM Business Clinic is a systematic policy advocacy framework of the Chamber of Industries Morang (CIM).
 
-Thank you for registering your issues at the CIM Business Clinic. The CIM Business Clinic is a systematic policy advocacy framework of the Chamber of Industries Morang (CIM).
+        We take your concerns seriously and will conduct thorough research to address them. Your issues will be forwarded to the relevant departments for necessary action. We will keep you updated on the progress.
 
-We take your concerns seriously and will conduct thorough research to address them. Your issues will be forwarded to the relevant departments for necessary action. We will keep you updated on the progress.
+        The information you have provided serves as vital input for CIM's policy advocacy campaign. Together, we can create a better economic environment.
+        Thank you for your continued support and collaboration.
 
-The information you have provided serves as vital input for CIM's policy advocacy campaign. Together, we can create a better economic environment.
-Thank you for your continued support and collaboration.
+        Tracking ID: {issue.id}
 
-Warm regards,
-Chamber of Industries Morang (CIM)
+        Warm regards,
+        Chamber of Industries Morang (CIM)
         """
 
-        send_mail(
+        EmailMessage(
             subject,
             message,
             settings.DEFAULT_FROM_EMAIL,
             [issue.contact_email],
-            fail_silently=False,
-        )
+            reply_to=["biratexpo2024@gmail.com"],
+        ).send()

@@ -4,6 +4,8 @@ from .views import (
     NatureOfIndustrySubCategoryListCreateView,
     IssueListCreateView,
     IssueDetailView,
+    IssueActionViewSet,
+    issue_statistics,
 )
 
 urlpatterns = [
@@ -22,4 +24,10 @@ urlpatterns = [
     path('issues/<int:pk>/', 
          IssueDetailView.as_view(), 
          name='issue-detail'),
+    
+    path('issues/<int:issue_pk>/actions/', 
+         IssueActionViewSet.as_view(), 
+         name='issue-actions'),
+    
+    path('issues/statistics/', issue_statistics, name='issue-statistics'),
 ]
