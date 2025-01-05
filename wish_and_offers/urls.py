@@ -7,7 +7,6 @@ from .views import (
     OfferListCreateView,
     OfferRetrieveUpdateDestroyView,
     MatchListView,
-    ProductListCreateView,
     ServiceListCreateView,
     CategoryListView,
     HSCodeListView,
@@ -31,12 +30,8 @@ urlpatterns = [
 
     path('matches/', MatchListView.as_view(), name='match-list'),  # URL for listing matches
 
-    path('wishes/<int:pk>/matched-offers/', WishRetrieveUpdateDestroyView.as_view(), name='matched-offers'),
-    path('offers/<int:pk>/matched-wishes/', OfferRetrieveUpdateDestroyView.as_view(), name='matched-wishes'),
-
-    path('products/', ProductListCreateView.as_view(), name='product-list-create'),  # Updated URL for listing and creating products
-    path('services/', ServiceListCreateView.as_view(), name='service-list-create'),  # Updated URL for listing and creating services
-    path('categories/', CategoryListView.as_view(), name='category-list'),  # New URL for listing categories
+    path('services/', ServiceListCreateView.as_view(), name='service-list-create'),
+    path('categories/', CategoryListView.as_view(), name='category-list'),
 
     path('hs-codes/', HSCodeListView.as_view(), name='hs-code-list'),
     path('hs-codes/upload/', HSCodeBulkUploadView.as_view(), name='hs-code-upload'),

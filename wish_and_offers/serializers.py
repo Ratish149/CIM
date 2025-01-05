@@ -1,20 +1,18 @@
 # wish_and_offers/serializers.py
 
 from rest_framework import serializers
-from .models import Wish, Offer, Product, Service, Category, Match, HSCode
+from .models import Wish, Offer, Service, Category, Match, HSCode
 from accounts.serializers import UserSerializer
 
+class HSCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HSCode
+        fields = ['id', 'hs_code', 'description']
+        
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'description', 'image']
-
-class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-
-    class Meta:
-        model = Product
-        fields = ['id', 'name', 'hs_code', 'image', 'category']
 
 class ServiceSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
@@ -24,7 +22,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'image', 'category']
 
 class WishSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    product = HSCodeSerializer(read_only=True)
     service = ServiceSerializer(read_only=True)
 
     class Meta:
@@ -33,12 +31,12 @@ class WishSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
             'email', 'company_name', 'address', 'country', 'province',
             'municipality', 'ward', 'company_website', 'image',
-            'title', 'event', 'product', 'service', 'status', 'wish_type','match_percentage',
+            'title', 'event', 'product', 'service', 'status', 'wish_type', 'match_percentage',
             'created_at', 'updated_at'
         ]
 
 class OfferSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    product = HSCodeSerializer(read_only=True)
     service = ServiceSerializer(read_only=True)
 
     class Meta:
@@ -47,7 +45,7 @@ class OfferSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
             'email', 'company_name', 'address', 'country', 'province',
             'municipality', 'ward', 'company_website', 'image',
-            'title', 'event', 'product', 'service', 'status', 'offer_type','match_percentage',
+            'title', 'event', 'product', 'service', 'status', 'offer_type', 'match_percentage',
             'created_at', 'updated_at'
         ]
 
@@ -103,10 +101,6 @@ class OfferSmallSerializer(serializers.ModelSerializer):
         model = Offer
         fields = ['id', 'title','product', 'service', 'status', 'offer_type', 'created_at', 'updated_at']
 
-class HSCodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HSCode
-        fields = ['id', 'hs_code', 'description']
 
 class HSCodeFileUploadSerializer(serializers.Serializer):
     file = serializers.FileField()

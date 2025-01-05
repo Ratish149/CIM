@@ -50,21 +50,12 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-class Product(models.Model):
-    name = models.CharField(max_length=200)
-    hs_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    image = models.FileField(upload_to='product_images/', blank=True, null=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return f"{self.name} ({self.hs_code})"
-
 class HSCode(models.Model):
     hs_code = models.CharField(max_length=20, unique=True)
     description = models.TextField()
 
     def __str__(self):
-        return self.hs_code
+        return f"{self.hs_code} - {self.description[:50]}"
 
 class Service(models.Model):
     name = models.CharField(max_length=200)
@@ -89,7 +80,7 @@ class Wish(Detail):
 
     title = models.CharField(max_length=200, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wishes', null=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_wishes', blank=True, null=True)
+    product = models.ForeignKey(HSCode, on_delete=models.CASCADE, related_name='wishes', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='service_wishes', blank=True, null=True)
     status = models.CharField(max_length=10, choices=WISH_STATUS, default='Pending')
     wish_type = models.CharField(max_length=10, choices=WISH_TYPE, default='Product')
@@ -171,7 +162,7 @@ class Offer(Detail):
     ]
     title = models.CharField(max_length=200, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='offers', null=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
+    product = models.ForeignKey(HSCode, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     status = models.CharField(max_length=10, choices=OFFER_STATUS, default='Pending')
     offer_type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')

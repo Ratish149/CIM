@@ -1,8 +1,18 @@
 # wish_and_offers/views.py
 
 from rest_framework import generics, permissions
-from .models import Wish, Offer, Match, Product, Service, Category, HSCode
-from .serializers import WishSerializer, OfferSerializer, MatchSerializer, ProductSerializer, ServiceSerializer, CategorySerializer, WishWithOffersSerializer, OfferWithWishesSerializer, HSCodeSerializer, HSCodeFileUploadSerializer
+from .models import Wish, Offer, Match, Service, Category, HSCode
+from .serializers import (
+    WishSerializer, 
+    OfferSerializer, 
+    MatchSerializer, 
+    ServiceSerializer, 
+    CategorySerializer, 
+    HSCodeSerializer,
+    WishWithOffersSerializer,
+    OfferWithWishesSerializer,
+    HSCodeFileUploadSerializer
+)
 from events.models import Event
 from rest_framework.response import Response
 from rest_framework import status
@@ -95,10 +105,6 @@ class MatchListView(generics.ListAPIView):
             return Match.objects.filter(offer_id=offer_id).order_by('id')
         
         return super().get_queryset()  # Return all matches if no filters are applied
-
-class ProductListCreateView(generics.ListCreateAPIView):
-    queryset = Product.objects.all().order_by('name')
-    serializer_class = ProductSerializer
 
 class ServiceListCreateView(generics.ListCreateAPIView):
     queryset = Service.objects.all().order_by('name')
