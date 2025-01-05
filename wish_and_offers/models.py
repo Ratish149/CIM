@@ -52,7 +52,6 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200)
     hs_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    description = models.TextField()
     image = models.FileField(upload_to='product_images/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
