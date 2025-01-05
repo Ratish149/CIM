@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 import csv
 from rest_framework import filters
+from django.db.models import Q
 
 class WishListCreateView(generics.ListCreateAPIView):
     serializer_class = WishSerializer
@@ -111,10 +112,27 @@ class HSCodeListView(generics.ListAPIView):
     queryset = HSCode.objects.all().order_by('hs_code')
     serializer_class = HSCodeSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['=hs_code', 'description']
-    page_size = 10  # Number of items per page
-    page_size_query_param = 'page_size'  # Allow client to override page size
-    max_page_size = 100  # Maximum limit of items per page
+    search_fields = ['hs_code', 'description']
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+    def get_queryset(self):
+        queryset = HSCode.objects.all().order_by('hs_code')
+        search_query = self.request.query_params.get('search', None)
+        
+        if search_query:
+            # If the search query contains only numbers, do a prefix search on hs_code
+            if search_query.isdigit():
+                queryset = queryset.filter(hs_code__startswith=search_query)
+            else:
+                # If the search contains text, search in both hs_code and description
+                queryset = queryset.filter(
+                    Q(hs_code__icontains=search_query) |
+                    Q(description__icontains=search_query)
+                )
+        
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

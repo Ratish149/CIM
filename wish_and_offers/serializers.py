@@ -14,14 +14,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'hs_code', 'description', 'image', 'category']
+        fields = ['id', 'name', 'hs_code', 'image', 'category']
 
 class ServiceSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Service
-        fields = ['id', 'name', 'description', 'image', 'category']
+        fields = ['id', 'name', 'image', 'category']
 
 class WishSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
