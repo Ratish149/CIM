@@ -59,7 +59,7 @@ class HSCode(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=200)
-    description = models.TextField()
+
     image = models.FileField(upload_to='service_images/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
@@ -83,7 +83,7 @@ class Wish(Detail):
     product = models.ForeignKey(HSCode, on_delete=models.CASCADE, related_name='wishes', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='service_wishes', blank=True, null=True)
     status = models.CharField(max_length=10, choices=WISH_STATUS, default='Pending')
-    wish_type = models.CharField(max_length=10, choices=WISH_TYPE, default='Product')
+    type = models.CharField(max_length=10, choices=WISH_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
@@ -165,7 +165,7 @@ class Offer(Detail):
     product = models.ForeignKey(HSCode, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     status = models.CharField(max_length=10, choices=OFFER_STATUS, default='Pending')
-    offer_type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')
+    type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
@@ -288,7 +288,7 @@ class Match(models.Model):
 
         for wish in wishes:
             for offer in offers:
-                if wish.wish_type == offer.offer_type:
+                if wish.type == offer.type:
                     score = cls.calculate_match_score(wish, offer)
                     if score > 0:
                         match = cls(wish=wish, offer=offer)
@@ -305,7 +305,7 @@ class Match(models.Model):
         offers = Offer.objects.filter(status='Pending')
 
         for offer in offers:
-            if wish.wish_type == offer.offer_type:
+            if wish.type == offer.type:
                 score = cls.calculate_match_score(wish, offer)
                 if score > 0:
                     match = cls(wish=wish, offer=offer)
@@ -322,7 +322,7 @@ class Match(models.Model):
         wishes = Wish.objects.filter(status='Pending')
 
         for wish in wishes:
-            if wish.wish_type == offer.offer_type:
+            if wish.type == offer.type:
                 score = cls.calculate_match_score(wish, offer)
                 if score > 0:
                     match = cls(wish=wish, offer=offer)

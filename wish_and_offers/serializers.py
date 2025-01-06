@@ -31,7 +31,7 @@ class WishSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
             'email', 'company_name', 'address', 'country', 'province',
             'municipality', 'ward', 'company_website', 'image',
-            'title', 'event', 'product', 'service', 'status', 'wish_type', 'match_percentage',
+            'title', 'event', 'product', 'service', 'status', 'type', 'match_percentage',
             'created_at', 'updated_at'
         ]
 
@@ -45,7 +45,7 @@ class OfferSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'designation', 'mobile_no', 'alternate_no',
             'email', 'company_name', 'address', 'country', 'province',
             'municipality', 'ward', 'company_website', 'image',
-            'title', 'event', 'product', 'service', 'status', 'offer_type', 'match_percentage',
+            'title', 'event', 'product', 'service', 'status', 'type', 'match_percentage',
             'created_at', 'updated_at'
         ]
 
@@ -58,7 +58,7 @@ class WishWithOffersSerializer(serializers.ModelSerializer):
                   'email', 'company_name', 'address', 'country', 'province',
                   'municipality', 'ward', 'company_website', 'image',
                   'title', 'event', 'product', 'service', 'status', 
-                  'wish_type', 'match_percentage', 'created_at', 'updated_at', 'offers']
+                  'type', 'match_percentage', 'created_at', 'updated_at', 'offers']
 
     def get_offers(self, obj):
         # Retrieve offers related to this wish through the Match model
@@ -75,7 +75,7 @@ class OfferWithWishesSerializer(serializers.ModelSerializer):
                   'email', 'company_name', 'address', 'country', 'province',
                   'municipality', 'ward', 'company_website', 'image',
                   'title', 'event', 'product', 'service', 'status', 
-                  'offer_type', 'match_percentage', 'created_at', 'updated_at', 'wishes']
+                  'type', 'match_percentage', 'created_at', 'updated_at', 'wishes']
 
     def get_wishes(self, obj):
         # Retrieve wishes related to this offer through the Match model
@@ -94,12 +94,12 @@ class MatchSerializer(serializers.ModelSerializer):
 class WishSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wish
-        fields = ['id', 'title','product', 'service', 'status', 'wish_type', 'created_at', 'updated_at']
+        fields = ['id', 'title','product', 'service', 'status', 'type', 'created_at', 'updated_at']
 
 class OfferSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
-        fields = ['id', 'title','product', 'service', 'status', 'offer_type', 'created_at', 'updated_at']
+        fields = ['id', 'title','product', 'service', 'status', 'type', 'created_at', 'updated_at']
 
 
 class HSCodeFileUploadSerializer(serializers.Serializer):
