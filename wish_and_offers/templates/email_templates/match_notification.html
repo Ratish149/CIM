@@ -31,14 +31,14 @@
             color: #007BFF;
             font-weight: bold;
         }
-        .details {
+        .match-item {
             margin-top: 20px;
             padding: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
         }
-        .details p {
+        .match-item p {
             margin: 5px 0;
         }
         .footer {
@@ -59,21 +59,25 @@
 <body>
     <div class="container">
         <h1>Congratulations!</h1>
-        <p>Your <span class="highlight">{{ offer.title }}</span> has been matched with a wish for <span class="highlight">{{ wish.title }}</span>.</p>
+        <p>Your <span class="highlight">{{ entity.title }}</span> has new matches!</p>
         <div class="divider"></div>
-        <p>Details:</p>
-        <div class="details">
-            <p><strong>Wish:</strong> {{ wish.full_name }} ({{ wish.designation }})</p>
-            <p><strong>Mobile:</strong> {{ wish.mobile_no }}</p>
-            <p><strong>Email:</strong> {{ wish.email }}</p>
-            <p><strong>Company:</strong> {{ wish.company_name }}</p>
+        <p>Here are the details of your matches:</p>
+        {% for match in matches %}
+        <div class="match-item">
+            <p><strong>Matched Wish:</strong> {{ match.wish.full_name }} ({{ match.wish.designation }})</p>
+            <p><strong>Wish Title:</strong> {{ match.wish.title }}</p>
+            <p><strong>Mobile:</strong> {{ match.wish.mobile_no }}</p>
+            <p><strong>Email:</strong> {{ match.wish.email }}</p>
+            <p><strong>Company:</strong> {{ match.wish.company_name }}</p>
+            <div class="divider"></div>
+            <p><strong>Matched Offer:</strong> {{ match.offer.full_name }} ({{ match.offer.designation }})</p>
+            <p><strong>Offer Title:</strong> {{ match.offer.title }}</p>
+            <p><strong>Mobile:</strong> {{ match.offer.mobile_no }}</p>
+            <p><strong>Email:</strong> {{ match.offer.email }}</p>
+            <p><strong>Company:</strong> {{ match.offer.company_name }}</p>
+            <p><strong>Match Percentage:</strong> {{ match.match_percentage }}%</p>
         </div>
-        <div class="details">
-            <p><strong>Offer:</strong> {{ offer.full_name }} ({{ offer.designation }})</p>
-            <p><strong>Mobile:</strong> {{ offer.mobile_no }}</p>
-            <p><strong>Email:</strong> {{ offer.email }}</p>
-            <p><strong>Company:</strong> {{ offer.company_name }}</p>
-        </div>
+        {% endfor %}
         <p>Thank you for using our service!</p>
     </div>
     <div class="footer">

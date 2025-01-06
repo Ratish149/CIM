@@ -5,14 +5,10 @@ from events.models import Event
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import transaction
-from django.core.mail import send_mail  # Import send_mail for sending emails
-from django.template.loader import render_to_string  # Import for rendering email templates
-from django.utils.html import strip_tags  # Import for stripping HTML tags
-
-# Global flag to prevent recursion
-is_handling_signal = False
-is_handling_wish_signal = False
-is_handling_offer_signal = False
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 class Detail(models.Model):
     DESIGNATION_CHOICES = [
@@ -44,8 +40,16 @@ class Detail(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     image = models.FileField(upload_to='category_images/', blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+class Service(models.Model):
+    name = models.CharField(max_length=200)
+    image = models.FileField(upload_to='service_images/', blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -57,14 +61,6 @@ class HSCode(models.Model):
     def __str__(self):
         return f"{self.hs_code} - {self.description[:50]}"
 
-class Service(models.Model):
-    name = models.CharField(max_length=200)
-    image = models.FileField(upload_to='service_images/', blank=True, null=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return self.name
-
 class Wish(Detail):
     WISH_STATUS = [
         ('Pending', 'Pending'),
@@ -72,80 +68,52 @@ class Wish(Detail):
         ('Rejected', 'Rejected'),
     ]
 
-    WISH_TYPE = [
-        ('Product', 'Product'),
-        ('Service', 'Service'),
-    ]
-
     title = models.CharField(max_length=200, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wishes', null=True, blank=True)
     product = models.ForeignKey(HSCode, on_delete=models.CASCADE, related_name='wishes', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='service_wishes', blank=True, null=True)
     status = models.CharField(max_length=10, choices=WISH_STATUS, default='Pending')
-    type = models.CharField(max_length=10, choices=WISH_TYPE, default='Product')
+    type = models.CharField(max_length=10, choices=[('Product', 'Product'), ('Service', 'Service')], default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f"{self.title} for {self.event.title if self.event else 'No Event'}"
-
     def save(self, *args, **kwargs):
-        global is_handling_wish_signal
-        if not is_handling_wish_signal:
-            try:
-                is_handling_wish_signal = True
-                super().save(*args, **kwargs)
-                self.update_match_percentages()
-                self.update_highest_match_percentage()
-            finally:
-                is_handling_wish_signal = False
-        else:
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+        self.update_match_percentages()
+        self.update_related_offer_matches()
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_wish(self.id)
-        highest_score = 0
-        highest_offer = None
-
+        created_matches = []
         for match, score in matches:
-            if score > highest_score:
-                highest_score = score
-                highest_offer = match.offer
+            if score > 80:
+                match_obj, created = Match.objects.update_or_create(
+                    wish=self, offer=match.offer, defaults={'match_percentage': score}
+                )
+                if created:
+                    created_matches.append(match_obj)
+                match.offer.match_percentage = score
+                match.offer.save(update_fields=['match_percentage'])
+        self.match_percentage = max([score for _, score in matches], default=0)
+        self.save(update_fields=['match_percentage'])
+        if created_matches:
+            self.send_match_email(created_matches)
 
-            if score > 80:  # Only create Match record and send email for scores > 80%
-                Match.objects.create(wish=self, offer=match.offer, match_percentage=score)
-                self.send_match_email(self, match.offer)  # Send email notification
+    def update_related_offer_matches(self):
+        related_offers = Offer.objects.filter(status='Pending', type=self.type)
+        for offer in related_offers:
+            offer.update_match_percentages()
+            offer.update_related_wish_matches()
 
-        # Update match percentages with the highest score found
-        if highest_offer:
-            highest_offer.match_percentage = highest_score
-            highest_offer.save(update_fields=['match_percentage'])
-        
-        self.match_percentage = highest_score
-        super().save(update_fields=['match_percentage'])
-
-    def update_highest_match_percentage(self):
-        # Check for all offers to see if any has a higher match percentage
-        offers = Offer.objects.filter(status='Pending')
-        for offer in offers:
-            score = Match.calculate_match_score(self, offer)
-            if score > self.match_percentage:
-                self.match_percentage = score
-                self.save(update_fields=['match_percentage'])  # Update the match_percentage field
-                
-                # Update the offer's match_percentage if the score is greater
-                if score > offer.match_percentage:
-                    offer.match_percentage = score
-                    offer.save(update_fields=['match_percentage'])
-
-    def send_match_email(self, wish, offer):
-        subject = "Your Wish has been Matched!"
-        html_message = render_to_string('email_templates/match_notification.html', {'wish': wish, 'offer': offer})
+    def send_match_email(self, matches):
+        subject = "Your Wish has New Matches!"
+        html_message = render_to_string(
+            'email_templates/match_notification.html', {'matches': matches, 'entity': self}
+        )
         plain_message = strip_tags(html_message)
-        from_email = 'your_email@example.com'  # Replace with your email
-        recipient_list = [wish.email, offer.email]  # Assuming both Wish and Offer have an email field
-
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [self.email] + [match.offer.email for match in matches]
         send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
 
 class Offer(Detail):
@@ -155,180 +123,112 @@ class Offer(Detail):
         ('Rejected', 'Rejected'),
     ]
 
-    OFFER_TYPE = [
-        ('Product', 'Product'),
-        ('Service', 'Service'),
-    ]
     title = models.CharField(max_length=200, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='offers', null=True, blank=True)
     product = models.ForeignKey(HSCode, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='offers', blank=True, null=True)
     status = models.CharField(max_length=10, choices=OFFER_STATUS, default='Pending')
-    type = models.CharField(max_length=10, choices=OFFER_TYPE, default='Product')
+    type = models.CharField(max_length=10, choices=[('Product', 'Product'), ('Service', 'Service')], default='Product')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f"{self.title} for {self.event.title if self.event else 'No Event'}"
-
     def save(self, *args, **kwargs):
-        global is_handling_offer_signal
-        if not is_handling_offer_signal:
-            try:
-                is_handling_offer_signal = True
-                super().save(*args, **kwargs)
-                self.update_match_percentages()
-                self.update_highest_match_percentage()
-            finally:
-                is_handling_offer_signal = False
-        else:
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+        self.update_match_percentages()
+        self.update_related_wish_matches()
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_offer(self.id)
-        highest_score = 0
-        highest_wish = None
-
+        created_matches = []
         for match, score in matches:
-            if score > highest_score:
-                highest_score = score
-                highest_wish = match.wish
+            if score > 80:
+                match_obj, created = Match.objects.update_or_create(
+                    wish=match.wish, offer=self, defaults={'match_percentage': score}
+                )
+                if created:
+                    created_matches.append(match_obj)
+                match.wish.match_percentage = score
+                match.wish.save(update_fields=['match_percentage'])
+        self.match_percentage = max([score for _, score in matches], default=0)
+        self.save(update_fields=['match_percentage'])
+        if created_matches:
+            self.send_match_email(created_matches)
 
-            if score > 80:  # Only create Match record and send email for scores > 80%
-                Match.objects.create(wish=match.wish, offer=self, match_percentage=score)
-                self.send_match_email(match.wish, self)  # Send email notification
+    def update_related_wish_matches(self):
+        related_wishes = Wish.objects.filter(status='Pending', type=self.type)
+        for wish in related_wishes:
+            wish.update_match_percentages()
+            wish.update_related_offer_matches()
 
-        # Update match percentages with the highest score found
-        if highest_wish:
-            highest_wish.match_percentage = highest_score
-            highest_wish.save(update_fields=['match_percentage'])
-        
-        self.match_percentage = highest_score
-        super().save(update_fields=['match_percentage'])
-
-    def update_highest_match_percentage(self):
-        # Check for all wishes to see if any has a higher match percentage
-        wishes = Wish.objects.filter(status='Pending')
-        for wish in wishes:
-            score = Match.calculate_match_score(wish, self)
-            if score > self.match_percentage:
-                self.match_percentage = score
-                self.save(update_fields=['match_percentage'])  # Update the match_percentage field
-                
-                # Update the wish's match_percentage if the score is greater
-                if score > wish.match_percentage:
-                    wish.match_percentage = score
-                    wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage for the wish
-
-    def send_match_email(self, wish, offer):
-        subject = "Your Offer has been Matched!"
-        html_message = render_to_string('email_templates/match_notification.html', {'wish': wish, 'offer': offer})
+    def send_match_email(self, matches):
+        subject = "Your Offer has New Matches!"
+        html_message = render_to_string(
+            'email_templates/match_notification.html', {'matches': matches, 'entity': self}
+        )
         plain_message = strip_tags(html_message)
-        from_email = 'your_email@example.com'  # Replace with your email
-        recipient_list = [wish.email, offer.email]  # Assuming both Wish and Offer have an email field
-
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [self.email] + [match.wish.email for match in matches]
         send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
 
 class Match(models.Model):
     wish = models.ForeignKey(Wish, on_delete=models.CASCADE, related_name='matches')
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='matches')
+    match_percentage = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    match_percentage = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f"Match: {self.wish.full_name} with {self.offer.full_name}"
-
-    @staticmethod
-    def are_titles_similar(title1, title2, threshold=0.6):
-        return SequenceMatcher(None, title1.lower(), title2.lower()).ratio() > threshold
-    
     @staticmethod
     def calculate_match_score(wish, offer):
         score = 0
-        max_score = 0
         weights = {
-            'exact_match': 50,
-            'category_match': 30,
-            'title_similarity': 20
+            'product_match': 50,
+            'service_match': 50,
+            'title_similarity': 30,
         }
 
-        # Check for exact product/service match
-        if (wish.product and offer.product and wish.product == offer.product) or \
-           (wish.service and offer.service and wish.service == offer.service):
-            score += weights['exact_match']
-        
-        # Check for category match
-        elif (wish.product and offer.product and 
-              wish.product.hs_code and offer.product.hs_code and 
-              wish.product.hs_code == offer.product.hs_code) or \
-             (wish.service and offer.service and 
-              wish.service.hs_code and offer.service.hs_code and 
-              wish.service.hs_code == offer.service.hs_code):
-            score += weights['category_match']
+        # Product match
+        if wish.product and offer.product and wish.product == offer.product:
+            score += weights['product_match']
 
-        max_score += max(weights['exact_match'], weights['category_match'])
+        # Service match
+        if wish.service and offer.service and wish.service == offer.service:
+            score += weights['service_match']
 
-        # Check title similarity
-        title_similarity = SequenceMatcher(None, wish.title.lower(), offer.title.lower()).ratio()
-        score += weights['title_similarity'] * title_similarity
-        max_score += weights['title_similarity']
+        # Title similarity
+        title_similarity = SequenceMatcher(None, wish.title.lower(), offer.title.lower()).ratio() * 100
+        score += min(title_similarity / 100 * weights['title_similarity'], weights['title_similarity'])
 
-        # Calculate percentage
-        percentage_score = round((score / max_score) * 100) if max_score > 0 else 0
+        return int(score)
 
-        return percentage_score  # Return as an integer
     @classmethod
     def find_matches(cls):
         matches = []
         wishes = Wish.objects.filter(status='Pending')
         offers = Offer.objects.filter(status='Pending')
-
         for wish in wishes:
             for offer in offers:
                 if wish.type == offer.type:
                     score = cls.calculate_match_score(wish, offer)
-                    if score > 0:
-                        match = cls(wish=wish, offer=offer)
-                        matches.append((match, score))
-        
-        # Sort matches by score in descending order
-        matches.sort(key=lambda x: x[1], reverse=True)
+                    matches.append((wish, offer, score))
         return matches
 
     @classmethod
     def find_matches_for_wish(cls, wish_id):
+        wish = Wish.objects.get(id=wish_id)
+        offers = Offer.objects.filter(status='Pending', type=wish.type)
         matches = []
-        wish = Wish.objects.get(id=wish_id, status='Pending')
-        offers = Offer.objects.filter(status='Pending')
-
         for offer in offers:
-            if wish.type == offer.type:
-                score = cls.calculate_match_score(wish, offer)
-                if score > 0:
-                    match = cls(wish=wish, offer=offer)
-                    matches.append((match, score))
-        
-        # Sort matches by score in descending order
-        matches.sort(key=lambda x: x[1], reverse=True)
+            score = cls.calculate_match_score(wish, offer)
+            matches.append((offer, score))
         return matches
 
     @classmethod
     def find_matches_for_offer(cls, offer_id):
+        offer = Offer.objects.get(id=offer_id)
+        wishes = Wish.objects.filter(status='Pending', type=offer.type)
         matches = []
-        offer = Offer.objects.get(id=offer_id, status='Pending')
-        wishes = Wish.objects.filter(status='Pending')
-
         for wish in wishes:
-            if wish.type == offer.type:
-                score = cls.calculate_match_score(wish, offer)
-                if score > 0:
-                    match = cls(wish=wish, offer=offer)
-                    matches.append((match, score))
-        
-        # Sort matches by score in descending order
-        matches.sort(key=lambda x: x[1], reverse=True)
+            score = cls.calculate_match_score(wish, offer)
+            matches.append((wish, score))
         return matches
-
-   
