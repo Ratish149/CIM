@@ -262,11 +262,11 @@ class Match(models.Model):
         
         # Check for category match
         elif (wish.product and offer.product and 
-              wish.product.category and offer.product.category and 
-              wish.product.category == offer.product.category) or \
+              wish.product.hs_code and offer.product.hs_code and 
+              wish.product.hs_code == offer.product.hs_code) or \
              (wish.service and offer.service and 
-              wish.service.category and offer.service.category and 
-              wish.service.category == offer.service.category):
+              wish.service.hs_code and offer.service.hs_code and 
+              wish.service.hs_code == offer.service.hs_code):
             score += weights['category_match']
 
         max_score += max(weights['exact_match'], weights['category_match'])
