@@ -221,6 +221,7 @@ class Match(models.Model):
         for offer in offers:
             score = cls.calculate_match_score(wish, offer)
             matches.append((offer, score))
+            
             if score > offer.match_percentage:
                 offer.match_percentage = score
                 offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage
