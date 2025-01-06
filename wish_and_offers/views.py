@@ -27,8 +27,8 @@ class WishListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         event_slug = self.kwargs.get('event_slug')
         if event_slug:
-            return Wish.objects.filter(event__slug=event_slug).order_by('created_at')
-        return Wish.objects.all().order_by('created_at')
+            return Wish.objects.filter(event__slug=event_slug).order_by('-created_at')
+        return Wish.objects.all().order_by('-created_at')
 
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
@@ -70,8 +70,8 @@ class OfferListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         event_slug = self.kwargs.get('event_slug')
         if event_slug:
-            return Offer.objects.filter(event__slug=event_slug).order_by('created_at')
-        return Offer.objects.all().order_by('created_at')
+            return Offer.objects.filter(event__slug=event_slug).order_by('-created_at')
+        return Offer.objects.all().order_by('-created_at')
 
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
