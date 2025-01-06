@@ -78,41 +78,42 @@ class Wish(Detail):
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
 
-    # Recursion guard for save
-    _updating = False
+    def __str__(self):
+        return self.title 
+
 
     def save(self, *args, **kwargs):
-        if not self._updating:
-            try:
-                self._updating = True
-                super().save(*args, **kwargs)
-                self.update_match_percentages()
-            finally:
-                self._updating = False
-        else:
-            super().save(*args, **kwargs)
+
+        super().save(*args, **kwargs)
+        self.update_match_percentages()
+
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_wish(self.id)
         created_matches = []
+        highest_score = 0
+        best_offer = None
+
         for match, score in matches:
-            if score > 80:
+            if score > highest_score:
+                    highest_score = score
+                    best_offer = match
+            if score >= 80:
                 match_obj, created = Match.objects.update_or_create(
-                    wish=self, offer=match.offer, defaults={'match_percentage': score}
+                    wish=self, offer=match, defaults={'match_percentage': score}
                 )
                 if created:
                     created_matches.append(match_obj)
-                match.offer.match_percentage = score
-                match.offer.save(update_fields=['match_percentage'])
-        self.match_percentage = max([score for _, score in matches], default=0)
-        self.save(update_fields=['match_percentage'])
+
+                # Update the highest score and corresponding offer          
+
+        # Update both Wish and Offer with the highest match percentage
+        if best_offer:
+            Wish.objects.filter(id=self.id).update(match_percentage=highest_score)
+            Offer.objects.filter(id=best_offer.id).update(match_percentage=highest_score)
+
         if created_matches:
             self.send_match_email(created_matches)
-
-    def update_related_offer_matches(self):
-        related_offers = Offer.objects.filter(status='Pending', type=self.type)
-        for offer in related_offers:
-            offer.update_match_percentages()
 
     def send_match_email(self, matches):
         subject = "Your Wish has New Matches!"
@@ -141,37 +142,44 @@ class Offer(Detail):
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
 
-    # Recursion guard for save
-    _updating = False
+    def __str__(self):
+        return self.title
 
     def save(self, *args, **kwargs):
-        if not self._updating:
-            try:
-                self._updating = True
-                super().save(*args, **kwargs)
-                self.update_match_percentages()
-            finally:
-                self._updating = False
-        else:
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+        self.update_match_percentages()
+
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_offer(self.id)
+        print(matches)
         created_matches = []
+        highest_score = 0
+        best_wish = None
+
         for match, score in matches:
-            if score > 80:
+            if score > highest_score:
+                highest_score = score
+                best_wish = match
+            print(score)
+            if score >= 80:
                 match_obj, created = Match.objects.update_or_create(
-                    wish=match.wish, offer=self, defaults={'match_percentage': score}
+                    wish=match, offer=self, defaults={'match_percentage': score}
                 )
                 if created:
                     created_matches.append(match_obj)
-                match.wish.match_percentage = score
-                match.wish.save(update_fields=['match_percentage'])
-        self.match_percentage = max([score for _, score in matches], default=0)
-        self.save(update_fields=['match_percentage'])
+
+                # Update the highest score and corresponding wish
+
+        print(highest_score)
+        # Update both Offer and Wish with the highest match percentage
+        if best_wish:
+            print(best_wish)
+            Offer.objects.filter(id=self.id).update(match_percentage=highest_score)
+            Wish.objects.filter(id=best_wish.id).update(match_percentage=highest_score)
+
         if created_matches:
             self.send_match_email(created_matches)
-
 
     def send_match_email(self, matches):
         subject = "Your Offer has New Matches!"
@@ -194,9 +202,9 @@ class Match(models.Model):
     def calculate_match_score(wish, offer):
         score = 0
         weights = {
-            'product_match': 50,
-            'service_match': 50,
-            'title_similarity': 30,
+            'product_match': 40,
+            'service_match': 40,
+            'title_similarity': 60,
         }
 
         # Product match
@@ -209,7 +217,10 @@ class Match(models.Model):
 
         # Title similarity
         title_similarity = SequenceMatcher(None, wish.title.lower(), offer.title.lower()).ratio() * 100
-        score += min(title_similarity / 100 * weights['title_similarity'], weights['title_similarity'])
+        if title_similarity == 100:  # Perfect match
+            score += weights['title_similarity']
+        else:
+            score += min(title_similarity / 100 * weights['title_similarity'], weights['title_similarity'])
 
         return int(score)
 
@@ -221,10 +232,10 @@ class Match(models.Model):
         for offer in offers:
             score = cls.calculate_match_score(wish, offer)
             matches.append((offer, score))
-            
+
+            # Ensure Offer's match_percentage is updated
             if score > offer.match_percentage:
-                offer.match_percentage = score
-                offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage
+                Offer.objects.filter(id=offer.id).update(match_percentage=score)
 
         return matches
 
@@ -237,20 +248,8 @@ class Match(models.Model):
             score = cls.calculate_match_score(wish, offer)
             matches.append((wish, score))
 
+            # Ensure Wish's match_percentage is updated
             if score > wish.match_percentage:
-                wish.match_percentage = score
-                wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage
-
-        return matches
-    
-    @classmethod
-    def find_matches(cls):
-        matches = []
-        wishes = Wish.objects.filter(status='Pending')
-        offers = Offer.objects.filter(status='Pending')
-        for wish in wishes:
-            for offer in offers:
-                if wish.type == offer.type:
-                    score = cls.calculate_match_score(wish, offer)
-                    matches.append((wish, offer, score))
+                Wish.objects.filter(id=wish.id).update(match_percentage=score)
+        print(matches)
         return matches
