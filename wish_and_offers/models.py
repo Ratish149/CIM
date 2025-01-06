@@ -78,10 +78,20 @@ class Wish(Detail):
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
 
+    # Recursion guard for save
+    _updating = False
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.update_match_percentages()
-        self.update_related_offer_matches()
+        if not self._updating:
+            try:
+                self._updating = True
+                super().save(*args, **kwargs)
+                self.update_match_percentages()
+                self.update_related_offer_matches()
+            finally:
+                self._updating = False
+        else:
+            super().save(*args, **kwargs)
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_wish(self.id)
@@ -133,10 +143,20 @@ class Offer(Detail):
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
 
+    # Recursion guard for save
+    _updating = False
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.update_match_percentages()
-        self.update_related_wish_matches()
+        if not self._updating:
+            try:
+                self._updating = True
+                super().save(*args, **kwargs)
+                self.update_match_percentages()
+                self.update_related_wish_matches()
+            finally:
+                self._updating = False
+        else:
+            super().save(*args, **kwargs)
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_offer(self.id)
