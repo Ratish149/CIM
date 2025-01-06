@@ -59,7 +59,6 @@ class HSCode(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=200)
-
     image = models.FileField(upload_to='service_images/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 

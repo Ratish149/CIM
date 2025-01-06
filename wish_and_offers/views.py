@@ -32,8 +32,16 @@ class WishListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
+        product_id = self.request.data.get('product')
+        service_id = self.request.data.get('service')
         event = Event.objects.get(pk=event_id) if event_id else None
-        wish = serializer.save(event=event)  # Capture the created wish and its matches
+        
+        # Retrieve the Product and Service objects
+        product = HSCode.objects.get(pk=product_id) if product_id else None
+        service = Service.objects.get(pk=service_id) if service_id else None
+        
+        # Capture the created wish and its matches
+        wish = serializer.save(event=event, product=product, service=service)
         
         # Retrieve matches for the created wish
         match_objects = Match.objects.filter(wish=wish)
@@ -67,8 +75,16 @@ class OfferListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         event_id = self.request.data.get('event_id')
+        product_id = self.request.data.get('product')
+        service_id = self.request.data.get('service')
         event = Event.objects.get(pk=event_id) if event_id else None
-        offer = serializer.save(event=event)  # Capture the created offer and its matches
+        
+        # Retrieve the Product and Service objects
+        product = HSCode.objects.get(pk=product_id) if product_id else None
+        service = Service.objects.get(pk=service_id) if service_id else None
+        
+        # Capture the created offer and its matches
+        offer = serializer.save(event=event, product=product, service=service)
         
         # Retrieve matches for the created offer
         match_objects = Match.objects.filter(offer=offer)
@@ -109,6 +125,13 @@ class MatchListView(generics.ListAPIView):
 class ServiceListCreateView(generics.ListCreateAPIView):
     queryset = Service.objects.all().order_by('name')
     serializer_class = ServiceSerializer
+
+    def perform_create(self, serializer):
+        category_id = self.request.data.get('category_id')  # Retrieve category ID from request data
+        category = Category.objects.get(pk=category_id) if category_id else None  # Get the Category object
+        
+        # Save the service with the associated category
+        service = serializer.save(category=category)  # Save the service with the category
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all().order_by('name')
