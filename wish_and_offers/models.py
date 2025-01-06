@@ -87,7 +87,6 @@ class Wish(Detail):
                 self._updating = True
                 super().save(*args, **kwargs)
                 self.update_match_percentages()
-                self.update_related_offer_matches()
             finally:
                 self._updating = False
         else:
@@ -114,7 +113,6 @@ class Wish(Detail):
         related_offers = Offer.objects.filter(status='Pending', type=self.type)
         for offer in related_offers:
             offer.update_match_percentages()
-            offer.update_related_wish_matches()
 
     def send_match_email(self, matches):
         subject = "Your Wish has New Matches!"
@@ -152,7 +150,6 @@ class Offer(Detail):
                 self._updating = True
                 super().save(*args, **kwargs)
                 self.update_match_percentages()
-                self.update_related_wish_matches()
             finally:
                 self._updating = False
         else:
@@ -175,11 +172,6 @@ class Offer(Detail):
         if created_matches:
             self.send_match_email(created_matches)
 
-    def update_related_wish_matches(self):
-        related_wishes = Wish.objects.filter(status='Pending', type=self.type)
-        for wish in related_wishes:
-            wish.update_match_percentages()
-            wish.update_related_offer_matches()
 
     def send_match_email(self, matches):
         subject = "Your Offer has New Matches!"
@@ -222,18 +214,6 @@ class Match(models.Model):
         return int(score)
 
     @classmethod
-    def find_matches(cls):
-        matches = []
-        wishes = Wish.objects.filter(status='Pending')
-        offers = Offer.objects.filter(status='Pending')
-        for wish in wishes:
-            for offer in offers:
-                if wish.type == offer.type:
-                    score = cls.calculate_match_score(wish, offer)
-                    matches.append((wish, offer, score))
-        return matches
-
-    @classmethod
     def find_matches_for_wish(cls, wish_id):
         wish = Wish.objects.get(id=wish_id)
         offers = Offer.objects.filter(status='Pending', type=wish.type)
@@ -241,6 +221,10 @@ class Match(models.Model):
         for offer in offers:
             score = cls.calculate_match_score(wish, offer)
             matches.append((offer, score))
+            if score > offer.match_percentage:
+                offer.match_percentage = score
+                offer.save(update_fields=['match_percentage'])  # Save the updated match_percentage
+
         return matches
 
     @classmethod
@@ -251,4 +235,21 @@ class Match(models.Model):
         for wish in wishes:
             score = cls.calculate_match_score(wish, offer)
             matches.append((wish, score))
+
+            if score > wish.match_percentage:
+                wish.match_percentage = score
+                wish.save(update_fields=['match_percentage'])  # Save the updated match_percentage
+
+        return matches
+    
+    @classmethod
+    def find_matches(cls):
+        matches = []
+        wishes = Wish.objects.filter(status='Pending')
+        offers = Offer.objects.filter(status='Pending')
+        for wish in wishes:
+            for offer in offers:
+                if wish.type == offer.type:
+                    score = cls.calculate_match_score(wish, offer)
+                    matches.append((wish, offer, score))
         return matches
