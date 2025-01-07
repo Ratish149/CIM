@@ -61,33 +61,33 @@ class Issue(models.Model):
     # Issue Details
     title = models.CharField(max_length=255, help_text="Brief title of the issue",default='')
     description = models.TextField(verbose_name="Issue Description",default='')
-    issue_image = models.FileField( null=True, blank=True)
+    issue_image = models.FileField(null=True, blank=True, upload_to='issue_images/')
     
     # Categorization
-    nature_of_issue = models.CharField(max_length=255,choices=NATURE_OF_ISSUE_CHOICES,default='Other')
+    nature_of_issue = models.CharField(max_length=255,choices=NATURE_OF_ISSUE_CHOICES,default='Other',null=True,blank=True)
     industry_specific_or_common_issue = models.BooleanField(default=False)
     policy_related_or_procedural_issue = models.BooleanField(default=False)
     
     # Industry Information
-    industry_size = models.CharField(max_length=20, choices=INDUSTRY_SIZE_CHOICES,default='Other')
-    nature_of_industry_category = models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE,default=None)
-    nature_of_industry_sub_category = models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE,default=None)
+    industry_size = models.CharField(max_length=20, choices=INDUSTRY_SIZE_CHOICES,default='Other',null=True,blank=True)
+    nature_of_industry_category = models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE,default=None,null=True,blank=True)
+    nature_of_industry_sub_category = models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE,default=None,null=True,blank=True)
     
     # Company Information
-    name_of_company = models.CharField(max_length=255,default='')
+    name_of_company = models.CharField(max_length=255,default='',null=True,blank=True)
     member_of_CIM = models.BooleanField(default=False)
     
     # Address Information
-    address_province = models.CharField(max_length=255,default='')
-    address_district = models.CharField(max_length=255,default='')
-    address_municipality = models.CharField(max_length=255,default='')
-    address_ward = models.CharField(max_length=255,default='')
-    address_street = models.CharField(max_length=255,default='')
+    address_province = models.CharField(max_length=255,default='',null=True,blank=True)
+    address_district = models.CharField(max_length=255,default='',null=True,blank=True)
+    address_municipality = models.CharField(max_length=255,default='',null=True,blank=True)
+    address_ward = models.CharField(max_length=255,default='',null=True,blank=True)
+    address_street = models.CharField(max_length=255,default='',null=True,blank=True)
     
     # Contact Information
-    contact_name = models.CharField(max_length=255,default='')
-    contact_designation = models.CharField(max_length=255,default='')
-    contact_number = models.CharField(max_length=255,default='')
+    contact_name = models.CharField(max_length=255,default='',null=True,blank=True)
+    contact_designation = models.CharField(max_length=255,default='',null=True,blank=True)
+    contact_number = models.CharField(max_length=255,default='',null=True,blank=True)
     contact_alternate_number = models.CharField(max_length=255, blank=True, null=True)
     contact_email = models.EmailField(blank=True, null=True)
     
@@ -95,7 +95,8 @@ class Issue(models.Model):
     progress_status = models.CharField(
         max_length=50,
         choices=PROGRESS_STATUS_CHOICES,
-        default='Issue Registered and Documented'
+        default='Issue Registered and Documented',
+        null=True,blank=True
     )
     
     # Timestamps
@@ -106,7 +107,8 @@ class Issue(models.Model):
     implementation_level = models.CharField(
         max_length=50,
         choices=IMPLEMENTATION_LEVEL_CHOICES,
-        default='Implementation Level'
+        default='Implementation Level',
+        null=True,blank=True
     )
 
     # Add new boolean fields
