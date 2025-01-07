@@ -13,7 +13,7 @@ class BaseModel(models.Model):
 
 class InformationCategory(BaseModel):
     name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True,blank=True)
     description = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
@@ -31,7 +31,7 @@ class FAQ(BaseModel):
     category = models.ForeignKey(InformationCategory, on_delete=models.CASCADE, related_name='faqs')
     question = models.CharField(max_length=255)
     answer = models.TextField()
-    slug = models.SlugField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True,blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -49,7 +49,7 @@ class Information(BaseModel):
     category = models.ForeignKey(InformationCategory, on_delete=models.CASCADE, related_name='information')
     title = models.CharField(max_length=255)
     description = models.TextField()
-    slug = models.SlugField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True,blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -72,7 +72,7 @@ class ContentItem(BaseModel):
         ('Other', 'Other')
     ]
     title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True,blank=True)
     content = models.TextField(blank=True)
     external_url = models.URLField(blank=True)
     is_featured = models.BooleanField(default=False)
