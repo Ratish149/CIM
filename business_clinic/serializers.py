@@ -30,10 +30,14 @@ class IssueActionSerializer(serializers.ModelSerializer):
 
 class IssueSerializer(serializers.ModelSerializer):
     nature_of_industry_category = serializers.PrimaryKeyRelatedField(
-        queryset=NatureOfIndustryCategory.objects.all()
+        queryset=NatureOfIndustryCategory.objects.all(),
+        required=False,
+        allow_null=True
     )
     nature_of_industry_sub_category = serializers.PrimaryKeyRelatedField(
-        queryset=NatureOfIndustrySubCategory.objects.all()
+        queryset=NatureOfIndustrySubCategory.objects.all(),
+        required=False,
+        allow_null=True
     )
     nature_of_industry_category_detail = NatureOfIndustryCategorySerializer(
         source='nature_of_industry_category',
