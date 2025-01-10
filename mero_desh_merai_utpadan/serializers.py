@@ -39,7 +39,7 @@ class MeroDeshMeraiUtpadanSerializer(serializers.ModelSerializer):
         
             # Generate URLs for the logo
         logo_url = static('logo/mdmu-logo.png')  # Use Django's static function
-        logo_download_url = 'https://667e-103-163-182-228.ngrok-free.app' + logo_url  # Update this with your domain
+        logo_download_url = 'https://cim.baliyoventures.com' + logo_url  # Update this with your domain
         print(logo_url)
         print(logo_download_url)
 
