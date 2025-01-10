@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.core.mail import send_mail,EmailMessage
 from django.conf import settings
 from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, Issue, IssueAction
+from django.template.loader import render_to_string
 
 class NatureOfIndustryCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,22 +64,9 @@ class IssueSerializer(serializers.ModelSerializer):
 
     def send_confirmation_email(self, issue):
         subject = 'Thank You for Registering Your Issues at CIM Business Clinic'
-        message = f"""
-        Dear Industrialists,
-
-        Namaste.
-        Thank you for registering your issues at the CIM Business Clinic. The CIM Business Clinic is a systematic policy advocacy framework of the Chamber of Industries Morang (CIM).
-
-        We take your concerns seriously and will conduct thorough research to address them. Your issues will be forwarded to the relevant departments for necessary action. We will keep you updated on the progress.
-
-        The information you have provided serves as vital input for CIM's policy advocacy campaign. Together, we can create a better economic environment.
-        Thank you for your continued support and collaboration.
-
-        Tracking ID: {issue.id}
-
-        Warm regards,
-        Chamber of Industries Morang (CIM)
-        """
+        
+        # Load the HTML template
+        message = render_to_string('email_template/email_template.html', {'issue': issue})
 
         EmailMessage(
             subject,

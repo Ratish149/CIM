@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Registration Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dcdde1;
+        }
+        .header {
+            background: linear-gradient(90deg, #2c3e50, #4a69bd);
+            color: #ffffff;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 35px;
+            color: #2f3640;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        .content p {
+            margin: 15px 0;
+        }
+        .content p strong {
+            color: #2c3e50;
+        }
+        .content .tracking-id {
+            background-color: #f0f3f7;
+            padding: 10px 15px;
+            border-left: 4px solid #4a69bd;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-top: 1px solid #dcdde1;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Thank You for Registering Your Issues</h1>
+        </div>
+        <div class="content">
+            <p>Dear Industrialists,</p>
+            <p>Namaste.</p>
+            <p>Thank you for registering your issues at the <strong>CIM Business Clinic</strong>. The CIM Business Clinic is a systematic policy advocacy framework of the <strong>Chamber of Industries Morang (CIM)</strong>.</p>
+            <p>We take your concerns seriously and will conduct thorough research to address them. Your issues will be forwarded to the relevant departments for necessary action. We will keep you updated on the progress.</p>
+            <p>The information you have provided serves as vital input for CIM's policy advocacy campaign. Together, we can create a better economic environment.</p>
+            <div class="tracking-id">Tracking ID: {{ issue.id }}</div>
+            <p>Thank you for your continued support and collaboration.</p>
+        </div>
+        <div class="footer">
+            <p>Warm regards,</p>
+            <p><strong>Chamber of Industries Morang (CIM)</strong></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -17,3 +17,7 @@ class NatureOfIndustrySubCategoryListCreateView(generics.ListCreateAPIView):
 class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
     queryset = MeroDeshMeraiUtpadan.objects.all()
     serializer_class = MeroDeshMeraiUtpadanSerializer
+
+class MeroDeshMeraiUtpadanRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MeroDeshMeraiUtpadan.objects.all()
+    serializer_class = MeroDeshMeraiUtpadanSerializer
