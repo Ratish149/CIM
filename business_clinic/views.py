@@ -22,8 +22,13 @@ class NatureOfIndustryCategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = NatureOfIndustryCategorySerializer
 
 class NatureOfIndustrySubCategoryListCreateView(generics.ListCreateAPIView):
-    queryset = NatureOfIndustrySubCategory.objects.all()
     serializer_class = NatureOfIndustrySubCategorySerializer
+
+    def get_queryset(self):
+        category_id = self.request.query_params.get('category', None)
+        if category_id is not None:
+            return NatureOfIndustrySubCategory.objects.filter(category_id=category_id)
+        return NatureOfIndustrySubCategory.objects.all()
 
 class IssueFilter(django_filters.FilterSet):
     class Meta:
