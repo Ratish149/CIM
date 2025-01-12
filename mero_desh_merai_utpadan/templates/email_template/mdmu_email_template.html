@@ -21,20 +21,10 @@
             border: 1px solid #dcdde1;
         }
         .header {
-            background: #e6f7ff;
-            color: black;
+            background: linear-gradient(90deg, #2c3e50, #4a69bd);
+            color: #ffffff;
             padding: 25px;
             text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .header h1 {
-            margin: 0;
-        }
-        .header .logo {
-            width: 100px;
-            height: auto;
         }
         .content {
             padding: 35px;
@@ -74,7 +64,7 @@
                 font-size: 16px; /* Larger text */
             }
         }
-        /* New styles for removed inline styles */
+        /* New styles for optimized layout */
         .flex-container {
             display: flex;
             justify-content: space-between;
@@ -82,12 +72,13 @@
         }
         .flex-item {
             flex: 1;
-            padding-right: 20px;
         }
-        .centered-logo {
-            text-align: center;
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-left: auto;
         }
-        .footer-text {
+        .content p.centered {
             font-size: 12px;
             color: #7f8c8d;
             text-align: center;
@@ -98,20 +89,22 @@
     <div class="email-container">
         <div class="header">
             <h1>Thank You for Participating</h1>
-            <img src="https://cim.baliyoventures.com/static/logo/mdmu-logo.png" alt="Mero Desh Merai Utpadan Logo" class="logo">
         </div>
         <div class="content">
             <div class="flex-container">
-                <div class="flex-item">
+                <div class="flex-item" style="padding-right: 20px;">
                     <p>Dear Nepali Producers,</p>
                     <p>Namaste.</p>
+                </div>
+                <div class="flex-item text-align-center">
+                    <img src="https://cim.baliyoventures.com/static/logo/mdmu-logo.png" alt="Mero Desh Merai Utpadan Logo" class="logo">
                 </div>
             </div>
             <p>We extend our heartfelt gratitude for your participation in the <strong>"Mero Desh Merai Utpadan"</strong> campaign. Your support is invaluable in our collective effort to promote Nepali products and industries.</p>
             <p>We are pleased to inform you that you can now use the mnemonic logo on your desired products and placements. The logo has been sent to your email for your convenience.</p>
             <p>Together, we will enhance the visibility and reputation of Nepali products, fostering a stronger economy and a vibrant industrial ecosystem.</p>
             <div class="highlight">Thank you for your continued support and commitment.</div>
-            <p class="footer-text">
+            <p class="centered">
                 If you would like to use our logo, please find it attached to this email for your convenience.
             </p>
         </div>
