@@ -74,6 +74,24 @@
                 font-size: 16px; /* Larger text */
             }
         }
+        /* New styles for removed inline styles */
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .flex-item {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .centered-logo {
+            text-align: center;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -83,20 +101,17 @@
             <img src="https://cim.baliyoventures.com/static/logo/mdmu-logo.png" alt="Mero Desh Merai Utpadan Logo" class="logo">
         </div>
         <div class="content">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="flex: 1; padding-right: 20px;">
+            <div class="flex-container">
+                <div class="flex-item">
                     <p>Dear Nepali Producers,</p>
                     <p>Namaste.</p>
                 </div>
-                <!-- <div style="flex: 1; text-align: center;">
-                    <img src="https://cim.baliyoventures.com/static/logo/mdmu-logo.png" alt="Mero Desh Merai Utpadan Logo" class="logo" style="width: 120px; height: auto;">
-                </div> -->
             </div>
             <p>We extend our heartfelt gratitude for your participation in the <strong>"Mero Desh Merai Utpadan"</strong> campaign. Your support is invaluable in our collective effort to promote Nepali products and industries.</p>
             <p>We are pleased to inform you that you can now use the mnemonic logo on your desired products and placements. The logo has been sent to your email for your convenience.</p>
             <p>Together, we will enhance the visibility and reputation of Nepali products, fostering a stronger economy and a vibrant industrial ecosystem.</p>
             <div class="highlight">Thank you for your continued support and commitment.</div>
-            <p style="font-size: 12px; color: #7f8c8d; text-align: center;">
+            <p class="footer-text">
                 If you would like to use our logo, please find it attached to this email for your convenience.
             </p>
         </div>
