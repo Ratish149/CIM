@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, MeroDeshMeraiUtpadan
 from django.template.loader import render_to_string
 from django.templatetags.static import static
+import os
 
 
 class NatureOfIndustryCategorySerializer(serializers.ModelSerializer):
@@ -37,28 +38,30 @@ class MeroDeshMeraiUtpadanSerializer(serializers.ModelSerializer):
     def send_confirmation_email(self, mero_desh_merai_utpadan_instance):
         subject = 'Thank You for Participating in the "Mero Desh Merai Utpadan" Campaign'
         
-            # Generate URLs for the logo
-        logo_url = static('logo/mdmu-logo.png')  # Use Django's static function
-        logo_download_url = 'https://cim.baliyoventures.com' + logo_url  # Update this with your domain
-        print(logo_url)
-        print(logo_download_url)
+        # Generate the file system path for the logo
+        logo_path = os.path.join(settings.STATIC_ROOT, 'logo', 'mdmu-logo.png')
+        print(f"Logo file system path: {logo_path}")  # Debugging line
 
         # Load the HTML template
         message = render_to_string('email_template/mdmu_email_template.html', {
             'issue': mero_desh_merai_utpadan_instance,
-            'logo_url': logo_url,
-            'logo_download_url': logo_download_url,
+            'logo_url': logo_path,
         })
-        # Load the HTML template
-        message = render_to_string('email_template/mdmu_email_template.html', {'issue': mero_desh_merai_utpadan_instance})
 
         recipient_list = [mero_desh_merai_utpadan_instance.contact_email]  # Assuming the model has an 'email' field
 
-        send_mail(
+        # Create an EmailMessage instance
+        email = EmailMessage(
             subject,
             message,
             settings.DEFAULT_FROM_EMAIL,
             recipient_list,
-            fail_silently=False,
-            html_message=message  # Send as HTML
         )
+        
+        # Attach the logo
+        with open(logo_path, 'rb') as logo_file:
+            email.attach('mdmu-logo.png', logo_file.read(), 'image/png')  # Attach the logo
+
+        email.content_subtype = 'html'  # Set the content type to HTML
+
+        email.send(fail_silently=False)  # Send the email
