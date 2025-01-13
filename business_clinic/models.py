@@ -148,3 +148,4 @@ class IssueAction(models.Model):
 
     def __str__(self):
         return f"{self.action_type} on {self.issue.title} at {self.created_at}"
+ 
