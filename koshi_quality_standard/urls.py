@@ -1,7 +1,10 @@
 from django.urls import path
-from .views import QuestionListCreateView, AnswerListCreateView 
+from .views import RequirementListView,CalculatePointsView,RequirementQuestionBulkUploadView
 
 urlpatterns = [
-    path('questions/', QuestionListCreateView.as_view(), name='question-list-create'),
-    path('answers/', AnswerListCreateView.as_view(), name='answer-list-create'),
+
+    path('requirements/', RequirementListView.as_view(), name='requirement-list'),  # GET: Fetch all requirements and questions
+    path('calculate-points/', CalculatePointsView.as_view(), name='calculate-points'),  # POST: Submit answers and calculate points
+    path('upload-requirements/', RequirementQuestionBulkUploadView.as_view(), name='upload-requirements'),
+
 ]

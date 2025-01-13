@@ -1,27 +1,30 @@
 from rest_framework import serializers
-from .models import Question, Answer, Document,SavedAnswer
+from .models import Question,Requirement
 
-class DocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Document
-        fields = ['document_name', 'points']
 
 class QuestionSerializer(serializers.ModelSerializer):
-    document=DocumentSerializer(many=True, read_only=True)
     class Meta:
         model = Question
-        fields = ['id','question_text','category','document']
+        fields = ['id', 'text', 'points']
 
-class AnswerSerializer(serializers.ModelSerializer):
-    question_detail = QuestionSerializer(source='question', read_only=True)  # Add this for nested question details
-
-    class Meta:
-        model = Answer
-        fields=['question', 'question_detail','document', 'is_true']
-
-class SavedAnswerSerializer(serializers.ModelSerializer):
-    answers = AnswerSerializer(many=True, read_only=True)
+class RequirementSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=True)
 
     class Meta:
-        model = SavedAnswer
-        fields = ['id', 'total_score', 'created_at', 'answers']
+        model = Requirement
+        fields = ['id', 'name', 'questions']
+
+class AnswerSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()  # Ensure question_id is an integer
+    answer = serializers.BooleanField()       # Ensure answer is a boolean
+
+class RequirementAnswerSerializer(serializers.Serializer):
+    requirement_id = serializers.IntegerField()
+    is_relevant = serializers.BooleanField()
+    answers = serializers.ListField(
+        child=AnswerSerializer(),  # Use the corrected AnswerSerializer here
+        required=False
+    )
+
+class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
