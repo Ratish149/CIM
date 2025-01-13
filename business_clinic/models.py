@@ -129,16 +129,95 @@ class Issue(models.Model):
     def __str__(self):
         return f"{self.title} - {self.name_of_company}"
 
+    def save(self, *args, **kwargs):
+        # Get the current state from the database if this is an existing object
+        if self.pk:
+            old_instance = Issue.objects.get(pk=self.pk)
+            
+            # Check for status change
+            if old_instance.progress_status != self.progress_status:
+                IssueAction.objects.create(
+                    issue=self,
+                    action_type='status_change',
+                    old_status=old_instance.progress_status,
+                    new_status=self.progress_status
+                )
+
+            # Check for implementation level change
+            if old_instance.implementation_level != self.implementation_level:
+                IssueAction.objects.create(
+                    issue=self,
+                    action_type='implementation_level_change',
+                    old_value=old_instance.implementation_level,
+                    new_value=self.implementation_level
+                )
+
+            # Check for share contact details change
+            if old_instance.share_contact_details != self.share_contact_details:
+                IssueAction.objects.create(
+                    issue=self,
+                    action_type='share_contact_change',
+                    old_value=str(old_instance.share_contact_details),
+                    new_value=str(self.share_contact_details)
+                )
+
+            # Check for forward to authority change
+            if old_instance.forward_to_authority != self.forward_to_authority:
+                IssueAction.objects.create(
+                    issue=self,
+                    action_type='forward_authority_change',
+                    old_value=str(old_instance.forward_to_authority),
+                    new_value=str(self.forward_to_authority)
+                )
+
+            # Check for nature of industry category change
+            if old_instance.nature_of_industry_category != self.nature_of_industry_category:
+                IssueAction.objects.create(
+                    issue=self,
+                    action_type='industry_category_change',
+                    old_value=str(old_instance.nature_of_industry_category),
+                    new_value=str(self.nature_of_industry_category)
+                )
+
+            # Check for nature of industry subcategory change
+            if old_instance.nature_of_industry_sub_category != self.nature_of_industry_sub_category:
+                IssueAction.objects.create(
+                    issue=self,
+                    action_type='industry_subcategory_change',
+                    old_value=str(old_instance.nature_of_industry_sub_category),
+                    new_value=str(self.nature_of_industry_sub_category)
+                )
+
+            # Check for nature of issue change
+            if old_instance.nature_of_issue != self.nature_of_issue:
+                IssueAction.objects.create(
+                    issue=self,
+                    action_type='nature_of_issue_change',
+                    old_value=old_instance.nature_of_issue,
+                    new_value=self.nature_of_issue
+                )
+
+        super().save(*args, **kwargs)
+
 # Add this new model to track issue actions
 class IssueAction(models.Model):
     issue = models.ForeignKey('Issue', on_delete=models.CASCADE, related_name='actions')
     action_type = models.CharField(max_length=50, choices=[
         ('status_change', 'Status Change'),
         ('comment', 'Comment'),
-        ('assignment', 'Assignment')
+        ('assignment', 'Assignment'),
+        ('forward_to_authority', 'Forward to Authority'),
+        ('implementation_level_change', 'Implementation Level Change'),
+        ('share_contact_change', 'Share Contact Change'),
+        ('forward_authority_change', 'Forward Authority Change'),
+        ('industry_category_change', 'Industry Category Change'),
+        ('industry_subcategory_change', 'Industry Subcategory Change'),
+        ('nature_of_issue_change', 'Nature of Issue Change'),
     ])
     old_status = models.CharField(max_length=50, blank=True, null=True)
     new_status = models.CharField(max_length=50, blank=True, null=True)
+    old_value = models.CharField(max_length=255, blank=True, null=True)  # For storing old values of any field
+    new_value = models.CharField(max_length=255, blank=True, null=True)  # For storing new values of any field
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)

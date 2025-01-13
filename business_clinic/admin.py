@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, Issue
+from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, Issue, IssueAction
 from unfold.admin import ModelAdmin
 
 @admin.register(NatureOfIndustryCategory)
@@ -83,3 +83,40 @@ class IssueAdmin(ModelAdmin):
             'fields': ('progress_status',)
         })
     )
+
+@admin.register(IssueAction)
+class IssueActionAdmin(ModelAdmin):
+    list_display = [
+        'issue',
+        'action_type',
+        'get_change_details',
+        'created_at',
+        'created_by'
+    ]
+    list_filter = [
+        'action_type',
+        'created_at',
+        'created_by'
+    ]
+    search_fields = [
+        'issue__title',
+        'comment',
+        'old_value',
+        'new_value'
+    ]
+    readonly_fields = ['created_at']
+
+    def get_change_details(self, obj):
+        if obj.action_type == 'status_change':
+            return f"From {obj.old_status} to {obj.new_status}"
+        elif obj.action_type in [
+            'implementation_level_change',
+            'share_contact_change',
+            'forward_authority_change',
+            'industry_category_change',
+            'industry_subcategory_change',
+            'nature_of_issue_change'
+        ]:
+            return f"From {obj.old_value} to {obj.new_value}"
+        return obj.comment
+    get_change_details.short_description = 'Change Details'

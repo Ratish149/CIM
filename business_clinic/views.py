@@ -64,18 +64,21 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
 
-    @action(detail=True, methods=['post'])
-    def add_action(self, request, pk=None):
-        issue = self.get_object()
-        action_data = request.data
-        action_data['issue'] = issue.id
-        action_data['created_by'] = request.user.id
+    def perform_update(self, serializer):
+        # Get the user from the request
+        user = self.request.user if self.request.user.is_authenticated else None
         
-        serializer = IssueActionSerializer(data=action_data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+        # Save the issue
+        issue = serializer.save()
+        
+        # If there's a comment in the request data, create a comment action
+        if 'comment' in self.request.data:
+            IssueAction.objects.create(
+                issue=issue,
+                action_type='comment',
+                comment=self.request.data['comment'],
+                created_by=user
+            )
 
 class IssueActionViewSet(generics.ListCreateAPIView):
     serializer_class = IssueActionSerializer
@@ -85,7 +88,11 @@ class IssueActionViewSet(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         issue = Issue.objects.get(pk=self.kwargs['issue_pk'])
-        serializer.save(issue=issue)
+        user = self.request.user if self.request.user.is_authenticated else None
+        serializer.save(
+            issue=issue,
+            created_by=user
+        )
 
 @api_view(['GET'])
 def issue_statistics(request):
