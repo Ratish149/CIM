@@ -7,12 +7,15 @@ import csv
 from rest_framework.response import Response
 from .models import Question,Requirement
 from .serializers import RequirementSerializer,RequirementAnswerSerializer,FileUploadSerializer
+from rest_framework import filters
 
 # Create your views here.
 
 class RequirementListView(generics.ListAPIView):
     queryset = Requirement.objects.all()
     serializer_class = RequirementSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 class CalculatePointsView(APIView):
     def post(self, request, *args, **kwargs):
