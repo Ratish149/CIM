@@ -85,7 +85,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='industry_category_change',
                     old_value=f"{old_category} → {old_subcategory}",
                     new_value=f"{new_category} → {new_subcategory}",
-                    created_by=user,
                     comment=comment
                 )
                 return issue
@@ -99,7 +98,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='industry_subcategory_change',
                     old_value=old_subcategory,
                     new_value=new_subcategory,
-                    created_by=user,
                     comment=comment
                 )
         
@@ -112,7 +110,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='implementation_level_change',
                     old_value=old_implementation_level,
                     new_value=new_implementation_level,
-                    created_by=user,
                     comment=comment
                 )
         
@@ -125,7 +122,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='progress_status_change',
                     old_value=old_progress_status,
                     new_value=new_progress_status,
-                    created_by=user,
                     comment=comment
                 )
         
@@ -138,7 +134,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='nature_of_issue_change',
                     old_value=old_nature_of_issue,
                     new_value=new_nature_of_issue,
-                    created_by=user,
                     comment=comment
                 )
         
@@ -151,7 +146,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='industry_specific_or_common_issue_change',
                     old_value=old_industry_specific_or_common_issue,
                     new_value=new_industry_specific_or_common_issue,
-                    created_by=user,
                     comment=comment
                 )
         
@@ -164,7 +158,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='policy_related_or_procedural_issue_change',
                     old_value=old_policy_related_or_procedural_issue,
                     new_value=new_policy_related_or_procedural_issue,
-                    created_by=user,
                     comment=comment
                 )
         if 'industry_size' in self.request.data:
@@ -176,10 +169,9 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     action_type='industry_size_change',
                     old_value=old_industry_size,
                     new_value=new_industry_size,
-                    created_by=user,
                     comment=comment
                 )
-                
+
         return issue
 
 class IssueActionViewSet(generics.ListCreateAPIView):
