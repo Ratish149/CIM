@@ -90,8 +90,97 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                 )
                 return issue
 
-        # Handle other field changes as before
-        # ... rest of the code ...
+        if 'nature_of_industry_sub_category' in self.request.data:
+            old_subcategory = str(old_instance.nature_of_industry_sub_category)
+            new_subcategory = str(issue.nature_of_industry_sub_category)
+            if old_subcategory != new_subcategory:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_subcategory_change',
+                    old_value=old_subcategory,
+                    new_value=new_subcategory,
+                    created_by=user,
+                    comment=comment
+                )
+        
+        if 'implementation_level' in self.request.data:
+            old_implementation_level = str(old_instance.implementation_level)
+            new_implementation_level = str(issue.implementation_level)
+            if old_implementation_level != new_implementation_level:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='implementation_level_change',
+                    old_value=old_implementation_level,
+                    new_value=new_implementation_level,
+                    created_by=user,
+                    comment=comment
+                )
+        
+        if 'progress_status' in self.request.data:
+            old_progress_status = str(old_instance.progress_status)
+            new_progress_status = str(issue.progress_status)
+            if old_progress_status != new_progress_status:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='progress_status_change',
+                    old_value=old_progress_status,
+                    new_value=new_progress_status,
+                    created_by=user,
+                    comment=comment
+                )
+        
+        if 'nature_of_issue' in self.request.data:
+            old_nature_of_issue = str(old_instance.nature_of_issue)
+            new_nature_of_issue = str(issue.nature_of_issue)
+            if old_nature_of_issue != new_nature_of_issue:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='nature_of_issue_change',
+                    old_value=old_nature_of_issue,
+                    new_value=new_nature_of_issue,
+                    created_by=user,
+                    comment=comment
+                )
+        
+        if 'industry_specific_or_common_issue' in self.request.data:
+            old_industry_specific_or_common_issue = str(old_instance.industry_specific_or_common_issue)
+            new_industry_specific_or_common_issue = str(issue.industry_specific_or_common_issue)
+            if old_industry_specific_or_common_issue != new_industry_specific_or_common_issue:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_specific_or_common_issue_change',
+                    old_value=old_industry_specific_or_common_issue,
+                    new_value=new_industry_specific_or_common_issue,
+                    created_by=user,
+                    comment=comment
+                )
+        
+        if 'policy_related_or_procedural_issue' in self.request.data:
+            old_policy_related_or_procedural_issue = str(old_instance.policy_related_or_procedural_issue)
+            new_policy_related_or_procedural_issue = str(issue.policy_related_or_procedural_issue)
+            if old_policy_related_or_procedural_issue != new_policy_related_or_procedural_issue:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='policy_related_or_procedural_issue_change',
+                    old_value=old_policy_related_or_procedural_issue,
+                    new_value=new_policy_related_or_procedural_issue,
+                    created_by=user,
+                    comment=comment
+                )
+        if 'industry_size' in self.request.data:
+            old_industry_size = str(old_instance.industry_size)
+            new_industry_size = str(issue.industry_size)
+            if old_industry_size != new_industry_size:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_size_change',
+                    old_value=old_industry_size,
+                    new_value=new_industry_size,
+                    created_by=user,
+                    comment=comment
+                )
+                
+        return issue
 
 class IssueActionViewSet(generics.ListCreateAPIView):
     serializer_class = IssueActionSerializer

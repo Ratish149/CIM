@@ -91,12 +91,10 @@ class IssueActionAdmin(ModelAdmin):
         'action_type',
         'get_change_details',
         'created_at',
-        'created_by'
     ]
     list_filter = [
         'action_type',
         'created_at',
-        'created_by'
     ]
     search_fields = [
         'issue__title',
@@ -115,7 +113,10 @@ class IssueActionAdmin(ModelAdmin):
             'forward_authority_change',
             'industry_category_change',
             'industry_subcategory_change',
-            'nature_of_issue_change'
+            'nature_of_issue_change',
+            'industry_size_change',
+            'industry_specific_or_common_issue_change',
+            'policy_related_or_procedural_issue_change'
         ]:
             return f"From {obj.old_value} to {obj.new_value}"
         return obj.comment

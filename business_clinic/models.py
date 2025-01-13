@@ -139,6 +139,8 @@ class IssueAction(models.Model):
         ('industry_subcategory_change', 'Industry Subcategory Change'),
         ('nature_of_issue_change', 'Nature of Issue Change'),
         ('industry_size_change', 'Industry Size Change'),
+        ('industry_specific_or_common_issue_change', 'Industry Specific or Common Issue Change'),
+        ('policy_related_or_procedural_issue_change', 'Policy Related or Procedural Issue Change'),
     ])
     old_status = models.CharField(max_length=50, blank=True, null=True)
     new_status = models.CharField(max_length=50, blank=True, null=True)
@@ -146,7 +148,6 @@ class IssueAction(models.Model):
     new_value = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         ordering = ['-created_at']
