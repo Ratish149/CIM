@@ -65,14 +65,25 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = IssueSerializer
 
     def perform_update(self, serializer):
+        # Only track changes for the field being updated
         old_instance = self.get_object()
         user = self.request.user if self.request.user.is_authenticated else None
         comment = self.request.data.get('comment', '')
         
-        # Save the issue first
+        # Get the field being updated from request data
+        updated_field = next(iter(self.request.data.keys()))
+        if updated_field == 'comment':
+            # If only comment is in the request data, get the next field
+            updated_field = next((k for k in self.request.data.keys() if k != 'comment'), None)
+        
+        if not updated_field:
+            # If no field to update, just save
+            return serializer.save()
+
+        # Save the issue
         issue = serializer.save()
         
-        # Track changes only for specific fields
+        # Map of tracked fields and their action types
         tracked_fields = {
             'progress_status': {
                 'type': 'status_change',
@@ -107,8 +118,9 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
             },
         }
 
-        # Check each tracked field for changes
-        for field, config in tracked_fields.items():
+        # Only create action for the field being updated
+        if updated_field in tracked_fields:
+            config = tracked_fields[updated_field]
             old_value = config['old']
             new_value = config['new']
             
@@ -132,6 +144,8 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     })
                 
                 IssueAction.objects.create(**action_data)
+
+        return issue
 
 class IssueActionViewSet(generics.ListCreateAPIView):
     serializer_class = IssueActionSerializer
