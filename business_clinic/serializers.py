@@ -22,7 +22,6 @@ class NatureOfIndustrySubCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'category', 'category_id']
 
 class IssueActionSerializer(serializers.ModelSerializer):
-    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
     
     class Meta:
         model = IssueAction
@@ -36,10 +35,8 @@ class IssueActionSerializer(serializers.ModelSerializer):
             'new_value',
             'comment',
             'created_at',
-            'created_by',
-            'created_by_name'
         ]
-        read_only_fields = ('created_at', 'created_by')
+        read_only_fields = ('created_at')
 
 class IssueSerializer(serializers.ModelSerializer):
     nature_of_industry_category = serializers.PrimaryKeyRelatedField(
