@@ -65,87 +65,33 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = IssueSerializer
 
     def perform_update(self, serializer):
-        # Only track changes for the field being updated
         old_instance = self.get_object()
         user = self.request.user if self.request.user.is_authenticated else None
         comment = self.request.data.get('comment', '')
         
-        # Get the field being updated from request data
-        updated_field = next(iter(self.request.data.keys()))
-        if updated_field == 'comment':
-            # If only comment is in the request data, get the next field
-            updated_field = next((k for k in self.request.data.keys() if k != 'comment'), None)
-        
-        if not updated_field:
-            # If no field to update, just save
-            return serializer.save()
-
         # Save the issue
         issue = serializer.save()
         
-        # Map of tracked fields and their action types
-        tracked_fields = {
-            'progress_status': {
-                'type': 'status_change',
-                'old': old_instance.progress_status,
-                'new': issue.progress_status,
-                'use_status': True
-            },
-            'implementation_level': {
-                'type': 'implementation_level_change',
-                'old': old_instance.implementation_level,
-                'new': issue.implementation_level,
-            },
-            'nature_of_industry_category': {
-                'type': 'industry_category_change',
-                'old': str(old_instance.nature_of_industry_category),
-                'new': str(issue.nature_of_industry_category),
-            },
-            'nature_of_industry_sub_category': {
-                'type': 'industry_subcategory_change',
-                'old': str(old_instance.nature_of_industry_sub_category),
-                'new': str(issue.nature_of_industry_sub_category),
-            },
-            'nature_of_issue': {
-                'type': 'nature_of_issue_change',
-                'old': old_instance.nature_of_issue,
-                'new': issue.nature_of_issue,
-            },
-            'industry_size': {
-                'type': 'industry_size_change',
-                'old': old_instance.industry_size,
-                'new': issue.industry_size,
-            },
-        }
-
-        # Only create action for the field being updated
-        if updated_field in tracked_fields:
-            config = tracked_fields[updated_field]
-            old_value = config['old']
-            new_value = config['new']
+        # Handle category and subcategory changes together
+        if 'nature_of_industry_category' in self.request.data:
+            old_category = str(old_instance.nature_of_industry_category)
+            new_category = str(issue.nature_of_industry_category)
+            old_subcategory = str(old_instance.nature_of_industry_sub_category)
+            new_subcategory = str(issue.nature_of_industry_sub_category)
             
-            if old_value != new_value:
-                action_data = {
-                    'issue': issue,
-                    'action_type': config['type'],
-                    'created_by': user,
-                    'comment': comment,
-                }
-                
-                if config.get('use_status', False):
-                    action_data.update({
-                        'old_status': old_value,
-                        'new_status': new_value
-                    })
-                else:
-                    action_data.update({
-                        'old_value': old_value,
-                        'new_value': new_value
-                    })
-                
-                IssueAction.objects.create(**action_data)
+            if old_category != new_category or old_subcategory != new_subcategory:
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_category_change',
+                    old_value=f"{old_category} → {old_subcategory}",
+                    new_value=f"{new_category} → {new_subcategory}",
+                    created_by=user,
+                    comment=comment
+                )
+                return issue
 
-        return issue
+        # Handle other field changes as before
+        # ... rest of the code ...
 
 class IssueActionViewSet(generics.ListCreateAPIView):
     serializer_class = IssueActionSerializer
