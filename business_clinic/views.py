@@ -72,31 +72,66 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
         # Save the issue first
         issue = serializer.save()
         
-        # Track only the field that changed
-        changed_data = serializer.validated_data
-        
-        # Check each field and create action only if it changed
-        if 'progress_status' in changed_data and old_instance.progress_status != issue.progress_status:
-            IssueAction.objects.create(
-                issue=issue,
-                action_type='status_change',
-                old_status=old_instance.progress_status,
-                new_status=issue.progress_status,
-                created_by=user,
-                comment=comment
-            )
-        
-        if 'implementation_level' in changed_data and old_instance.implementation_level != issue.implementation_level:
-            IssueAction.objects.create(
-                issue=issue,
-                action_type='implementation_level_change',
-                old_value=old_instance.implementation_level,
-                new_value=issue.implementation_level,
-                created_by=user,
-                comment=comment
-            )
-        
-        # ... similar checks for other fields ...
+        # Track changes only for specific fields
+        tracked_fields = {
+            'progress_status': {
+                'type': 'status_change',
+                'old': old_instance.progress_status,
+                'new': issue.progress_status,
+                'use_status': True
+            },
+            'implementation_level': {
+                'type': 'implementation_level_change',
+                'old': old_instance.implementation_level,
+                'new': issue.implementation_level,
+            },
+            'nature_of_industry_category': {
+                'type': 'industry_category_change',
+                'old': str(old_instance.nature_of_industry_category),
+                'new': str(issue.nature_of_industry_category),
+            },
+            'nature_of_industry_sub_category': {
+                'type': 'industry_subcategory_change',
+                'old': str(old_instance.nature_of_industry_sub_category),
+                'new': str(issue.nature_of_industry_sub_category),
+            },
+            'nature_of_issue': {
+                'type': 'nature_of_issue_change',
+                'old': old_instance.nature_of_issue,
+                'new': issue.nature_of_issue,
+            },
+            'industry_size': {
+                'type': 'industry_size_change',
+                'old': old_instance.industry_size,
+                'new': issue.industry_size,
+            },
+        }
+
+        # Check each tracked field for changes
+        for field, config in tracked_fields.items():
+            old_value = config['old']
+            new_value = config['new']
+            
+            if old_value != new_value:
+                action_data = {
+                    'issue': issue,
+                    'action_type': config['type'],
+                    'created_by': user,
+                    'comment': comment,
+                }
+                
+                if config.get('use_status', False):
+                    action_data.update({
+                        'old_status': old_value,
+                        'new_status': new_value
+                    })
+                else:
+                    action_data.update({
+                        'old_value': old_value,
+                        'new_value': new_value
+                    })
+                
+                IssueAction.objects.create(**action_data)
 
 class IssueActionViewSet(generics.ListCreateAPIView):
     serializer_class = IssueActionSerializer
