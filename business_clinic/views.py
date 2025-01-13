@@ -65,19 +65,71 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = IssueSerializer
 
     def perform_update(self, serializer):
-        # Get the user from the request
+        old_instance = self.get_object()
         user = self.request.user if self.request.user.is_authenticated else None
         
-        # Save the issue
+        # Save the issue first
         issue = serializer.save()
         
-        # If there's a comment in the request data, create a comment action
-        if 'comment' in self.request.data:
+        # Track changes only for specific fields
+        if old_instance.progress_status != issue.progress_status:
             IssueAction.objects.create(
                 issue=issue,
-                action_type='comment',
-                comment=self.request.data['comment'],
-                created_by=user
+                action_type='status_change',
+                old_status=old_instance.progress_status,
+                new_status=issue.progress_status,
+                created_by=user,
+                comment=self.request.data.get('comment', '')
+            )
+            
+        if old_instance.implementation_level != issue.implementation_level:
+            IssueAction.objects.create(
+                issue=issue,
+                action_type='implementation_level_change',
+                old_value=old_instance.implementation_level,
+                new_value=issue.implementation_level,
+                created_by=user,
+                comment=self.request.data.get('comment', '')
+            )
+
+        if old_instance.nature_of_industry_category != issue.nature_of_industry_category:
+            IssueAction.objects.create(
+                issue=issue,
+                action_type='industry_category_change',
+                old_value=str(old_instance.nature_of_industry_category),
+                new_value=str(issue.nature_of_industry_category),
+                created_by=user,
+                comment=self.request.data.get('comment', '')
+            )
+
+        if old_instance.nature_of_industry_sub_category != issue.nature_of_industry_sub_category:
+            IssueAction.objects.create(
+                issue=issue,
+                action_type='industry_subcategory_change',
+                old_value=str(old_instance.nature_of_industry_sub_category),
+                new_value=str(issue.nature_of_industry_sub_category),
+                created_by=user,
+                comment=self.request.data.get('comment', '')
+            )
+
+        if old_instance.nature_of_issue != issue.nature_of_issue:
+            IssueAction.objects.create(
+                issue=issue,
+                action_type='nature_of_issue_change',
+                old_value=old_instance.nature_of_issue,
+                new_value=issue.nature_of_issue,
+                created_by=user,
+                comment=self.request.data.get('comment', '')
+            )
+
+        if old_instance.industry_size != issue.industry_size:
+            IssueAction.objects.create(
+                issue=issue,
+                action_type='industry_size_change',
+                old_value=old_instance.industry_size,
+                new_value=issue.industry_size,
+                created_by=user,
+                comment=self.request.data.get('comment', '')
             )
 
 class IssueActionViewSet(generics.ListCreateAPIView):

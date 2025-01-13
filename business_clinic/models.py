@@ -204,20 +204,16 @@ class IssueAction(models.Model):
     issue = models.ForeignKey('Issue', on_delete=models.CASCADE, related_name='actions')
     action_type = models.CharField(max_length=50, choices=[
         ('status_change', 'Status Change'),
-        ('comment', 'Comment'),
-        ('assignment', 'Assignment'),
-        ('forward_to_authority', 'Forward to Authority'),
         ('implementation_level_change', 'Implementation Level Change'),
-        ('share_contact_change', 'Share Contact Change'),
-        ('forward_authority_change', 'Forward Authority Change'),
         ('industry_category_change', 'Industry Category Change'),
         ('industry_subcategory_change', 'Industry Subcategory Change'),
         ('nature_of_issue_change', 'Nature of Issue Change'),
+        ('industry_size_change', 'Industry Size Change'),
     ])
     old_status = models.CharField(max_length=50, blank=True, null=True)
     new_status = models.CharField(max_length=50, blank=True, null=True)
-    old_value = models.CharField(max_length=255, blank=True, null=True)  # For storing old values of any field
-    new_value = models.CharField(max_length=255, blank=True, null=True)  # For storing new values of any field
+    old_value = models.CharField(max_length=255, blank=True, null=True)
+    new_value = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
