@@ -12,11 +12,10 @@ from rest_framework import filters
 # Create your views here.
 
 class RequirementListView(generics.ListAPIView):
-    queryset = Requirement.objects.all()
+    queryset = Requirement.objects.all().order_by('id')
     serializer_class = RequirementSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
-    ordering = ['id']
 
 class CalculatePointsView(APIView):
     def post(self, request, *args, **kwargs):
