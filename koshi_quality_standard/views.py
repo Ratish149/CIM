@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 from django.db import models
 import csv
 
-from rest_framework.response import Response
-from .models import Question,Requirement
-from .serializers import RequirementSerializer,RequirementAnswerSerializer,FileUploadSerializer
+from rest_framework.response import Response as DRFResponse
+from .models import Question, Requirement, Response
+from .serializers import RequirementSerializer, RequirementAnswerSerializer, FileUploadSerializer
 from rest_framework import filters
 
 # Create your views here.
@@ -19,7 +19,14 @@ class RequirementListView(generics.ListAPIView):
 
 class CalculatePointsView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = RequirementAnswerSerializer(data=request.data, many=True)
+        # Extract additional fields from the request
+        name = request.data.get('name', '')
+        email = request.data.get('email', '')
+        phone = request.data.get('phone', '')
+        requirements_data = request.data.get('requirements', [])
+
+        # Validate the requirements data
+        serializer = RequirementAnswerSerializer(data=requirements_data, many=True)
         if serializer.is_valid():
             total_points = Question.objects.aggregate(total=models.Sum('points'))['total'] or 0
             earned_points = 0
@@ -46,22 +53,31 @@ class CalculatePointsView(APIView):
 
                             if question_answer is True:
                                 earned_points += question.points
-                            elif question_answer is False:
-                                earned_points += 0  # No points for false
+                            # No need for an else clause since False adds 0
                         except Question.DoesNotExist:
-                            return Response(
+                            return DRFResponse(
                                 {"error": f"Question with ID {question_id} does not exist."},
                                 status=status.HTTP_404_NOT_FOUND,
                             )
 
-            return Response(
+            # Save the response data to the database using the custom Response model
+            response_instance = Response(
+                name=name,  # Use the extracted name
+                email=email,  # Use the extracted email
+                phone=phone,  # Use the extracted phone
+                response_data=serializer.validated_data,  # Store the validated data
+                earned_points=earned_points
+            )
+            response_instance.save()  # Save the instance to the database
+
+            return DRFResponse(
                 {
                     "total_points": total_points,
                     "earned_points": earned_points,
                 },
                 status=status.HTTP_200_OK,
             )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return DRFResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RequirementQuestionBulkUploadView(APIView):
@@ -69,7 +85,7 @@ class RequirementQuestionBulkUploadView(APIView):
     def post(self, request, *args, **kwargs):
         csv_file = request.FILES.get('file')
         if not csv_file:
-            return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+            return DRFResponse({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Decode the file to a text stream and parse it
@@ -112,12 +128,12 @@ class RequirementQuestionBulkUploadView(APIView):
                     skip_count += 1
                     print(f"Failed to insert row: {row}. Error: {e}")  # Debugging
 
-            return Response({
+            return DRFResponse({
                 "message": "CSV file data uploaded successfully!",
                 "records_created": success_count,
                 "records_skipped": skip_count
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return DRFResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

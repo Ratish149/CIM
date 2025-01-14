@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question,Requirement
+from .models import Question,Requirement,Response
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -25,6 +25,13 @@ class RequirementAnswerSerializer(serializers.Serializer):
         child=AnswerSerializer(),  # Use the corrected AnswerSerializer here
         required=False
     )
+
+
+
+class ResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Response
+        fields = ['id', 'name', 'email', 'phone', 'response_data', 'created_at','earned_points']
 
 class FileUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
