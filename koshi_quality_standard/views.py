@@ -16,6 +16,7 @@ class RequirementListView(generics.ListAPIView):
     serializer_class = RequirementSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
+    ordering = ['id']
 
 class CalculatePointsView(APIView):
     def post(self, request, *args, **kwargs):
