@@ -78,7 +78,7 @@ class CalculatePointsView(APIView):
             pdf_content = self.generate_pdf(name, email, phone, serializer.validated_data, total_points, earned_points)
 
             # Send email with the PDF
-            self.send_email_with_pdf(name, email, pdf_content)
+            self.send_email_with_pdf(name, email, pdf_content, total_points, earned_points)
 
             return DRFResponse(
                 {
@@ -138,16 +138,22 @@ class CalculatePointsView(APIView):
         pdf_buffer.seek(0)
         return pdf_buffer.getvalue()
 
-    def send_email_with_pdf(self, name, email, pdf_content):
-        email_subject = "Your Requirements Response and Points Summary"
-        email_body = render_to_string('mail/email_template.html', {'name': name})
+    def send_email_with_pdf(self, name, email, pdf_content, total_points, earned_points):
+        from django.conf import settings  # Import settings
+
+        email_subject = "Your Response Summary"
+        email_body = render_to_string('mail/email_template.html', {
+            'name': name,
+            'total_points': total_points,
+            'earned_points': earned_points,
+        })
         email_message = EmailMessage(
             subject=email_subject,
             body=email_body,
-            from_email='your_email@example.com',
+            from_email=settings.DEFAULT_FROM_EMAIL,  # Use default email from settings
             to=[email],
         )
-        email_message.attach('response_summary.pdf', pdf_content, 'application/pdf')
+        email_message.attach(f'{name}_summary.pdf', pdf_content, 'application/pdf')
         email_message.content_subtype = 'html'  # Set email body content as HTML
         email_message.send()
 

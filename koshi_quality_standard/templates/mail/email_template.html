@@ -1,9 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dcdde1;
+        }
+        .header {
+            background: linear-gradient(90deg, #4a69bd, #2c3e50);
+            color: #ffffff;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 35px;
+            color: #2f3640;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        .content p {
+            margin: 15px 0;
+        }
+        .content .summary {
+            background-color: #f0f3f7;
+            padding: 15px 20px;
+            border-left: 4px solid #4a69bd;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-top: 1px solid #dcdde1;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
 <body>
-    <p>Dear {{ name }},</p>
-    <p>Thank you for completing the requirements questionnaire. Please find attached your response summary along with the points earned.</p>
-    <p>Best regards,</p>
-    <p>Your Company Name</p>
+    <div class="email-container">
+        <div class="header">
+            <h1>Your Response Summary</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{ name }},</p>
+            <p>Thank you for completing the requirements questionnaire. Below is a brief summary of your responses:</p>
+            <div class="summary">
+                <p><strong>Total Points:</strong> {{ total_points }}</p>
+                <p><strong>Earned Points:</strong> {{ earned_points }}</p>
+            </div>
+            <p>The detailed summary of your responses is attached to this email in PDF format. Please review it at your convenience.</p>
+            <p>If you have any questions or need further assistance, feel free to reach out to us.</p>
+        </div>
+        <div class="footer">
+            <p>Warm regards,</p>
+            <p><strong>Birat Expo 2025</strong></p>
+        </div>
+    </div>
 </body>
 </html>
