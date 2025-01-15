@@ -6,13 +6,10 @@ import csv
 
 from rest_framework.response import Response as DRFResponse
 from .models import Question, Requirement, Response
-from .serializers import RequirementSerializer, RequirementAnswerSerializer, FileUploadSerializer
+from .serializers import RequirementSerializer, FileUploadSerializer
 from rest_framework import filters
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from xhtml2pdf import pisa
-from io import BytesIO
-from datetime import datetime
 from django.conf import settings
 
 # Create your views here.
@@ -60,49 +57,31 @@ class CalculatePointsView(APIView):
                     "answers": answers
                 })
 
-        pdf_content = self.generate_paginated_pdf(name, email, phone, enriched_data, total_points, earned_points)
-        self.send_email_with_pdf(name, email, pdf_content)
+        # Save the response data
+        Response.objects.create(
+            name=name,
+            email=email,
+            phone=phone,
+            response_data=requirements_data,  # Save the original requirements data
+            earned_points=earned_points
+        )
+
+        self.send_email_with_summary(name, email, enriched_data, total_points, earned_points)
 
         return DRFResponse({
             "total_points": total_points,
             "earned_points": earned_points,
-            "message": "PDF generated and sent successfully!"
+            "message": "Summary sent successfully!"
         }, status=status.HTTP_200_OK)
 
-    def paginate_data(self, data, items_per_page=5):
-        for i in range(0, len(data), items_per_page):
-            yield data[i:i + items_per_page]
-
-    def generate_paginated_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
-        pdf_buffer = BytesIO()
-        current_year = datetime.now().year
-        page_size = 20  # Adjust this based on the number of rows that fit on one page
-        paginated_data = [
-            requirements_data[i:i + page_size] for i in range(0, len(requirements_data), page_size)
-        ]
-        
-        for page_number, page_data in enumerate(paginated_data, start=1):
-            context = {
-                "name": name or "N/A",
-                "email": email or "N/A",
-                "phone": phone or "N/A",
-                "requirements_data": page_data,
-                "total_points": total_points,
-                "earned_points": earned_points,
-                "current_year": current_year,
-                "page_number": page_number,
-                "total_pages": len(paginated_data),
-            }
-            html_content = render_to_string("pdf/pdf_template.html", context)
-            pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer, encoding="UTF-8")
-            if pisa_status.err:
-                raise Exception("PDF generation failed")
-        pdf_buffer.seek(0)
-        return pdf_buffer.getvalue()
-
-    def send_email_with_pdf(self, name, email, pdf_content):
-        subject = "Response Summary PDF"
-        body = render_to_string("mail/email_template.html", {"name": name})
+    def send_email_with_summary(self, name, email, enriched_data, total_points, earned_points):
+        subject = "Response Summary"
+        body = render_to_string("mail/email_template.html", {
+            "name": name,
+            "enriched_data": enriched_data,
+            "total_points": total_points,
+            "earned_points": earned_points
+        })
         from_email = settings.DEFAULT_FROM_EMAIL
         to_email = [email]
 
@@ -112,7 +91,6 @@ class CalculatePointsView(APIView):
             from_email=from_email,
             to=to_email,
         )
-        email_message.attach(f"{name}_response_summary.pdf", pdf_content, "application/pdf")
         email_message.content_subtype = "html"
         email_message.send()
 
