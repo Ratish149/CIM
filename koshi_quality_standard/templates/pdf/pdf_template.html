@@ -76,6 +76,17 @@
         th:nth-child(2), td:nth-child(2) { width: 15%; }
         th:nth-child(3), td:nth-child(3) { width: 40%; }
         th:nth-child(4), td:nth-child(4) { width: 20%; }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            min-width: 600px;
+        }
+        td {
+            max-width: 300px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -88,30 +99,32 @@
             <p><strong>Email:</strong> {{ email }}</p>
             <p><strong>Phone:</strong> {{ phone }}</p>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Requirement Name</th>
-                    <th>Relevance</th>
-                    <th>Question Name</th>
-                    <th>Answer</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for requirement in requirements_data %}
-                    {% for answer in requirement.answers %}
-                        <tr>
-                            {% if forloop.first %}
-                                <td rowspan="{{ requirement.answers|length }}">{{ requirement.requirement_name }}</td>
-                                <td rowspan="{{ requirement.answers|length }}">{{ requirement.is_relevant }}</td>
-                            {% endif %}
-                            <td>{{ answer.question_name }}</td>
-                            <td>{{ answer.answer }}</td>
-                        </tr>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%">Requirement Name</th>
+                        <th style="width: 15%">Relevance</th>
+                        <th style="width: 40%">Question Name</th>
+                        <th style="width: 20%">Answer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for requirement in requirements_data %}
+                        {% for answer in requirement.answers %}
+                            <tr>
+                                {% if forloop.first %}
+                                    <td rowspan="{{ requirement.answers|length }}">{{ requirement.requirement_name|default:"Unknown" }}</td>
+                                    <td rowspan="{{ requirement.answers|length }}">{{ requirement.is_relevant|default:"Unknown" }}</td>
+                                {% endif %}
+                                <td>{{ answer.question_name|default:"Unknown Question" }}</td>
+                                <td>{{ answer.answer|default:"N/A" }}</td>
+                            </tr>
+                        {% endfor %}
                     {% endfor %}
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
         <div class="summary">
             <p><strong>Total Points:</strong> {{ total_points }}</p>
             <p><strong>Earned Points:</strong> {{ earned_points }}</p>

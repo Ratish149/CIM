@@ -90,42 +90,71 @@ class CalculatePointsView(APIView):
         return DRFResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def generate_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
-        # Prepare enriched data
+        # Prepare enriched data with error handling
         enriched_data = []
         for req in requirements_data:
-            requirement_id = req['requirement_id']
-            requirement_name = Requirement.objects.get(id=requirement_id).name
-            is_relevant = req['is_relevant']
-            answers = [
-                {
-                    'question_id': ans['question_id'],
-                    'question_name': Question.objects.get(id=ans['question_id']).text,
-                    'answer': "Yes" if ans['answer'] else "No"
-                } for ans in req.get('answers', [])
-            ]
+            try:
+                requirement_id = req['requirement_id']
+                requirement = Requirement.objects.get(id=requirement_id)
+                requirement_name = requirement.name if requirement else "Unknown"
+                is_relevant = req['is_relevant']
+                
+                # Handle answers with error checking
+                answers = []
+                for ans in req.get('answers', []):
+                    try:
+                        question = Question.objects.get(id=ans['question_id'])
+                        answers.append({
+                            'question_id': ans['question_id'],
+                            'question_name': question.text if question else "Unknown Question",
+                            'answer': "Yes" if ans['answer'] else "No"
+                        })
+                    except Question.DoesNotExist:
+                        continue  # Skip invalid questions
 
-            enriched_data.append({
-                'requirement_name': requirement_name,
-                'is_relevant': "Relevant" if is_relevant else "Not Relevant",
-                'answers': answers or [{"question_name": "No Questions", "answer": "N/A"}]
-            })
+                if not answers:
+                    answers = [{"question_name": "No Questions", "answer": "N/A"}]
+
+                enriched_data.append({
+                    'requirement_name': requirement_name,
+                    'is_relevant': "Relevant" if is_relevant else "Not Relevant",
+                    'answers': answers
+                })
+            except Requirement.DoesNotExist:
+                continue  # Skip invalid requirements
+
+        # Add current year to context
+        from datetime import datetime
+        current_year = datetime.now().year
 
         # Render the HTML template with context
         html_template = 'pdf/pdf_template.html'
         context = {
-            'name': name,
-            'email': email,
-            'phone': phone,
+            'name': name or "Not Provided",
+            'email': email or "Not Provided",
+            'phone': phone or "Not Provided",
             'requirements_data': enriched_data,
-            'total_points': total_points,
-            'earned_points': earned_points,
+            'total_points': total_points or 0,
+            'earned_points': earned_points or 0,
+            'current_year': current_year,
         }
 
         html_content = render_to_string(html_template, context)
+        
+        # Configure PDF options
         pdf_buffer = BytesIO()
+        pdf_options = {
+            'encoding': 'UTF-8',
+            'quiet': True,
+        }
 
-        # Create PDF
-        pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer)
+        # Create PDF with error handling
+        pisa_status = pisa.CreatePDF(
+            html_content,
+            dest=pdf_buffer,
+            **pdf_options
+        )
+
         if pisa_status.err:
             raise Exception("PDF generation failed")
 
