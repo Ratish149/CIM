@@ -90,32 +90,46 @@ class CalculatePointsView(APIView):
             yield data[i:i + items_per_page]
 
     def generate_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
-        """Generate paginated PDFs to handle large data."""
+        """Generate a PDF with the updated layout."""
         current_year = datetime.now().year
-        paginated_data = list(self.paginate_data(requirements_data, items_per_page=10))  # 10 items per page
+        enriched_data = []
+
+        for requirement_data in requirements_data:
+            requirement_name = Requirement.objects.get(id=requirement_data["requirement_id"]).name
+            is_relevant = requirement_data["is_relevant"]
+            if is_relevant:
+                answers = []
+                for answer_data in requirement_data["answers"]:
+                    question_id = answer_data["question_id"]
+                    question = Question.objects.get(id=question_id)
+                    answers.append({
+                        "question_name": question.text,
+                        "answer": "Yes" if answer_data["answer"] else "No"
+                    })
+                enriched_data.append({
+                    "requirement_name": requirement_name,
+                    "answers": answers
+                })
+
+        context = {
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "requirements_data": enriched_data,
+            "total_points": total_points,
+            "earned_points": earned_points,
+            "current_year": current_year,
+        }
+
+        # Render HTML and generate PDF
+        html_content = render_to_string("pdf/pdf_template.html", context)
         pdf_buffer = BytesIO()
-
-        for page_index, page_data in enumerate(paginated_data, start=1):
-            context = {
-                "name": name,
-                "email": email,
-                "phone": phone,
-                "requirements_data": page_data,
-                "total_points": total_points,
-                "earned_points": earned_points,
-                "current_year": current_year,
-                "page_number": page_index,
-                "total_pages": len(paginated_data),
-            }
-
-            html_content = render_to_string("pdf/pdf_template.html", context)
-            pisa.CreatePDF(html_content, dest=pdf_buffer, encoding="UTF-8")
+        pisa.CreatePDF(html_content, dest=pdf_buffer, encoding="UTF-8")
 
         if pdf_buffer.getvalue():
             pdf_buffer.seek(0)
             return pdf_buffer.getvalue()
         raise Exception("PDF generation failed")
-
     def send_email_with_pdf(self, name, email, pdf_content, total_points, earned_points):
         """Send an email with the generated PDF attached."""
         email_subject = "Your Response Summary"
