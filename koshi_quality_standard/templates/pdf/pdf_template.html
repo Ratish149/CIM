@@ -3,77 +3,59 @@
 <head>
     <style>
         @page {
-            size: a4 portrait;
+            size: A4;
             margin: 2cm;
         }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
             margin: 0;
             padding: 0;
         }
         .container {
             width: 100%;
-            margin: 0;
-            background: #ffffff;
             padding: 10px;
+            margin: 0;
         }
         .header {
             text-align: center;
             padding: 8px;
             background-color: #4a69bd;
-            color: #ffffff;
+            color: white;
             font-size: 20px;
-            margin-bottom: 10px;
         }
         .info {
-            margin: 10px 0;
+            margin: 15px 0;
             font-size: 12px;
         }
         .info p {
-            margin: 3px 0;
+            margin: 5px 0;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
             font-size: 10px;
-            color: #333333;
-            page-break-inside: auto;
-        }
-        tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
         }
         th, td {
             border: 1px solid #ddd;
             padding: 6px;
             text-align: left;
             word-wrap: break-word;
-            max-width: 200px;  /* Limit cell width */
         }
         th {
             background-color: #4a69bd;
-            color: #ffffff;
+            color: white;
         }
         .footer {
             text-align: center;
-            font-size: 10px;
-            color: #7f8c8d;
-            margin-top: 8px;
-            border-top: 1px solid #ddd;
-            padding-top: 4px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            font-size: 12px;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            Response Summary
-        </div>
+        <div class="header">Response Summary</div>
         <div class="info">
             <p><strong>Name:</strong> {{ name }}</p>
             <p><strong>Email:</strong> {{ email }}</p>
@@ -82,9 +64,9 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 25%">Requirement Name</th>
-                    <th style="width: 35%">Question Name</th>
-                    <th style="width: 40%">Answer</th>
+                    <th>Requirement Name</th>
+                    <th>Question Name</th>
+                    <th>Answer</th>
                 </tr>
             </thead>
             <tbody>
