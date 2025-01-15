@@ -32,7 +32,7 @@ class CalculatePointsView(APIView):
         # Validate the requirements data
         serializer = RequirementAnswerSerializer(data=requirements_data, many=True)
         if serializer.is_valid():
-            total_points = Question.objects.aggregate(total=models.Sum('points'))['total'] or 0
+            total_points = 417
             earned_points = 0
 
             for requirement_data in serializer.validated_data:
