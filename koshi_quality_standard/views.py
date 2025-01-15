@@ -64,13 +64,13 @@ class CalculatePointsView(APIView):
                     "answers": answers
                 })
 
-        # Generate the PDF
+        # Generate the paginated PDF
         pdf_content = self.generate_paginated_pdf(name, email, phone, enriched_data, total_points, earned_points)
 
         # Send email with the PDF attached
         self.send_email_with_pdf(name, email, pdf_content)
 
-        # Send response
+        # Return response
         return DRFResponse({
             "total_points": total_points,
             "earned_points": earned_points,
