@@ -55,7 +55,7 @@ class CalculatePointsView(APIView):
                         try:
                             question = Question.objects.get(id=question_id)
 
-                            if question_answer is True:
+                            if question_answer is True and question.points is not None:
                                 earned_points += question.points
                             # No need for an else clause since False adds 0
                         except Question.DoesNotExist:
@@ -94,34 +94,28 @@ class CalculatePointsView(APIView):
         enriched_data = []
         for req in requirements_data:
             try:
-                requirement_id = req['requirement_id']
-                requirement = Requirement.objects.get(id=requirement_id)
+                requirement_id = req.get('requirement_id', None)
+                requirement = Requirement.objects.get(id=requirement_id) if requirement_id else None
                 requirement_name = requirement.name if requirement else "Unknown"
-                is_relevant = req['is_relevant']
-                
-                # Handle answers with error checking
+                is_relevant = req.get('is_relevant', "Unknown")
                 answers = []
-                for ans in req.get('answers', []):
-                    try:
-                        question = Question.objects.get(id=ans['question_id'])
-                        answers.append({
-                            'question_id': ans['question_id'],
-                            'question_name': question.text if question else "Unknown Question",
-                            'answer': "Yes" if ans['answer'] else "No"
-                        })
-                    except Question.DoesNotExist:
-                        continue  # Skip invalid questions
 
-                if not answers:
-                    answers = [{"question_name": "No Questions", "answer": "N/A"}]
+                for ans in req.get('answers', []):
+                    question_id = ans.get('question_id', None)
+                    question = Question.objects.get(id=question_id) if question_id else None
+                    answers.append({
+                        'question_id': question_id or "Unknown",
+                        'question_name': question.text if question else "Unknown Question",
+                        'answer': "Yes" if ans.get('answer', False) else "No"
+                    })
 
                 enriched_data.append({
                     'requirement_name': requirement_name,
                     'is_relevant': "Relevant" if is_relevant else "Not Relevant",
-                    'answers': answers
+                    'answers': answers if answers else [{"question_name": "No Questions", "answer": "N/A"}]
                 })
             except Requirement.DoesNotExist:
-                continue  # Skip invalid requirements
+                continue
 
         # Add current year to context
         from datetime import datetime

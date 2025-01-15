@@ -10,7 +10,7 @@ class Requirement(models.Model):
 class Question(models.Model):
     requirement = models.ForeignKey(Requirement, on_delete=models.CASCADE, related_name="questions",null=True,blank=True)
     text = models.CharField(null=True,blank=True,max_length=255)
-    points = models.FloatField(null=True,blank=True)
+    points = models.FloatField(null=True,blank=True,default=0)
 
     def __str__(self):
         return self.text
