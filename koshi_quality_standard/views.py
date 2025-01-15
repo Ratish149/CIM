@@ -83,12 +83,14 @@ class CalculatePointsView(APIView):
             yield data[i:i + items_per_page]
 
     def generate_paginated_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
-        """Generate a paginated PDF."""
-        current_year = datetime.now().year
-        paginated_data = list(self.paginate_data(requirements_data, items_per_page=3))
+        """Generate a paginated PDF with proper layout."""
         pdf_buffer = BytesIO()
+        current_year = datetime.now().year
 
-        for page_index, page_data in enumerate(paginated_data, start=1):
+        # Pagination: Split the data into pages to avoid overflow
+        paginated_data = list(self.paginate_data(requirements_data, items_per_page=8))
+
+        for page_number, page_data in enumerate(paginated_data, start=1):
             context = {
                 "name": name,
                 "email": email,
@@ -97,7 +99,7 @@ class CalculatePointsView(APIView):
                 "total_points": total_points,
                 "earned_points": earned_points,
                 "current_year": current_year,
-                "page_number": page_index,
+                "page_number": page_number,
                 "total_pages": len(paginated_data),
             }
 
