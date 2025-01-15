@@ -4,53 +4,46 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
             margin: 0;
             padding: 0;
         }
         .container {
             width: 95%;
-            max-width: 800px;
-            margin: 10px auto;
-            background: #ffffff;
-            border-radius: 8px;
+            margin: auto;
             padding: 15px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .header {
             text-align: center;
-            padding: 10px;
-            background-color: #4a69bd;
-            color: #ffffff;
-            font-size: 20px;
-            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            margin-bottom: 20px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
             font-size: 10px;
-            color: #333333;
+            margin-bottom: 20px;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 4px;
+            padding: 5px;
             text-align: left;
-            vertical-align: top;
         }
         .footer {
             text-align: center;
-            font-size: 12px;
             margin-top: 10px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">Response Summary</div>
-        <p><strong>Name:</strong> {{ name }}</p>
-        <p><strong>Email:</strong> {{ email }}</p>
-        <p><strong>Phone:</strong> {{ phone }}</p>
+        <div class="header">
+            <h1>Response Summary</h1>
+            <p><strong>Name:</strong> {{ name }}</p>
+            <p><strong>Email:</strong> {{ email }}</p>
+            <p><strong>Phone:</strong> {{ phone }}</p>
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -75,6 +68,7 @@
                 {% endfor %}
             </tbody>
         </table>
+
         <div class="footer">
             Page {{ page_number }} of {{ total_pages }}
         </div>

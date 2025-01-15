@@ -12,6 +12,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from io import BytesIO
+from datetime import datetime
 
 # Create your views here.
 
@@ -23,62 +24,52 @@ class RequirementListView(generics.ListAPIView):
 
 class CalculatePointsView(APIView):
     def post(self, request, *args, **kwargs):
-        # Extract additional fields from the request
-        name = request.data.get('name', '')
-        email = request.data.get('email', '')
-        phone = request.data.get('phone', '')
-        requirements_data = request.data.get('requirements', [])
+        name = request.data.get("name", "")
+        email = request.data.get("email", "")
+        phone = request.data.get("phone", "")
+        requirements_data = request.data.get("requirements", [])
 
-        # Validate the requirements data
         serializer = RequirementAnswerSerializer(data=requirements_data, many=True)
         if serializer.is_valid():
             total_points = 417
             earned_points = 0
 
             for requirement_data in serializer.validated_data:
-                requirement_id = requirement_data['requirement_id']
-                is_relevant = requirement_data['is_relevant']
+                requirement_id = requirement_data["requirement_id"]
+                is_relevant = requirement_data["is_relevant"]
 
                 if not is_relevant:
-                    # Deduct points for all questions in the skipped requirement
                     skipped_points = Question.objects.filter(requirement_id=requirement_id).aggregate(
-                        total=models.Sum('points')
-                    )['total'] or 0
+                        total=models.Sum("points")
+                    )["total"] or 0
                     total_points -= skipped_points
                 else:
-                    # Process answers if the requirement is relevant
-                    answers = requirement_data.get('answers', [])
+                    answers = requirement_data.get("answers", [])
                     for answer in answers:
-                        question_id = answer['question_id']  # No need for .get() as it's validated
-                        question_answer = answer['answer']
+                        question_id = answer["question_id"]
+                        question_answer = answer["answer"]
 
                         try:
                             question = Question.objects.get(id=question_id)
-
                             if question_answer is True and question.points is not None:
                                 earned_points += question.points
-                            # No need for an else clause since False adds 0
                         except Question.DoesNotExist:
                             return DRFResponse(
                                 {"error": f"Question with ID {question_id} does not exist."},
                                 status=status.HTTP_404_NOT_FOUND,
                             )
 
-            # Save the response data to the database using the custom Response model
             response_instance = Response(
                 name=name,
                 email=email,
                 phone=phone,
                 response_data=serializer.validated_data,
-                earned_points=earned_points
+                earned_points=earned_points,
             )
             response_instance.save()
 
-            # Generate PDF
+            # Generate the paginated PDF
             pdf_content = self.generate_pdf(name, email, phone, serializer.validated_data, total_points, earned_points)
-
-            # Send email with the PDF
-            self.send_email_with_pdf(name, email, pdf_content, total_points, earned_points)
 
             return DRFResponse(
                 {
@@ -89,90 +80,37 @@ class CalculatePointsView(APIView):
             )
         return DRFResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def paginate_data(self, data, items_per_page=10):
+        """Split data into smaller chunks for pagination."""
+        for i in range(0, len(data), items_per_page):
+            yield data[i:i + items_per_page]
+
     def generate_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
-        # Prepare enriched data with error handling
-        enriched_data = []
-        for req in requirements_data:
-            try:
-                requirement_id = req.get('requirement_id', None)
-                requirement = Requirement.objects.get(id=requirement_id) if requirement_id else None
-                requirement_name = requirement.name if requirement else "Unknown"
-                is_relevant = req.get('is_relevant', "Unknown")
-                answers = []
-
-                for ans in req.get('answers', []):
-                    question_id = ans.get('question_id', None)
-                    question = Question.objects.get(id=question_id) if question_id else None
-                    answers.append({
-                        'question_id': question_id or "Unknown",
-                        'question_name': question.text if question else "Unknown Question",
-                        'answer': "Yes" if ans.get('answer', False) else "No"
-                    })
-
-                enriched_data.append({
-                    'requirement_name': requirement_name,
-                    'is_relevant': "Relevant" if is_relevant else "Not Relevant",
-                    'answers': answers if answers else [{"question_name": "No Questions", "answer": "N/A"}]
-                })
-            except Requirement.DoesNotExist:
-                continue
-
-        # Add current year to context
-        from datetime import datetime
+        """Generate paginated PDFs to handle large data."""
         current_year = datetime.now().year
-
-        # Render the HTML template with context
-        html_template = 'pdf/pdf_template.html'
-        context = {
-            'name': name or "Not Provided",
-            'email': email or "Not Provided",
-            'phone': phone or "Not Provided",
-            'requirements_data': enriched_data,
-            'total_points': total_points or 0,
-            'earned_points': earned_points or 0,
-            'current_year': current_year,
-        }
-
-        html_content = render_to_string(html_template, context)
-        
-        # Configure PDF options
+        paginated_data = list(self.paginate_data(requirements_data, items_per_page=10))  # 10 items per page
         pdf_buffer = BytesIO()
-        pdf_options = {
-            'encoding': 'UTF-8',
-            'quiet': True,
-        }
 
-        # Create PDF with error handling
-        pisa_status = pisa.CreatePDF(
-            html_content,
-            dest=pdf_buffer,
-            **pdf_options
-        )
+        for page_index, page_data in enumerate(paginated_data, start=1):
+            context = {
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "requirements_data": page_data,
+                "total_points": total_points,
+                "earned_points": earned_points,
+                "current_year": current_year,
+                "page_number": page_index,
+                "total_pages": len(paginated_data),
+            }
 
-        if pisa_status.err:
-            raise Exception("PDF generation failed")
+            html_content = render_to_string("pdf/pdf_template.html", context)
+            pisa.CreatePDF(html_content, dest=pdf_buffer, encoding="UTF-8")
 
-        pdf_buffer.seek(0)
-        return pdf_buffer.getvalue()
-
-    def send_email_with_pdf(self, name, email, pdf_content, total_points, earned_points):
-        from django.conf import settings  # Import settings
-
-        email_subject = "Your Response Summary"
-        email_body = render_to_string('mail/email_template.html', {
-            'name': name,
-            'total_points': total_points,
-            'earned_points': earned_points,
-        })
-        email_message = EmailMessage(
-            subject=email_subject,
-            body=email_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,  # Use default email from settings
-            to=[email],
-        )
-        email_message.attach(f'{name}_summary.pdf', pdf_content, 'application/pdf')
-        email_message.content_subtype = 'html'  # Set email body content as HTML
-        email_message.send()
+        if pdf_buffer.getvalue():
+            pdf_buffer.seek(0)
+            return pdf_buffer.getvalue()
+        raise Exception("PDF generation failed")
 
 
 class RequirementQuestionBulkUploadView(APIView):
