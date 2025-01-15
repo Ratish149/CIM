@@ -30,129 +30,108 @@ class CalculatePointsView(APIView):
         phone = request.data.get("phone", "")
         requirements_data = request.data.get("requirements", [])
 
-        serializer = RequirementAnswerSerializer(data=requirements_data, many=True)
-        if serializer.is_valid():
-            total_points = 417
-            earned_points = 0
+        total_points = 417
+        earned_points = 0
 
-            for requirement_data in serializer.validated_data:
-                requirement_id = requirement_data["requirement_id"]
-                is_relevant = requirement_data["is_relevant"]
-
-                if not is_relevant:
-                    skipped_points = Question.objects.filter(requirement_id=requirement_id).aggregate(
-                        total=models.Sum("points")
-                    )["total"] or 0
-                    total_points -= skipped_points
-                else:
-                    answers = requirement_data.get("answers", [])
-                    for answer in answers:
-                        question_id = answer["question_id"]
-                        question_answer = answer["answer"]
-
-                        try:
-                            question = Question.objects.get(id=question_id)
-                            if question_answer is True and question.points is not None:
-                                earned_points += question.points
-                        except Question.DoesNotExist:
-                            return DRFResponse(
-                                {"error": f"Question with ID {question_id} does not exist."},
-                                status=status.HTTP_404_NOT_FOUND,
-                            )
-
-            response_instance = Response(
-                name=name,
-                email=email,
-                phone=phone,
-                response_data=serializer.validated_data,
-                earned_points=earned_points,
-            )
-            response_instance.save()
-
-            # Generate the paginated PDF
-            pdf_content = self.generate_pdf(name, email, phone, serializer.validated_data, total_points, earned_points)
-            
-            # Add this new line to send email
-            self.send_email_with_pdf(name, email, pdf_content, total_points, earned_points)
-
-            return DRFResponse(
-                {
-                    "total_points": total_points,
-                    "earned_points": earned_points,
-                },
-                status=status.HTTP_200_OK,
-            )
-        return DRFResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def paginate_data(self, data, items_per_page=10):
-        """Split data into smaller chunks for pagination."""
-        for i in range(0, len(data), items_per_page):
-            yield data[i:i + items_per_page]
-
-    def generate_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
-        """Generate a PDF with the updated layout."""
-        current_year = datetime.now().year
         enriched_data = []
 
+        # Process requirements
         for requirement_data in requirements_data:
-            requirement_name = Requirement.objects.get(id=requirement_data["requirement_id"]).name
-            is_relevant = requirement_data["is_relevant"]
-            if is_relevant:
+            requirement_id = requirement_data.get("requirement_id")
+            is_relevant = requirement_data.get("is_relevant", False)
+            requirement_name = Requirement.objects.get(id=requirement_id).name if requirement_id else "Unknown"
+
+            if not is_relevant:
+                # Deduct skipped points
+                skipped_points = Question.objects.filter(requirement_id=requirement_id).aggregate(
+                    total=models.Sum("points")
+                )["total"] or 0
+                total_points -= skipped_points
+            else:
+                # Process relevant questions
                 answers = []
-                for answer_data in requirement_data["answers"]:
-                    question_id = answer_data["question_id"]
+                for answer_data in requirement_data.get("answers", []):
+                    question_id = answer_data.get("question_id")
                     question = Question.objects.get(id=question_id)
+                    if answer_data.get("answer"):
+                        earned_points += question.points or 0
                     answers.append({
                         "question_name": question.text,
-                        "answer": "Yes" if answer_data["answer"] else "No"
+                        "answer": "Yes" if answer_data.get("answer") else "No"
                     })
                 enriched_data.append({
                     "requirement_name": requirement_name,
                     "answers": answers
                 })
 
-        context = {
-            "name": name,
-            "email": email,
-            "phone": phone,
-            "requirements_data": enriched_data,
+        # Generate the PDF
+        pdf_content = self.generate_paginated_pdf(name, email, phone, enriched_data, total_points, earned_points)
+
+        # Send email with the PDF attached
+        self.send_email_with_pdf(name, email, pdf_content)
+
+        # Send response
+        return DRFResponse({
             "total_points": total_points,
             "earned_points": earned_points,
-            "current_year": current_year,
-        }
+            "message": "PDF generated and sent successfully!"
+        }, status=status.HTTP_200_OK)
 
-        # Render HTML and generate PDF
-        html_content = render_to_string("pdf/pdf_template.html", context)
+    def paginate_data(self, data, items_per_page=5):
+        """Split data into smaller chunks for pagination."""
+        for i in range(0, len(data), items_per_page):
+            yield data[i:i + items_per_page]
+
+    def generate_paginated_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
+        """Generate a paginated PDF."""
+        current_year = datetime.now().year
+        paginated_data = list(self.paginate_data(requirements_data, items_per_page=3))
         pdf_buffer = BytesIO()
-        pisa.CreatePDF(html_content, dest=pdf_buffer, encoding="UTF-8")
 
-        if pdf_buffer.getvalue():
-            pdf_buffer.seek(0)
-            return pdf_buffer.getvalue()
-        raise Exception("PDF generation failed")
-    def send_email_with_pdf(self, name, email, pdf_content, total_points, earned_points):
+        for page_index, page_data in enumerate(paginated_data, start=1):
+            context = {
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "requirements_data": page_data,
+                "total_points": total_points,
+                "earned_points": earned_points,
+                "current_year": current_year,
+                "page_number": page_index,
+                "total_pages": len(paginated_data),
+            }
+
+            html_content = render_to_string("pdf/pdf_template.html", context)
+            pisa_status = pisa.CreatePDF(html_content, dest=pdf_buffer, encoding="UTF-8")
+
+            if pisa_status.err:
+                raise Exception("PDF generation failed")
+
+        pdf_buffer.seek(0)
+        return pdf_buffer.getvalue()
+
+    def send_email_with_pdf(self, name, email, pdf_content):
         """Send an email with the generated PDF attached."""
-        email_subject = "Your Response Summary"
-        email_body = render_to_string('mail/email_template.html', {
-            'name': name,
-            'total_points': total_points,
-            'earned_points': earned_points,
-        })
+        subject = "Response Summary PDF"
+        body = render_to_string("mail/email_template.html", {"name": name})
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [email]
 
+        # Configure the email message
         email_message = EmailMessage(
-            subject=email_subject,
-            body=email_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[email],
+            subject=subject,
+            body=body,
+            from_email=from_email,
+            to=to_email,
         )
         email_message.attach(f"{name}_response_summary.pdf", pdf_content, "application/pdf")
-        email_message.content_subtype = "html"  # Set email body content as HTML
+        email_message.content_subtype = "html"
 
+        # Send the email
         try:
             email_message.send()
         except Exception as e:
             raise Exception(f"Failed to send email: {str(e)}")
-
 
 class RequirementQuestionBulkUploadView(APIView):
     serializer_class = FileUploadSerializer
