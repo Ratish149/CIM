@@ -13,6 +13,7 @@ from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from io import BytesIO
 from datetime import datetime
+from django.conf import settings
 
 # Create your views here.
 
@@ -70,6 +71,9 @@ class CalculatePointsView(APIView):
 
             # Generate the paginated PDF
             pdf_content = self.generate_pdf(name, email, phone, serializer.validated_data, total_points, earned_points)
+            
+            # Add this new line to send email
+            self.send_email_with_pdf(name, email, pdf_content, total_points, earned_points)
 
             return DRFResponse(
                 {
@@ -111,6 +115,29 @@ class CalculatePointsView(APIView):
             pdf_buffer.seek(0)
             return pdf_buffer.getvalue()
         raise Exception("PDF generation failed")
+
+    def send_email_with_pdf(self, name, email, pdf_content, total_points, earned_points):
+        """Send an email with the generated PDF attached."""
+        email_subject = "Your Response Summary"
+        email_body = render_to_string('mail/email_template.html', {
+            'name': name,
+            'total_points': total_points,
+            'earned_points': earned_points,
+        })
+
+        email_message = EmailMessage(
+            subject=email_subject,
+            body=email_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email],
+        )
+        email_message.attach(f"{name}_response_summary.pdf", pdf_content, "application/pdf")
+        email_message.content_subtype = "html"  # Set email body content as HTML
+
+        try:
+            email_message.send()
+        except Exception as e:
+            raise Exception(f"Failed to send email: {str(e)}")
 
 
 class RequirementQuestionBulkUploadView(APIView):
