@@ -90,32 +90,27 @@ class CalculatePointsView(APIView):
         return DRFResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def generate_pdf(self, name, email, phone, requirements_data, total_points, earned_points):
+        # Prepare enriched data
         enriched_data = []
         for req in requirements_data:
             requirement_id = req['requirement_id']
-            requirement_name = Requirement.objects.get(id=requirement_id).name  # Fetch requirement name
-            is_relevant = req['is_relevant']  # Get the relevance status
-            answers = []
-            
-            for ans in req.get('answers', []):  # Use .get() to handle cases with no answers
-                question_id = ans['question_id']
-                question = Question.objects.get(id=question_id)
-                answers.append({
-                    'question_id': question_id,
-                    'question_name': question.text,  # Fetch question name
-                    'answer': "Yes" if ans['answer'] else "No",  # Convert boolean to Yes/No
-                })
-            
-            # Calculate rowspan
-            rowspan = len(answers) if answers else 1
+            requirement_name = Requirement.objects.get(id=requirement_id).name
+            is_relevant = req['is_relevant']
+            answers = [
+                {
+                    'question_id': ans['question_id'],
+                    'question_name': Question.objects.get(id=ans['question_id']).text,
+                    'answer': "Yes" if ans['answer'] else "No"
+                } for ans in req.get('answers', [])
+            ]
+
             enriched_data.append({
-                'requirement_id': requirement_id,
                 'requirement_name': requirement_name,
-                'is_relevant': is_relevant,
-                'answers': answers,
-                'rowspan': rowspan,
+                'is_relevant': "Relevant" if is_relevant else "Not Relevant",
+                'answers': answers or [{"question_name": "No Questions", "answer": "N/A"}]
             })
 
+        # Render the HTML template with context
         html_template = 'pdf/pdf_template.html'
         context = {
             'name': name,
@@ -126,7 +121,6 @@ class CalculatePointsView(APIView):
             'earned_points': earned_points,
         }
 
-        # Render the HTML template with context
         html_content = render_to_string(html_template, context)
         pdf_buffer = BytesIO()
 
