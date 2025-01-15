@@ -62,6 +62,7 @@ class MeroDeshMeraiUtpadan(models.Model):
 
     already_used_logo=models.BooleanField(default=False,null=True,blank=True)
     interested_in_logo=models.BooleanField(default=False,null=True,blank=True)
+    file_url=models.CharField(max_length=255,null=True,blank=True)
 
     self_declaration=models.BooleanField(default=False)
     

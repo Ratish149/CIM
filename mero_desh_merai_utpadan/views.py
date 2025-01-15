@@ -71,6 +71,10 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         # Build the file URL
         file_url = request.build_absolute_uri(f"/media/merodeshmeraiutpadan_{instance.id}.pdf")
 
+        # Save the file URL to the instance
+        instance.file_url = file_url
+        instance.save()
+
         # Return a JSON response with the file URL
         return Response({
             "message": "PDF generated successfully.",
