@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Requirements Response Summary</h1>
+    <p><strong>Name:</strong> {{ name }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Phone:</strong> {{ phone }}</p>
+
+    <h2>Requirements and Questions</h2>
+    <table>
+        <tr>
+            <th>Requirement Name</th>
+            <th>Relevance</th>
+            <th>Question Name</th>
+            <th>Answer</th>
+        </tr>
+        {% for requirement in requirements_data %}
+            <tr>
+                <td rowspan="{{ requirement.rowspan }}">{{ requirement.requirement_name }}</td>
+                <td rowspan="{{ requirement.rowspan }}">{{ requirement.is_relevant }}</td>
+                {% if requirement.answers %}
+                    {% for answer in requirement.answers %}
+                        <td>{{ answer.question_name }}</td>
+                        <td>{{ answer.answer }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <td colspan="2">No Questions</td>
+                </tr>
+                {% endif %}
+        {% endfor %}
+    </table>
+
+    <h3>Total Points: {{ total_points }}</h3>
+    <h3>Earned Points: {{ earned_points }}</h3>
+</body>
+</html>
