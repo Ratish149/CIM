@@ -51,7 +51,9 @@ class CalculatePointsView(APIView):
                     question_id = answer_data.get("question_id")
                     question = Question.objects.filter(id=question_id).first()
                     if question:
-                        earned_points += question.points or 0
+                        # Only add points if answer is True
+                        if answer_data.get("answer"):
+                            earned_points += question.points or 0
                         answers.append({
                             "question_name": question.text,
                             "answer": "Yes" if answer_data.get("answer") else "No"
