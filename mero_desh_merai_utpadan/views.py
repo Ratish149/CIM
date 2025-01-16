@@ -47,7 +47,7 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         output_pdf = f"{output_dir}merodeshmeraiutpadan_{instance.id}.pdf"
 
         # Define the path to the input PDF
-        input_pdf = "media/MdMuPdf.pdf"
+        input_pdf = "media/MdMuPdf_edit.pdf"
 
         # Convert English date to Nepali date
         english_date = instance.created_at
@@ -76,7 +76,6 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
             widgets = page.widgets()
             if widgets:
                 for widget in widgets:
-                    print(f"Updating widget: {widget.field_name}")
                     if widget.field_name in field_data:
                         widget.field_value = field_data[widget.field_name]
                         widget.update()
