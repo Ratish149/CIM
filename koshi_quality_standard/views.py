@@ -57,30 +57,59 @@ class CalculatePointsView(APIView):
                     "answers": answers
                 })
 
-        # Save the response data
+        # Calculate category based on earned_points/100
+        points_ratio = earned_points / 100
+        category = ''
+        percentage = 0
+
+        if 0 <= points_ratio <= 1:
+            category = 'a'
+            percentage = 20
+        elif 1 < points_ratio <= 2:
+            category = 'b'
+            percentage = 40
+        elif 2 < points_ratio <= 3:
+            category = 'c'
+            percentage = 60
+        elif 3 < points_ratio <= 4:
+            category = 'd'
+            percentage = 80
+        else:  # points_ratio > 4
+            category = 'e'
+            percentage = 100
+
+        # Update Response creation to include category and percentage
         Response.objects.create(
             name=name,
             email=email,
             phone=phone,
-            response_data=requirements_data,  # Save the original requirements data
-            earned_points=earned_points
+            response_data=requirements_data,
+            earned_points=earned_points,
+            category=category,
+            percentage=percentage
+
         )
 
-        self.send_email_with_summary(name, email, enriched_data, total_points, earned_points)
+        self.send_email_with_summary(name, email, enriched_data, total_points, earned_points, category, percentage)
 
         return DRFResponse({
             "total_points": total_points,
             "earned_points": earned_points,
+            "category": category,
+            "percentage": percentage,
             "message": "Summary sent successfully!"
         }, status=status.HTTP_200_OK)
 
-    def send_email_with_summary(self, name, email, enriched_data, total_points, earned_points):
+    def send_email_with_summary(self, name, email, enriched_data, total_points, earned_points, category, percentage):
         subject = "Response Summary"
         body = render_to_string("mail/email_template.html", {
             "name": name,
             "enriched_data": enriched_data,
             "total_points": total_points,
-            "earned_points": earned_points
+            "earned_points": earned_points,
+            "category": category,
+            "percentage": percentage
+
         })
         from_email = settings.DEFAULT_FROM_EMAIL
         to_email = [email]
