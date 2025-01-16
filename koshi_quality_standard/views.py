@@ -27,7 +27,7 @@ class CalculatePointsView(APIView):
         phone = request.data.get("phone", "")
         requirements_data = request.data.get("requirements", [])
 
-        total_points = 417
+        total_points = 412
         earned_points = 0
         enriched_data = []
 

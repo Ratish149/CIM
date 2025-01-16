@@ -1,4 +1,5 @@
 from rest_framework import generics
+from django.db import models
 from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, MeroDeshMeraiUtpadan,ContactForm
 from .serializers import (
     NatureOfIndustryCategorySerializer,
@@ -14,6 +15,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from koshi_quality_standard.models import Question
+from django.core.mail import EmailMessage
 
 class NatureOfIndustryCategoryListCreateView(generics.ListCreateAPIView):
     queryset = NatureOfIndustryCategory.objects.all()
@@ -32,20 +35,19 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
     serializer_class = MeroDeshMeraiUtpadanSerializer
 
     def create(self, request, *args, **kwargs):
-    # Get serializer instance
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         # Save the instance
         instance = serializer.save()
 
-        # Ensure the media directory exists
+        # Create media directory if it doesn't exist
         output_dir = "media/"
         os.makedirs(output_dir, exist_ok=True)
         output_pdf = f"{output_dir}merodeshmeraiutpadan_{instance.id}.pdf"
 
-        # Define paths for input and output PDFs
-        input_pdf = "media/MdMuPdfSample.pdf"
+        # Define the path to the input PDF
+        input_pdf = "media/MdMuPdf.pdf"
 
         # Convert English date to Nepali date
         english_date = instance.created_at
@@ -59,25 +61,33 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         # Data to populate the form fields
         field_data = {
             'ChalanNo': f"2081/82 - {instance.id}",
-            'Name': f"श्रीमान {instance.contact_name} ज्यु ," or "N/A",
-            'CompanyName': f"{instance.contact_designation}, {instance.name_of_company} ," or "N/A",
-            'Location': instance.address_street or "N/A",            
+            'Name': instance.contact_name or "N/A",
+            'CompanyName': f"{instance.contact_designation}, {instance.name_of_company} ," if (instance.contact_designation and instance.name_of_company) else "N/A",
+            'Location': instance.address_street or "N/A",
             'CreatedAt': nepali_date
         }
 
-        # Ensure all values are strings
-        field_data = {key: str(value) for key, value in field_data.items()}
-
-        # Fill the PDF
+        # Debug: Print all widget field names
         pdf = fitz.open(input_pdf)
         for page_num in range(len(pdf)):
             page = pdf[page_num]
             widgets = page.widgets()
             if widgets:
                 for widget in widgets:
+                    print(widget.field_name)  # Print field names for verification
+
+        # Fill the PDF
+        for page_num in range(len(pdf)):
+            page = pdf[page_num]
+            widgets = page.widgets()
+            if widgets:
+                for widget in widgets:
+                    print(f"Updating widget: {widget.field_name}")
                     if widget.field_name in field_data:
-                        widget.field_value = field_data[widget.field_name]  # Set the value
+                        widget.field_value = field_data[widget.field_name]
                         widget.update()
+
+        # Save the updated PDF
         pdf.save(output_pdf)
         pdf.close()
 
@@ -88,7 +98,38 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         instance.file_url = file_url
         instance.save()
 
-        # Return a JSON response with the file URL
+        # After PDF is generated, send email if contact_email exists
+        if instance.contact_email:
+            subject = 'Thank You for Participating in the "Mero Desh Merai Utpadan" Campaign'
+            
+            # Load the HTML template
+            context = {
+                'issue': instance,
+                'logo_url': os.path.join(settings.STATIC_ROOT, 'logo', 'mdmu-logo.png'),
+            }
+            html_message = render_to_string('email_template/mdmu_email_template.html', context)
+
+            # Create email message
+            email = EmailMessage(
+                subject=subject,
+                body=html_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[instance.contact_email],
+            )
+            
+            # Attach the generated PDF
+            with open(output_pdf, 'rb') as pdf_file:
+                email.attach(f'merodeshmeraiutpadan_{instance.id}.pdf', pdf_file.read(), 'application/pdf')
+
+            # Attach the logo
+            logo_path = os.path.join(settings.STATIC_ROOT, 'logo', 'mdmu-logo.png')
+            with open(logo_path, 'rb') as logo_file:
+                email.attach('mdmu-logo.png', logo_file.read(), 'image/png')
+
+            email.content_subtype = 'html'
+            email.send(fail_silently=False)
+
+        # Return response
         return Response({
             "message": "PDF generated successfully.",
             "file_url": file_url
