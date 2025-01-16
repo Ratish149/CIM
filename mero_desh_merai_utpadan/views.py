@@ -41,8 +41,8 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         # Save the instance
         instance = serializer.save()
 
-        # Create media directory if it doesn't exist
-        output_dir = "media/"
+        # Create pdf directory inside media if it doesn't exist
+        output_dir = "media/pdf/"
         os.makedirs(output_dir, exist_ok=True)
         output_pdf = f"{output_dir}merodeshmeraiutpadan_{instance.id}.pdf"
 
@@ -85,8 +85,8 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         pdf.save(output_pdf)
         pdf.close()
 
-        # Build the file URL
-        file_url = request.build_absolute_uri(f"/media/merodeshmeraiutpadan_{instance.id}.pdf")
+        # Build the file URL (updated to include pdf directory)
+        file_url = request.build_absolute_uri(f"/media/pdf/merodeshmeraiutpadan_{instance.id}.pdf")
 
         # Save the file URL to the instance
         instance.file_url = file_url
