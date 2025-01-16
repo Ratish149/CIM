@@ -69,12 +69,6 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
 
         # Debug: Print all widget field names
         pdf = fitz.open(input_pdf)
-        for page_num in range(len(pdf)):
-            page = pdf[page_num]
-            widgets = page.widgets()
-            if widgets:
-                for widget in widgets:
-                    print(widget.field_name)  # Print field names for verification
 
         # Fill the PDF
         for page_num in range(len(pdf)):
@@ -105,6 +99,7 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
             # Load the HTML template
             context = {
                 'issue': instance,
+                'name': instance.contact_name,
                 'logo_url': os.path.join(settings.STATIC_ROOT, 'logo', 'mdmu-logo.png'),
             }
             html_message = render_to_string('email_template/mdmu_email_template.html', context)
