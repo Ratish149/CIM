@@ -22,6 +22,7 @@ class Response(models.Model):
     response_data=models.JSONField(null=True,blank=True)
     earned_points=models.FloatField(null=True,blank=True)
     category=models.CharField(max_length=255,null=True,blank=True)
+    file_url=models.CharField(max_length=255,null=True,blank=True)
     percentage=models.FloatField(null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
 

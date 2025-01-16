@@ -3,6 +3,10 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.db import models
 import csv
+import os
+import fitz
+from datetime import datetime
+from nepali_datetime import date as nepali_datetime
 
 from rest_framework.response import Response as DRFResponse
 from .models import Question, Requirement, Response
@@ -78,8 +82,8 @@ class CalculatePointsView(APIView):
             category = 'e'
             percentage = 100
 
-        # Update Response creation to include category and percentage
-        Response.objects.create(
+        # Create Response instance
+        response_instance = Response.objects.create(
             name=name,
             email=email,
             phone=phone,
@@ -87,41 +91,114 @@ class CalculatePointsView(APIView):
             earned_points=earned_points,
             category=category,
             percentage=percentage
-
         )
 
-        self.send_email_with_summary(name, email, enriched_data, total_points, earned_points, category, percentage)
+        file_url = None
+        # Only create PDF if percentage >= 20 and category is not 'a'
+        if percentage >= 20 and category != 'a':
+            # Create pdf directory if it doesn't exist
+            output_dir = "media/pdf/QHSEF/"
+            os.makedirs(output_dir, exist_ok=True)
+            output_pdf = f"{output_dir}QHSEF_{response_instance.id}.pdf"
+
+            # Define the path to the input PDF template
+            input_pdf = "media/QHSEF_edit.pdf"  # Make sure this template exists
+
+            # Convert date to Nepali
+            english_date = response_instance.created_at
+            nepali_date_str = nepali_datetime.from_datetime_date(english_date.date()).strftime('%B %d, %Y')
+
+            # Data to populate the form fields
+            field_data = {
+                'ChalanNo': f"2081/82 - {response_instance.id}",
+                'Name': response_instance.name,
+                'Email': response_instance.email,
+                'Phone': response_instance.phone,
+                'Category': f"Category {category.upper()}",
+                'Percentage': f"{percentage}%",
+                'EarnedPoints': str(earned_points),
+                'TotalPoints': str(total_points),
+                'CreatedAt': nepali_date_str
+            }
+
+            # Fill the PDF
+            pdf = fitz.open(input_pdf)
+            for page_num in range(len(pdf)):
+                page = pdf[page_num]
+                widgets = page.widgets()
+                if widgets:
+                    for widget in widgets:
+                        if widget.field_name in field_data:
+                            widget.field_value = field_data[widget.field_name]
+                            widget.update()
+
+            # Save the updated PDF
+            pdf.save(output_pdf)
+            pdf.close()
+
+            # Build the file URL
+            file_url = request.build_absolute_uri(f"/media/pdf/QHSEF/QHSEF_{response_instance.id}.pdf")
+
+            # Save the file URL
+            response_instance.file_url = file_url
+            response_instance.save()
+
+            # Send email with PDF attachment
+            subject = "Response Summary"
+            body = render_to_string("mail/email_template.html", {
+                "name": name,
+                "enriched_data": enriched_data,
+                "total_points": total_points,
+                "earned_points": earned_points,
+                "category": category,
+                "percentage": percentage
+            })
+
+            email_message = EmailMessage(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
+
+            # Attach the generated PDF
+            with open(output_pdf, 'rb') as pdf_file:
+                email_message.attach(f'QHSEF_{response_instance.id}.pdf', 
+                                   pdf_file.read(), 
+                                   'application/pdf')
+
+            email_message.content_subtype = "html"
+            email_message.send()
+
+        else:
+            # Send email without PDF attachment
+            subject = "Response Summary"
+            body = render_to_string("mail/email_template.html", {
+                "name": name,
+                "enriched_data": enriched_data,
+                "total_points": total_points,
+                "earned_points": earned_points,
+                "category": category,
+                "percentage": percentage
+            })
+
+            email_message = EmailMessage(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
+            email_message.content_subtype = "html"
+            email_message.send()
 
         return DRFResponse({
             "total_points": total_points,
             "earned_points": earned_points,
             "category": category,
             "percentage": percentage,
+            "file_url": file_url,
             "message": "Summary sent successfully!"
         }, status=status.HTTP_200_OK)
-
-    def send_email_with_summary(self, name, email, enriched_data, total_points, earned_points, category, percentage):
-        subject = "Response Summary"
-        body = render_to_string("mail/email_template.html", {
-            "name": name,
-            "enriched_data": enriched_data,
-            "total_points": total_points,
-            "earned_points": earned_points,
-            "category": category,
-            "percentage": percentage
-
-        })
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to_email = [email]
-
-        email_message = EmailMessage(
-            subject=subject,
-            body=body,
-            from_email=from_email,
-            to=to_email,
-        )
-        email_message.content_subtype = "html"
-        email_message.send()
 
 class RequirementQuestionBulkUploadView(APIView):
     serializer_class = FileUploadSerializer
