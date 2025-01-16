@@ -1,9 +1,8 @@
 from rest_framework import serializers
 from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
-from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, MeroDeshMeraiUtpadan
+from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, MeroDeshMeraiUtpadan,ContactForm
 from django.template.loader import render_to_string
-from django.templatetags.static import static
 import os
 
 
@@ -65,3 +64,9 @@ class MeroDeshMeraiUtpadanSerializer(serializers.ModelSerializer):
         email.content_subtype = 'html'  # Set the content type to HTML
 
         email.send(fail_silently=False)  # Send the email
+
+class ContactFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactForm
+        fields = '__all__'
+

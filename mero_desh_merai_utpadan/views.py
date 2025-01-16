@@ -1,14 +1,19 @@
 from rest_framework import generics
-from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, MeroDeshMeraiUtpadan
+from .models import NatureOfIndustryCategory, NatureOfIndustrySubCategory, MeroDeshMeraiUtpadan,ContactForm
 from .serializers import (
     NatureOfIndustryCategorySerializer,
     NatureOfIndustrySubCategorySerializer,
-    MeroDeshMeraiUtpadanSerializer
+    MeroDeshMeraiUtpadanSerializer,
+    ContactFormSerializer
 )
 import fitz
 import os
 from rest_framework.response import Response
-
+import nepali_datetime
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 class NatureOfIndustryCategoryListCreateView(generics.ListCreateAPIView):
     queryset = NatureOfIndustryCategory.objects.all()
@@ -40,16 +45,24 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         output_pdf = f"{output_dir}merodeshmeraiutpadan_{instance.id}.pdf"
 
         # Define paths for input and output PDFs
-        input_pdf = "media/PDFSample.pdf"
+        input_pdf = "media/MdMuPdfSample.pdf"
+
+        # Convert English date to Nepali date
+        english_date = instance.created_at
+        if english_date:
+            # Extract the date part from the datetime object
+            english_date_only = english_date.date()
+            nepali_date = nepali_datetime.date.from_datetime_date(english_date_only).strftime('%B %d, %Y')
+        else:
+            nepali_date = "N/A"
 
         # Data to populate the form fields
         field_data = {
             'ChalanNo': f"2081/82 - {instance.id}",
-            'Name': instance.contact_name or "N/A",
-            'CompanyName': instance.name_of_company or "N/A",
-            'Location': instance.address_street or "N/A",
-            'Content': "Thank you for choosing Mero Desh Merai Utpadan.",
-            'CreatedAt': instance.created_at.strftime('%Y-%m-%d') if instance.created_at else "N/A"
+            'Name': f"श्रीमान {instance.contact_name} ज्यु ," or "N/A",
+            'CompanyName': f"{instance.contact_designation}, {instance.name_of_company} ," or "N/A",
+            'Location': instance.address_street or "N/A",            
+            'CreatedAt': nepali_date
         }
 
         # Ensure all values are strings
@@ -85,3 +98,43 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
 class MeroDeshMeraiUtpadanRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MeroDeshMeraiUtpadan.objects.all()
     serializer_class = MeroDeshMeraiUtpadanSerializer
+
+class ContactFormListCreateView(generics.ListCreateAPIView):
+    queryset = ContactForm.objects.all()
+    serializer_class = ContactFormSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Prepare context for email template
+        context = {
+            'name': serializer.validated_data['name'],
+            'email': serializer.validated_data['email'],
+            'phone_number': serializer.validated_data['phone_number'],
+            'subject': serializer.validated_data['subject'],
+            'message': serializer.validated_data['message']
+        }
+
+        # Render the HTML template
+        html_message = render_to_string(
+            'email_template/contact_form_email.html',
+            context
+        )
+
+        # Send email to admin
+        subject = f"New Contact Form Submission: {serializer.validated_data['subject']}"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [settings.DEFAULT_FROM_EMAIL]
+        
+        # Send both HTML and plain text versions
+        send_mail(
+            subject=subject,
+            message=strip_tags(html_message),  # Plain text version
+            from_email=from_email,
+            recipient_list=recipient_list,
+            html_message=html_message  # HTML version
+        )
+
+        return Response({"message": "Contact form submitted successfully."}, status=201)

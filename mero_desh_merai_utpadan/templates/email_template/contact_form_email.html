@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Inquiry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dcdde1;
+        }
+        .header {
+            background: linear-gradient(90deg, #2c3e50, #4a69bd);
+            color: #ffffff;
+            padding: 25px;
+            text-align: center;
+        }
+        .content {
+            padding: 35px;
+            color: #2f3640;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: left;
+        }
+        .content p {
+            margin: 15px 0;
+        }
+        .highlight {
+            background-color: #f0f3f7;
+            padding: 20px 25px;
+            border-left: 4px solid #4a69bd;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .message-box {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .flex-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .flex-container .text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2f3640;
+        }
+        .logo {
+            width: 100px;
+            height: auto;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-top: 1px solid #dcdde1;
+        }
+        .timestamp {
+            color: #95a5a6;
+            font-size: 14px;
+            text-align: right;
+            margin-top: 10px;
+        }
+        .contact-info {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>New Contact Inquiry</h1>
+        </div>
+        <div class="content">
+            <div class="flex-container">
+                <div class="text">Dear Admin,</div>
+                <img src="https://cim.baliyoventures.com/static/logo/mdmu-logo.png" alt="Mero Desh Merai Utpadan Logo" class="logo">
+            </div>
+            <p>A new inquiry has been received through the contact form on the Mero Desh Merai Utpadan website. Please find the details below:</p>
+            
+            <div class="highlight">
+                <div class="contact-info"><strong>Sender Name:</strong> {{ name }}</div>
+                <div class="contact-info"><strong>Email Address:</strong> {{ email }}</div>
+                {% if phone_number %}
+                <div class="contact-info"><strong>Phone Number:</strong> {{ phone_number }}</div>
+                {% endif %}
+                <div class="contact-info"><strong>Subject:</strong> {{ subject }}</div>
+            </div>
+
+            <p><strong>Message Content:</strong></p>
+            <div class="message-box">
+                {{ message }}
+            </div>
+
+        </div>
+        <div class="footer">
+            <p>This is an automated notification from the Mero Desh Merai Utpadan website.</p>
+            <p><strong>Chamber of Industries Morang (CIM)</strong></p>
+            <p style="font-size: 12px; margin-top: 15px;">Please respond to this inquiry within 24 hours to ensure quality customer service.</p>
+        </div>
+    </div>
+</body>
+</html>
