@@ -63,11 +63,11 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         
         if category:
             category_list = category.split(',')
-            category_query &= models.Q(nature_of_industry_category__name__in=category_list)
+            category_query &= models.Q(nature_of_industry_category__name__icontains=category_list)
         
         if subcategory:
             subcategory_list = subcategory.split(',')
-            category_query &= models.Q(nature_of_industry_sub_category__name__in=subcategory_list)
+            category_query &= models.Q(nature_of_industry_sub_category__name__icontains=subcategory_list)
         
         if category_query:
             queryset = queryset.filter(category_query)
@@ -78,11 +78,11 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         municipality = self.request.query_params.get('municipality')
         
         if province:
-            queryset = queryset.filter(address_province__icontains=province)
+            queryset = queryset.filter(address_province__iexact=province)
         if district:
-            queryset = queryset.filter(address_district__icontains=district)
+            queryset = queryset.filter(address_district__iexact=district)
         if municipality:
-            queryset = queryset.filter(address_municipality__icontains=municipality)
+            queryset = queryset.filter(address_municipality__iexact=municipality)
         
         # Industry size filter
         industry_size = self.request.query_params.get('industry_size')
