@@ -63,11 +63,11 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         
         if category:
             category_list = category.split(',')
-            category_query &= models.Q(nature_of_industry_category__id__in=category_list)
+            category_query &= models.Q(nature_of_industry_category__name__in=category_list)
         
         if subcategory:
             subcategory_list = subcategory.split(',')
-            category_query &= models.Q(nature_of_industry_sub_category__id__in=subcategory_list)
+            category_query &= models.Q(nature_of_industry_sub_category__name__in=subcategory_list)
         
         if category_query:
             queryset = queryset.filter(category_query)
