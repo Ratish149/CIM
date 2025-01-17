@@ -17,6 +17,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import EmailMessage
 from rest_framework.pagination import PageNumberPagination
+from django.utils import timezone
 
 class CustomPagination(PageNumberPagination):
     page_size = 30
@@ -39,9 +40,96 @@ class NatureOfIndustrySubCategoryListCreateView(generics.ListCreateAPIView):
         return NatureOfIndustrySubCategory.objects.all()
 
 class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
-    queryset = MeroDeshMeraiUtpadan.objects.all()
     serializer_class = MeroDeshMeraiUtpadanSerializer
     pagination_class = CustomPagination
+    
+    def get_queryset(self):
+        queryset = MeroDeshMeraiUtpadan.objects.all()
+        
+        # Search functionality
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                models.Q(name_of_company__icontains=search) |
+                models.Q(contact_name__icontains=search) |
+                models.Q(contact_email__icontains=search)
+            )
+        
+        # Industry Category filters
+        category = self.request.query_params.get('category')
+        subcategory = self.request.query_params.get('subcategory')
+        
+        category_query = models.Q()
+        
+        if category:
+            category_list = category.split(',')
+            category_query &= models.Q(nature_of_industry_category__id__in=category_list)
+        
+        if subcategory:
+            subcategory_list = subcategory.split(',')
+            category_query &= models.Q(nature_of_industry_sub_category__id__in=subcategory_list)
+        
+        if category_query:
+            queryset = queryset.filter(category_query)
+        
+        # Location filters
+        province = self.request.query_params.get('province')
+        district = self.request.query_params.get('district')
+        municipality = self.request.query_params.get('municipality')
+        
+        if province:
+            queryset = queryset.filter(address_province__icontains=province)
+        if district:
+            queryset = queryset.filter(address_district__icontains=district)
+        if municipality:
+            queryset = queryset.filter(address_municipality__icontains=municipality)
+        
+        # Industry size filter
+        industry_size = self.request.query_params.get('industry_size')
+        if industry_size:
+            queryset = queryset.filter(industry_size=industry_size)
+        
+        # Market and raw material filters
+        product_market = self.request.query_params.get('product_market')
+        if product_market:
+            queryset = queryset.filter(product_market=product_market)
+            
+        raw_material = self.request.query_params.get('raw_material')
+        if raw_material:
+            queryset = queryset.filter(raw_material=raw_material)
+        
+        # Boolean filters
+        member_of_cim = self.request.query_params.get('member_of_cim')
+        if member_of_cim is not None:
+            queryset = queryset.filter(member_of_cim=member_of_cim.lower() == 'true')
+            
+        interested_in_logo = self.request.query_params.get('interested_in_logo')
+        if interested_in_logo is not None:
+            queryset = queryset.filter(interested_in_logo=interested_in_logo.lower() == 'true')
+        
+        # Date range filter
+        date_filter = self.request.query_params.get('date_filter')
+        if date_filter:
+            if date_filter == 'last_24_hours':
+                date_threshold = timezone.now() - timezone.timedelta(days=1)
+            elif date_filter == 'last_week':
+                date_threshold = timezone.now() - timezone.timedelta(days=7)
+            elif date_filter == 'last_month':
+                date_threshold = timezone.now() - timezone.timedelta(days=30)
+            elif date_filter == 'last_3_months':
+                date_threshold = timezone.now() - timezone.timedelta(days=90)
+            elif date_filter == 'last_year':
+                date_threshold = timezone.now() - timezone.timedelta(days=365)
+            
+            queryset = queryset.filter(created_at__gte=date_threshold)
+        
+        # Custom date range
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        if start_date and end_date:
+            queryset = queryset.filter(created_at__range=[start_date, end_date])
+        
+        return queryset.order_by('-created_at').distinct()
 
     def list(self, request, *args, **kwargs):
         paginator = self.pagination_class()
