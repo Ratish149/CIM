@@ -42,12 +42,12 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         instance = serializer.save()
 
         # Create pdf directory inside media if it doesn't exist
-        output_dir = "media/pdf/"
+        output_dir = "media/pdf/mdmu/"
         os.makedirs(output_dir, exist_ok=True)
         output_pdf = f"{output_dir}merodeshmeraiutpadan_{instance.id}.pdf"
 
         # Define the path to the input PDF
-        input_pdf = "media/MdMuPdf_edit.pdf"
+        input_pdf = "media/mdmu_final.pdf"
 
         # Convert English date to Nepali date
         english_date = instance.created_at
@@ -85,7 +85,7 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         pdf.close()
 
         # Build the file URL (updated to include pdf directory)
-        file_url = request.build_absolute_uri(f"/media/pdf/merodeshmeraiutpadan_{instance.id}.pdf")
+        file_url = request.build_absolute_uri(f"/media/pdf/mdmu/merodeshmeraiutpadan_{instance.id}.pdf")
 
         # Save the file URL to the instance
         instance.file_url = file_url
