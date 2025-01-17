@@ -1,7 +1,12 @@
 from django.urls import path
-from .views import BusinessCategoryListCreateView, BusinessInformationListCreateView
+from . import views
 
 urlpatterns = [
-    path('business-categories/', BusinessCategoryListCreateView.as_view(), name='business-category-list-create'),
-    path('business-information/', BusinessInformationListCreateView.as_view(), name='business-information-list-create'),
+    # Business Category URLs
+    path('categories/', views.BusinessCategoryListCreateView.as_view(), name='business-category-list'),
+    path('categories/<int:pk>/', views.BusinessCategoryDetailView.as_view(), name='business-category-detail'),
+    
+    # Business Information URLs
+    path('businesses/', views.BusinessInformationListCreateView.as_view(), name='business-information-list'),
+    path('businesses/<int:pk>/', views.BusinessInformationDetailView.as_view(), name='business-information-detail'),
 ]

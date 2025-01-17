@@ -10,3 +10,11 @@ class BusinessCategoryListCreateView(generics.ListCreateAPIView):
 class BusinessInformationListCreateView(generics.ListCreateAPIView):
     queryset = BusinessInformation.objects.all()
     serializer_class = BusinessInformationSerializer
+
+class BusinessCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BusinessCategory.objects.all()
+    serializer_class = BusinessCategorySerializer
+
+class BusinessInformationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BusinessInformation.objects.all()
+    serializer_class = BusinessInformationSerializer

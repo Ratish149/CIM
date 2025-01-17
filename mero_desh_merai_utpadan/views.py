@@ -15,15 +15,23 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from koshi_quality_standard.models import Question
 from django.core.mail import EmailMessage
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class NatureOfIndustryCategoryListCreateView(generics.ListCreateAPIView):
     queryset = NatureOfIndustryCategory.objects.all()
     serializer_class = NatureOfIndustryCategorySerializer
+    pagination_class = CustomPagination
 
 class NatureOfIndustrySubCategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = NatureOfIndustrySubCategorySerializer
+    pagination_class = CustomPagination
+    
     def get_queryset(self):
         category_id = self.request.query_params.get('category', None)
         if category_id is not None:
@@ -33,6 +41,14 @@ class NatureOfIndustrySubCategoryListCreateView(generics.ListCreateAPIView):
 class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
     queryset = MeroDeshMeraiUtpadan.objects.all()
     serializer_class = MeroDeshMeraiUtpadanSerializer
+    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        paginator = self.pagination_class()
+        queryset = self.get_queryset()
+        result_page = paginator.paginate_queryset(queryset, request)
+        serializer = self.serializer_class(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -138,6 +154,7 @@ class MeroDeshMeraiUtpadanRetrieveUpdateDestroyView(generics.RetrieveUpdateDestr
 class ContactFormListCreateView(generics.ListCreateAPIView):
     queryset = ContactForm.objects.all()
     serializer_class = ContactFormSerializer
+    pagination_class = CustomPagination
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
