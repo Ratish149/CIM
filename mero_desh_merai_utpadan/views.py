@@ -90,7 +90,7 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(industry_size=industry_size)
         
         # Market and raw material filters
-        product_market = self.request.query_params.get('product_market')
+        product_market = self.request.query_params.get('market_type')
         if product_market:
             queryset = queryset.filter(product_market=product_market)
             
