@@ -15,6 +15,7 @@ from rest_framework import filters
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
+from rest_framework.permissions import AllowAny
 
 # Create your views here.
 
@@ -23,6 +24,8 @@ class RequirementListView(generics.ListAPIView):
     serializer_class = RequirementSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
+
+
 
 class CalculatePointsView(APIView):
     def post(self, request, *args, **kwargs):
@@ -153,7 +156,8 @@ class CalculatePointsView(APIView):
                 "total_points": total_points,
                 "earned_points": earned_points,
                 "category": category,
-                "percentage": percentage
+                "percentage": percentage,
+                "response_id": response_instance.id
             })
 
             email_message = EmailMessage(
@@ -181,7 +185,8 @@ class CalculatePointsView(APIView):
                 "total_points": total_points,
                 "earned_points": earned_points,
                 "category": category,
-                "percentage": percentage
+                "percentage": percentage,
+                "response_id": response_instance.id
             })
 
             email_message = EmailMessage(
@@ -258,4 +263,48 @@ class RequirementQuestionBulkUploadView(APIView):
 
         except Exception as e:
             return DRFResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ResponseDetailView(generics.RetrieveAPIView):
+    queryset = Response.objects.all()
+    permission_classes = [AllowAny]  # You might want to add authentication later
+    lookup_field = 'id'
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Parse the stored response_data to get requirement details
+        enriched_data = []
+        for requirement_data in instance.response_data:
+            if requirement_data.get("is_relevant", False):
+                requirement_id = requirement_data.get("requirement_id")
+                requirement_name = Requirement.objects.filter(id=requirement_id).first().name if requirement_id else "Unknown"
+                
+                answers = []
+                for answer_data in requirement_data.get("answers", []):
+                    question_id = answer_data.get("question_id")
+                    question = Question.objects.filter(id=question_id).first()
+                    if question:
+                        answers.append({
+                            "question": question.text,
+                            "answer": "Yes" if answer_data.get("answer") else "No",
+                            "points": question.points if answer_data.get("answer") else 0
+                        })
+                
+                enriched_data.append({
+                    "requirement_name": requirement_name,
+                    "answers": answers
+                })
+
+        return DRFResponse({
+            "id": instance.id,
+            "name": instance.name,
+            "email": instance.email,
+            "phone": instance.phone,
+            "earned_points": instance.earned_points,
+            "category": instance.category,
+            "percentage": instance.percentage,
+            "file_url": instance.file_url,
+            "created_at": instance.created_at,
+            "requirements": enriched_data
+        }, status=status.HTTP_200_OK)
 

@@ -100,6 +100,7 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
                 'issue': instance,
                 'name': instance.contact_name,
                 'logo_url': os.path.join(settings.STATIC_ROOT, 'logo', 'mdmu-logo.png'),
+              
             }
             html_message = render_to_string('email_template/mdmu_email_template.html', context)
 

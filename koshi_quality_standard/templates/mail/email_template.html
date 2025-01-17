@@ -108,7 +108,23 @@
                 <p><strong>Earned Points:</strong> {{ earned_points }}</p>
             </div>
             
-            <p>The detailed summary of your QHSEF report is attached to this email in PDF format. Please review it at your convenience.</p>
+            <p>You can view your detailed report online using this link:</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="https://qhsef.vercel.app/report/{{ response_id }}" 
+                   style="background: linear-gradient(90deg, #4a69bd, #2c3e50);
+                          color: white;
+                          padding: 12px 25px;
+                          text-decoration: none;
+                          border-radius: 5px;
+                          display: inline-block;">
+                    View Detailed Report
+                </a>
+            </div>
+            
+            {% if percentage >= 20 and category != 'a' %}
+            <p>The detailed summary of your QHSEF report is also attached to this email in PDF format. Please review it at your convenience.</p>
+            {% endif %}
+            
             <p>If you have any questions or need further assistance, feel free to reach out to us.</p>
         </div>
         <div class="footer">
