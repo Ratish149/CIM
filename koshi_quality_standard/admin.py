@@ -8,6 +8,29 @@ class QuestionAdmin(ModelAdmin):
     search_fields = ('text',)
     list_filter = ('points',)
 
+class ResponseAdmin(ModelAdmin):
+    list_display = (
+        'name',
+        'email',
+        'phone',
+        'category',
+        'earned_points',
+        'percentage',
+        'created_at'
+    )
+    
+    list_filter = (
+        'percentage',
+        'category',
+        'created_at',
+    )
+    
+    search_fields = (
+        'name',
+        'email',
+        'phone',
+    )
+
 admin.site.register(Question,QuestionAdmin)
 admin.site.register(Requirement,ModelAdmin)
-admin.site.register(Response,ModelAdmin)
+admin.site.register(Response,ResponseAdmin)
