@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dcdde1;
+        }
+        .header {
+            background: linear-gradient(90deg, #2c3e50, #4a69bd);
+            color: #ffffff;
+            padding: 25px;
+            text-align: center;
+        }
+        .content {
+            padding: 35px;
+            color: #2f3640;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: left;
+        }
+        .content p {
+            margin: 15px 0;
+        }
+        .content .highlight {
+            background-color: #f0f3f7;
+            padding: 10px 15px;
+            border-left: 4px solid #4a69bd;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-top: 1px solid #dcdde1;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .flex-item {
+            flex: 1;
+        }
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-left: 150px;
+            margin-top: -20px;
+        }
+        @media screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                margin: 0 auto;
+            }
+            .header, .content, .footer {
+                padding: 10px;
+            }
+            .logo {
+                margin-left: 20px;
+                width: 100px;
+                margin-top: -10px;
+            }
+            .flex-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .flex-item {
+                text-align: center;
+                padding-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Application Status Update</h1>
+        </div>
+        <div class="content">
+            <div class="flex-container">
+                <div class="flex-item">
+                    <p>Dear {{name}},</p>
+                    <p>Namaste.</p>
+                </div>
+                <div class="flex-item text-align-center">
+                    <img src="https://cim.baliyoventures.com/static/logo/mdmu-logo.png" alt="Mero Desh Merai Utpadan Logo" class="logo">
+                </div>
+            </div>
+            <p>Thank you for your interest in the <strong>"Mero Desh Merai Utpadan"</strong> campaign. We appreciate the time and effort you took to submit your application.</p>
+            <div class="highlight">
+                We regret to inform you that your application for <strong>{{company_name}}</strong> has not been approved at this time.
+            </div>
+            <p>If you have any questions about this decision or would like to submit a new application with additional information, please don't hesitate to contact us. We're here to help guide you through the process.</p>
+            <p>We encourage you to consider reapplying in the future and wish you continued success in your business endeavors.</p>
+        </div>
+        <div class="footer">
+            <p>Warm regards,</p>
+            <p><strong>Chamber of Industries Morang (CIM)</strong></p>
+        </div>
+    </div>
+</body>
+</html>

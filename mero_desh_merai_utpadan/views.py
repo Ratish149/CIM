@@ -289,6 +289,26 @@ class ApproveStatusView(APIView):
                     email.content_subtype = 'html'
                     email.send(fail_silently=False)
 
+            elif new_status == 'Rejected' and instance.contact_email:
+                # Send rejection email
+                subject = 'Update on Your "Mero Desh Merai Utpadan" Campaign Application'
+                
+                context = {
+                    'name': instance.contact_name,
+                    'company_name': instance.name_of_company,
+                }
+                html_message = render_to_string('email_template/mdmu_rejection_email.html', context)
+
+                email = EmailMessage(
+                    subject=subject,
+                    body=html_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[instance.contact_email],
+                )
+
+                email.content_subtype = 'html'
+                email.send(fail_silently=False)
+
             # Update the status
             instance.status = new_status
             instance.save()

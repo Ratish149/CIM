@@ -67,25 +67,25 @@ class CalculatePointsView(APIView):
                 })
 
         # Calculate category based on earned_points/100
-        points_ratio = earned_points / 100
+        points_ratio = round((earned_points / total_points) * 100, 2)  # Round to 2 decimal places
         category = ''
         percentage = 0
 
-        if 0 <= points_ratio <= 1:
-            category = 'a'
-            percentage = 20
-        elif 1 < points_ratio <= 2:
-            category = 'b'
-            percentage = 40
-        elif 2 < points_ratio <= 3:
-            category = 'c'
-            percentage = 60
-        elif 3 < points_ratio <= 4:
-            category = 'd'
-            percentage = 80
-        else:  # points_ratio > 4
+        if 0 <= points_ratio <= 20:
             category = 'e'
-            percentage = 100
+            percentage = points_ratio
+        elif 20 < points_ratio <= 40:
+            category = 'd'
+            percentage = points_ratio
+        elif 40 < points_ratio <= 60:
+            category = 'c'
+            percentage = points_ratio
+        elif 60 < points_ratio <= 80:
+            category = 'b'
+            percentage = points_ratio
+        else:  # points_ratio > 80
+            category = 'a'
+            percentage = points_ratio
 
         # Create Response instance
         response_instance = Response.objects.create(
@@ -100,7 +100,7 @@ class CalculatePointsView(APIView):
 
         file_url = None
         # Only create PDF if percentage >= 20 and category is not 'a'
-        if percentage >= 20 and category != 'a':
+        if percentage >= 20 and category != 'e':
             # Create pdf directory if it doesn't exist
             output_dir = "media/pdf/QHSEF/"
             os.makedirs(output_dir, exist_ok=True)
