@@ -36,6 +36,9 @@ class QuestionListCreateView(generics.ListCreateAPIView):
             status=status.HTTP_201_CREATED
         )
 
+class TopQuestionView(generics.ListAPIView):
+    serializer_class = QuestionSerializer
+    queryset = Question.objects.all().order_by('-vote_count')[:3]
        
 
 class VotingCreateView(generics.CreateAPIView):
