@@ -9,7 +9,7 @@ from .serializers import QuestionSerializer, VotingSerializer
 
 class QuestionListCreateView(generics.ListCreateAPIView):
     serializer_class = QuestionSerializer
-    queryset = Question.objects.all().order_by('-vote_count')
+    queryset = Question.objects.all().order_by('-created_at')
 
     def create(self, request, *args, **kwargs):
         name = request.data.get('name')
@@ -38,7 +38,7 @@ class QuestionListCreateView(generics.ListCreateAPIView):
 
 class TopQuestionView(generics.ListAPIView):
     serializer_class = QuestionSerializer
-    queryset = Question.objects.all().order_by('-vote_count')[:3]
+    queryset = Question.objects.all().order_by('-vote_count')
        
 
 class VotingCreateView(generics.CreateAPIView):
