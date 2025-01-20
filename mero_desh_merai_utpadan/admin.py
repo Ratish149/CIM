@@ -12,6 +12,7 @@ class MeroDeshMeraiUtpadanAdmin(ModelAdmin):
         'address_province',
         'address_district',
         'product_market',
+        'status',
         'created_at'
     )
     
@@ -23,7 +24,8 @@ class MeroDeshMeraiUtpadanAdmin(ModelAdmin):
         'member_of_cim',
         'interested_in_logo',
         'already_used_logo',
-        'created_at'
+        'created_at',
+        'status'
     )
     
     search_fields = (
