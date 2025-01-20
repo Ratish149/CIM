@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'contact',
     'bds_service',
     'business_information',
+    'voting',
     'corsheaders',
     'tinymce'
 ]
