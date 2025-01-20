@@ -234,7 +234,8 @@ class ApproveStatusView(APIView):
                 field_data = {
                     'ChalanNo': f"2081/82 - {instance.id}",
                     'Name': instance.contact_name or "N/A",
-                    'CompanyName': f"{instance.contact_designation}, {instance.name_of_company} ," if (instance.contact_designation and instance.name_of_company) else "N/A",
+                    'Designation': instance.contact_designation or "N/A",
+                    'CompanyName': instance.name_of_company or "N/A",
                     'Location': instance.address_street or "N/A",
                     'CreatedAt': nepali_date
                 }
