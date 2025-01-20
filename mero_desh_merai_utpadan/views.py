@@ -233,8 +233,6 @@ class ApproveStatusView(APIView):
                 # Data to populate the form fields
                 field_data = {
                     'ChalanNo': f"2081/82 - {instance.id}",
-                    'Name': instance.contact_name or "N/A",
-                    'Designation': instance.contact_designation or "N/A",
                     'CompanyName': instance.name_of_company or "N/A",
                     'Location': instance.address_street or "N/A",
                     'CreatedAt': nepali_date
