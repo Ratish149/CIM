@@ -14,5 +14,5 @@ urlpatterns = [
     path('mero-desh-merai-utpadan/', MeroDeshMeraiUtpadanListCreateView.as_view(), name='mero-desh-merai-utpadan-list-create'),
     path('mero-desh-merai-utpadan/<int:pk>/', MeroDeshMeraiUtpadanRetrieveUpdateDestroyView.as_view(), name='mero-desh-merai-utpadan-detail'),
     path('contact-form/', ContactFormListCreateView.as_view(), name='contact-form-list-create'),
-    path('approve-status/<int:pk>/', ApproveStatusView.as_view(), name='approve-status'),
+    path('<int:pk>/status/', ApproveStatusView.as_view(), name='approve-status'),
 ]

@@ -283,9 +283,9 @@ class ContactFormListCreateView(generics.ListCreateAPIView):
         return Response({"message": "Contact form submitted successfully."}, status=201)
 
 class ApproveStatusView(APIView):
-    def post(self, request, pk):
+    def patch(self, request, pk):
         instance = get_object_or_404(MeroDeshMeraiUtpadan, pk=pk)
-        new_status = request.data.get('status')
+        new_status = request.query_params.get('status')
         
         if not new_status:
             return Response(
@@ -293,11 +293,9 @@ class ApproveStatusView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
             
-
-        # Check if already in the requested status
-        if instance.status == new_status:
+        if new_status not in ['Pending', 'Approved', 'Rejected']:
             return Response(
-                {"message": f"This registration is already {new_status}"}, 
+                {"error": "Invalid status value"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
 
