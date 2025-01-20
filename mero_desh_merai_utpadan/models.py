@@ -16,15 +16,14 @@ class NatureOfIndustrySubCategory(models.Model):
 
 class MeroDeshMeraiUtpadan(models.Model):
 
-    INDUSTRY_CHOICES=(
-        ('Startup','Startup'),
-        ('Micro','Micro'),
-        ('Cottage','Cottage'),
-        ('Small','Small'),
-        ('Medium','Medium'),
-        ('Large','Large'),
-        ('Others','Others'),
-    )
+    INDUSTRY_SIZE_CHOICES = [
+        ('Startup', 'Startup'),
+        ('Micro', 'Micro'),
+        ('Cottage', 'Cottage'),
+        ('Small', 'Small'),
+        ('Medium', 'Medium'),
+        ('Large', 'Large'),
+    ]
 
     MARKET_CHOICES=(
         ('Domestic','Domestic'),
@@ -36,6 +35,11 @@ class MeroDeshMeraiUtpadan(models.Model):
         ('International','International'),
         ('Both','Both'),
     )
+    STATUS={
+        ('Pending','Pending'),
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+    }
 
     name_of_company=models.CharField(max_length=255)
     address_province=models.CharField(max_length=255)
@@ -50,7 +54,7 @@ class MeroDeshMeraiUtpadan(models.Model):
     contact_alternate_number=models.CharField(max_length=255,null=True,blank=True)
     contact_email=models.EmailField()
 
-    industry_size=models.CharField(max_length=255,choices=INDUSTRY_CHOICES,default='Others')
+    industry_size=models.CharField(max_length=255,choices=INDUSTRY_SIZE_CHOICES,default='Others')
     nature_of_industry_category=models.ForeignKey(NatureOfIndustryCategory, on_delete=models.CASCADE,default=None,null=True,blank=True)
     nature_of_industry_sub_category=models.ForeignKey(NatureOfIndustrySubCategory, on_delete=models.CASCADE,default=None,null=True,blank=True)
     
@@ -65,6 +69,9 @@ class MeroDeshMeraiUtpadan(models.Model):
     file_url=models.CharField(max_length=255,null=True,blank=True)
 
     self_declaration=models.BooleanField(default=False)
+
+    status=models.CharField(max_length=255,choices=STATUS,default='Pending')
+
     
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
