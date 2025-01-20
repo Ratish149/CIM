@@ -143,99 +143,12 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        # Save the instance
         instance = serializer.save()
-
-        # Create pdf directory inside media if it doesn't exist
-        output_dir = "media/pdf/mdmu/"
-        os.makedirs(output_dir, exist_ok=True)
-        output_pdf = f"{output_dir}merodeshmeraiutpadan_{instance.id}.pdf"
-
-        # Define the path to the input PDF
-        input_pdf = "media/mdmu_final.pdf"
-
-        # Convert English date to Nepali date
-        english_date = instance.created_at
-        if english_date:
-            # Extract the date part from the datetime object
-            english_date_only = english_date.date()
-            nepali_date = nepali_datetime.date.from_datetime_date(english_date_only).strftime('%B %d, %Y')
-        else:
-            nepali_date = "N/A"
-
-        # Data to populate the form fields
-        field_data = {
-            'ChalanNo': f"2081/82 - {instance.id}",
-            'Name': instance.contact_name or "N/A",
-            'CompanyName': f"{instance.contact_designation}, {instance.name_of_company} ," if (instance.contact_designation and instance.name_of_company) else "N/A",
-            'Location': instance.address_street or "N/A",
-            'CreatedAt': nepali_date
-        }
-
-        # Debug: Print all widget field names
-        pdf = fitz.open(input_pdf)
-
-        # Fill the PDF
-        for page_num in range(len(pdf)):
-            page = pdf[page_num]
-            widgets = page.widgets()
-            if widgets:
-                for widget in widgets:
-                    if widget.field_name in field_data:
-                        widget.field_value = field_data[widget.field_name]
-                        widget.update()
-
-        # Save the updated PDF
-        pdf.save(output_pdf)
-        pdf.close()
-
-        # Build the file URL (updated to include pdf directory)
-        file_url = request.build_absolute_uri(f"/media/pdf/mdmu/merodeshmeraiutpadan_{instance.id}.pdf")
-
-        # Save the file URL to the instance
-        instance.file_url = file_url
-        instance.save()
-
-        # After PDF is generated, send email if contact_email exists
-        if instance.contact_email:
-            subject = 'Thank You for Participating in the "Mero Desh Merai Utpadan" Campaign'
-            
-            # Load the HTML template
-            context = {
-                'issue': instance,
-                'name': instance.contact_name,
-                'logo_url': os.path.join(settings.STATIC_ROOT, 'logo', 'mdmu-logo.png'),
-              
-            }
-            html_message = render_to_string('email_template/mdmu_email_template.html', context)
-
-            # Create email message
-            email = EmailMessage(
-                subject=subject,
-                body=html_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[instance.contact_email],
-            )
-            
-            # Attach the generated PDF
-            with open(output_pdf, 'rb') as pdf_file:
-                email.attach(f'merodeshmeraiutpadan_{instance.id}.pdf', pdf_file.read(), 'application/pdf')
-
-            # Attach the logo
-            logo_path = os.path.join(settings.STATIC_ROOT, 'logo', 'mdmu-logo.png')
-            with open(logo_path, 'rb') as logo_file:
-                email.attach('mdmu-logo.png', logo_file.read(), 'image/png')
-
-            email.content_subtype = 'html'
-            email.send(fail_silently=False)
-
-        # Return response
+        
         return Response({
-            "message": "PDF generated successfully.",
-            "file_url": file_url
+            "message": "Registration successful.",
+            "data": serializer.data
         }, status=201)
-
 
 class MeroDeshMeraiUtpadanRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MeroDeshMeraiUtpadan.objects.all()
