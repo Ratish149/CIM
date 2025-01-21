@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Question, Voting
+from .models import Question, Voting, Session, RunningSession
 from unfold.admin import ModelAdmin
 
 # Register your models here.
@@ -12,3 +12,13 @@ class QuestionAdmin(ModelAdmin):
 class VotingAdmin(ModelAdmin):
     list_display = ('name', 'phone_number', 'question', 'created_at')
     search_fields = ('name', 'question__name')
+
+@admin.register(Session)
+class SessionAdmin(ModelAdmin):
+    list_display = ('title', 'is_acepting_questions')
+    search_fields = ('title',)
+
+@admin.register(RunningSession)
+class RunningSessionAdmin(ModelAdmin):
+    list_display = ('session',)
+    search_fields = ('session__title',)
