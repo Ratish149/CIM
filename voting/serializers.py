@@ -16,8 +16,13 @@ class SessionSerializer(serializers.ModelSerializer):
         model = Session
         fields = ['id', 'title', 'questions', 'is_acepting_questions']
 
+class SessionOnlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ['id', 'title', 'is_acepting_questions']
+
 class RunningSessionSerializer(serializers.ModelSerializer):
-    session=SessionSerializer()
+    session=SessionOnlySerializer()
     class Meta:
         model = RunningSession
         fields = ['id', 'session']

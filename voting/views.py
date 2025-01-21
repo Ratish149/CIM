@@ -3,7 +3,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Question, Voting, Session, RunningSession
-from .serializers import QuestionSerializer, VotingSerializer, SessionSerializer, RunningSessionSerializer
+from .serializers import QuestionSerializer, VotingSerializer, SessionSerializer, RunningSessionSerializer, SessionOnlySerializer
 
 # Create your views here.
 
@@ -128,6 +128,9 @@ class QuestionsByRunningSessionView(generics.ListAPIView):
 class SessionListCreateView(generics.ListCreateAPIView):
     serializer_class = SessionSerializer
     queryset = Session.objects.all().order_by('-id')
+
+    def get_serializer_class(self):
+        return SessionOnlySerializer  # Use SessionOnlySerializer for GET requests
 
 class RunningSessionListCreateView(generics.ListCreateAPIView):
     serializer_class = RunningSessionSerializer
