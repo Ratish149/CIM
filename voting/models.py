@@ -16,7 +16,7 @@ class Question(models.Model):
         
 class Session(models.Model):
     title=models.CharField(max_length=200)
-    questions=models.ManyToManyField(Question)
+    questions=models.ManyToManyField(Question,blank=True)
     is_acepting_questions=models.BooleanField(default=True)
 
     def __str__(self):

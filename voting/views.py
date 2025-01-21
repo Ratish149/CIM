@@ -20,7 +20,12 @@ class QuestionListCreateView(generics.ListCreateAPIView):
 
         # Check if the current running session is accepting questions
         running_session = RunningSession.objects.first()  # Assuming you want to check the first running session
-        if running_session and not running_session.session.is_acepting_questions:
+        if not running_session:
+            return Response(
+                {"error": "No running session available"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if not running_session.session.is_acepting_questions:
             return Response(
                 {"error": "Cannot add question, session is not accepting questions"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -47,9 +52,12 @@ class TopQuestionView(generics.ListAPIView):
 
     def get_queryset(self):
         running_session = RunningSession.objects.first()  # Get the first running session
-        if running_session:
-            return Question.objects.filter(session=running_session.session).order_by('-vote_count')
-        return Question.objects.none()  # Return an empty queryset if no running session exists
+        if not running_session:
+            return Response(
+                {"error": "No running session available"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Question.objects.filter(session=running_session.session).order_by('-vote_count')
 
 class VotingCreateView(generics.CreateAPIView):
     serializer_class = VotingSerializer
@@ -105,7 +113,9 @@ class QuestionsByRunningSessionView(generics.ListAPIView):
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        running_session=RunningSession.objects.first()
+        running_session = RunningSession.objects.first()
+        if not running_session:
+            return Question.objects.none()  # Return an empty queryset if no running session exists
         return Question.objects.filter(session__runningsession__id=running_session.id).order_by('-created_at')
 
 class SessionListCreateView(generics.ListCreateAPIView):
