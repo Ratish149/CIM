@@ -87,6 +87,13 @@ class VotingCreateView(generics.CreateAPIView):
                 {"error": "You cannot vote for your own question"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+                # Check if there is a running session
+        running_session = RunningSession.objects.first()
+        if not running_session:
+            return Response(
+                {"error": "No running session available"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         # Add question_id to the request data
         data = request.data.copy()
