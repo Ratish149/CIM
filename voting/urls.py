@@ -9,4 +9,6 @@ urlpatterns = [
     path('sessions/', SessionListCreateView.as_view(), name='session_list_create'),
     path('running-sessions/', RunningSessionListCreateView.as_view(), name='running-session-list-create'),
     path('running-sessions/<int:pk>/', RunningSessionRetrieveUpdateDestroyView.as_view(), name='running-session-retrieve-update-destroy'),
+    path('running-session/<int:session_id>/', RunningSessionRetrieveUpdateDestroyView.as_view(), name='update-running-session'),
 ]
+

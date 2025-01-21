@@ -136,3 +136,31 @@ class RunningSessionListCreateView(generics.ListCreateAPIView):
 class RunningSessionRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RunningSessionSerializer
     queryset = RunningSession.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        # Get the new session ID from the URL
+        new_session_id = kwargs.get('session_id')
+        
+        if new_session_id:
+            # Check if there is already a running session
+            current_running_session = RunningSession.objects.first()
+            if current_running_session:
+                # Check if the new session is the same as the current running session
+                if current_running_session.session.id == new_session_id:
+                    return Response({"error": "This session is already running."}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    # Optionally, delete the current running session if you want to replace it
+                    current_running_session.delete()
+
+            # Create a new session instance
+            new_session = Session.objects.filter(id=new_session_id).first()
+            if new_session:
+                # Create a new running session with the new session
+                new_running_session = RunningSession.objects.create(session=new_session)
+                return Response(
+                    RunningSessionSerializer(new_running_session).data,
+                    status=status.HTTP_201_CREATED
+                )
+            return Response({"error": "New session not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({"error": "New session ID is required"}, status=status.HTTP_400_BAD_REQUEST)
