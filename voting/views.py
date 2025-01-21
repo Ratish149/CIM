@@ -132,6 +132,19 @@ class SessionListCreateView(generics.ListCreateAPIView):
     def get_serializer_class(self):
         return SessionOnlySerializer  # Use SessionOnlySerializer for GET requests
 
+    def create(self, request, *args, **kwargs):
+        title = request.data.get('title')  # Get the title from the request data
+        if not title:
+            return Response(
+                {"error": "Title is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create a new session with the provided title
+        session = Session.objects.create(title=title)
+        serializer = self.get_serializer(session)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class RunningSessionListCreateView(generics.ListCreateAPIView):
     serializer_class = RunningSessionSerializer
     queryset = RunningSession.objects.all().order_by('-id')
