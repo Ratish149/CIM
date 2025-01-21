@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import QuestionListCreateView, VotingCreateView, TopQuestionView, QuestionsByRunningSessionView, SessionListCreateView, RunningSessionListCreateView, RunningSessionRetrieveUpdateDestroyView
+from .views import QuestionListCreateView, VotingCreateView, TopQuestionView, QuestionsByRunningSessionView, SessionListCreateView, RunningSessionListCreateView, RunningSessionRetrieveUpdateDestroyView, UpdateSessionAcceptingQuestionsView
 
 urlpatterns = [
     path('questions/', QuestionListCreateView.as_view(), name='question-list-create'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('running-sessions/', RunningSessionListCreateView.as_view(), name='running-session-list-create'),
     path('running-sessions/<int:pk>/', RunningSessionRetrieveUpdateDestroyView.as_view(), name='running-session-retrieve-update-destroy'),
     path('running-session/<int:session_id>/', RunningSessionRetrieveUpdateDestroyView.as_view(), name='update-running-session'),
+    path('running-session/toggle-questions/', UpdateSessionAcceptingQuestionsView.as_view(), name='toggle_accepting_questions'),
 ]
 

@@ -164,3 +164,26 @@ class RunningSessionRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIV
             return Response({"error": "New session not found"}, status=status.HTTP_404_NOT_FOUND)
         
         return Response({"error": "New session ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateSessionAcceptingQuestionsView(generics.UpdateAPIView):
+    serializer_class = SessionSerializer  # Assuming you want to use the same serializer
+    queryset = RunningSession.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        # Get the current running session
+        running_session = RunningSession.objects.first()  # Assuming you want to check the first running session
+        if running_session:
+            # Toggle the is_accepting_questions value
+            running_session.session.is_acepting_questions = not running_session.session.is_acepting_questions
+            running_session.session.save()  # Save the updated session
+            
+            # Serialize the updated session
+            serializer = self.get_serializer(running_session.session)
+            return Response(
+                {"message": "Session updated successfully", "session": serializer.data},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {"error": "No running session available"},
+            status=status.HTTP_404_NOT_FOUND
+        )
