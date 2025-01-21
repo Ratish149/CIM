@@ -12,7 +12,6 @@ class VotingSerializer(serializers.ModelSerializer):
         fields = ['id', 'question', 'name', 'phone_number', 'created_at']
 
 class SessionSerializer(serializers.ModelSerializer):
-    questions=QuestionSerializer(many=True)
     class Meta:
         model = Session
         fields = ['id', 'title', 'questions', 'is_acepting_questions']
