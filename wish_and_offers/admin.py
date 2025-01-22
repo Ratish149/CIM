@@ -21,13 +21,13 @@ class ServiceAdmin(ModelAdmin):
 
 @admin.register(Wish)
 class WishAdmin(ModelAdmin):
-    list_display = ['title', 'full_name', 'product', 'service', 'status']
+    list_display = ['title', 'full_name', 'product', 'service', 'type','status','match_percentage']
     list_filter = ['status', 'type']
     search_fields = ['title', 'full_name', 'product__hs_code']
 
 @admin.register(Offer)
 class OfferAdmin(ModelAdmin):
-    list_display = ['title', 'full_name', 'product', 'service', 'status']
+    list_display = ['title', 'full_name', 'product', 'service', 'type','status','match_percentage']
     list_filter = ['status', 'type']
     search_fields = ['title', 'full_name', 'product__hs_code']
 
