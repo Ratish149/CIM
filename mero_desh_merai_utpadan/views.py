@@ -180,7 +180,7 @@ class ContactFormListCreateView(generics.ListCreateAPIView):
         )
 
         # Send email to admin
-        subject = f"New Contact Form Submission: {serializer.validated_data['subject']}"
+        subject = f"New Contact Form Submission for Mero Desh Merai Utpadan: {serializer.validated_data['subject']}"
         from_email = settings.DEFAULT_FROM_EMAIL
         
         # Update recipient_list to include the specified email

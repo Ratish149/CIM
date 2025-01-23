@@ -101,7 +101,7 @@ class CalculatePointsView(APIView):
         )
 
         file_url = None
-        # Only create PDF if percentage >= 20 and category is not 'a'
+        # Only create PDF if percentage >= 20 and category is not 'e'
         if percentage >= 20 and category != 'e':
             # Create pdf directory if it doesn't exist
             output_dir = "media/pdf/QHSEF/"
@@ -151,7 +151,7 @@ class CalculatePointsView(APIView):
             response_instance.save()
 
             # Send email with PDF attachment
-            subject = "Response Summary"
+            subject = "QHSEF Summary"
             body = render_to_string("mail/email_template.html", {
                 "name": name,
                 "enriched_data": enriched_data,
@@ -336,7 +336,7 @@ class ContactFormListCreateView(generics.ListCreateAPIView):
         )
 
         # Send email to admin
-        subject = f"New Contact Form Submission: {serializer.validated_data['subject']}"
+        subject = f"New Contact Form Submission for Qhsef: {serializer.validated_data['subject']}"
         from_email = settings.DEFAULT_FROM_EMAIL
         
         # Update recipient_list to include the specified email
