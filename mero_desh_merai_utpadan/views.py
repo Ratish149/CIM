@@ -189,7 +189,7 @@ class ContactFormListCreateView(generics.ListCreateAPIView):
             subject=subject,
             message=strip_tags(html_message),  # Plain text version
             from_email=from_email,
-            recipient_list=recipient_list,
+            recipient_list=[recipient_list,from_email],
             html_message=html_message  # HTML version
         )
 
