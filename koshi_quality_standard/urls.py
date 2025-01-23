@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RequirementListView,CalculatePointsView,RequirementQuestionBulkUploadView,ResponseDetailView,ContactFormListCreateView
+from .views import RequirementListView,CalculatePointsView,RequirementQuestionBulkUploadView,ResponseDetailView,ContactFormListCreateView,ResponseListView
 
 urlpatterns = [
 
@@ -8,5 +8,6 @@ urlpatterns = [
     path('upload-requirements/', RequirementQuestionBulkUploadView.as_view(), name='upload-requirements'),
     path('report/<int:id>/', ResponseDetailView.as_view(), name='response-detail'),
     path('contact-form-submit/',ContactFormListCreateView.as_view(),name='contact-form-submit'),
+    path('report/',ResponseListView.as_view(),name='response-list'),
 
 ]

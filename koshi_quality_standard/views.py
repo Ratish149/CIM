@@ -10,7 +10,7 @@ from nepali_datetime import date as nepali_datetime
 
 from rest_framework.response import Response as DRFResponse
 from .models import Question, Requirement, Response,ContactForm
-from .serializers import RequirementSerializer, FileUploadSerializer,ContactFormSerializer
+from .serializers import RequirementSerializer, FileUploadSerializer,ContactFormSerializer,ResponseSerializer
 from rest_framework import filters
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -352,3 +352,8 @@ class ContactFormListCreateView(generics.ListCreateAPIView):
         )
 
         return DRFResponse({"message": "Contact form submitted successfully."})
+
+class ResponseListView(generics.ListAPIView):
+    queryset = Response.objects.all()
+    serializer_class = ResponseSerializer 
+    
