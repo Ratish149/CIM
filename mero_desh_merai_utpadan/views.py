@@ -184,7 +184,7 @@ class ContactFormListCreateView(generics.ListCreateAPIView):
         from_email = settings.DEFAULT_FROM_EMAIL
         
         # Update recipient_list to include the specified email
-        recipient_list = ['biratexpo2025@gmail.com']  # Updated recipient list
+        recipient_list = ['biratexpo2024@gmail.com']  # Updated recipient list
         
         # Send both HTML and plain text versions
         send_mail(
