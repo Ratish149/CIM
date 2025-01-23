@@ -279,7 +279,8 @@ class ResponseDetailView(generics.RetrieveAPIView):
         for requirement_data in instance.response_data:
             if requirement_data.get("is_relevant", False):
                 requirement_id = requirement_data.get("requirement_id")
-                requirement_name = Requirement.objects.filter(id=requirement_id).first().name if requirement_id else "Unknown"
+                requirement = Requirement.objects.filter(id=requirement_id).first()
+                requirement_name = requirement.name if requirement else "Unknown"
                 
                 answers = []
                 for answer_data in requirement_data.get("answers", []):
