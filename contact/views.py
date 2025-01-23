@@ -6,12 +6,19 @@ from django.core.mail import send_mail
 from .models import Contact, Newsletter
 from .serializers import ContactSerializer, NewsletterSerializer
 from django.conf import settings  # Import settings
+from rest_framework import serializers
 
 # Create your views here.
 
 class ContactView(APIView):
+
+    class ContactSerializer(serializers.ModelSerializer):  # Nested serializer class
+        class Meta:
+            model = Contact
+            fields = ['name', 'email', 'message']  # Specify the fields to be serialized
+
     def post(self, request):
-        serializer = ContactSerializer(data=request.data)
+        serializer = self.ContactSerializer(data=request.data)  # Use the nested ContactSerializer
         if serializer.is_valid():
             contact = serializer.save()
             # Send email

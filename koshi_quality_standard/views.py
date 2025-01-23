@@ -9,12 +9,14 @@ from datetime import datetime
 from nepali_datetime import date as nepali_datetime
 
 from rest_framework.response import Response as DRFResponse
-from .models import Question, Requirement, Response
-from .serializers import RequirementSerializer, FileUploadSerializer
+from .models import Question, Requirement, Response,ContactForm
+from .serializers import RequirementSerializer, FileUploadSerializer,ContactFormSerializer
 from rest_framework import filters
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.core.mail import send_mail
+from django.utils.html import strip_tags
 from rest_framework.permissions import AllowAny
 
 # Create your views here.
@@ -308,3 +310,45 @@ class ResponseDetailView(generics.RetrieveAPIView):
             "requirements": enriched_data
         }, status=status.HTTP_200_OK)
 
+
+class ContactFormListCreateView(generics.ListCreateAPIView):
+    queryset = ContactForm.objects.all()
+    serializer_class = ContactFormSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Prepare context for email template
+        context = {
+            'name': serializer.validated_data['name'],
+            'email': serializer.validated_data['email'],
+            'phone_number': serializer.validated_data['phone_number'],
+            'subject': serializer.validated_data['subject'],
+            'message': serializer.validated_data['message']
+        }
+
+        # Render the HTML template
+        html_message = render_to_string(
+            'mail/qhsef_contact.html',
+            context
+        )
+
+        # Send email to admin
+        subject = f"New Contact Form Submission: {serializer.validated_data['subject']}"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        
+        # Update recipient_list to include the specified email
+        recipient_list = ['biratexpo2025@gmail.com']  # Updated recipient list
+        
+        # Send both HTML and plain text versions
+        send_mail(
+            subject=subject,
+            message=strip_tags(html_message),  # Plain text version
+            from_email=from_email,
+            recipient_list=recipient_list,
+            html_message=html_message  # HTML version
+        )
+
+        return DRFResponse({"message": "Contact form submitted successfully."})

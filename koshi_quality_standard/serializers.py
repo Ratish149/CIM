@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question,Requirement,Response
+from .models import Question,Requirement,Response,ContactForm
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -35,3 +35,8 @@ class ResponseSerializer(serializers.ModelSerializer):
 
 class FileUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
+
+class ContactFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactForm
+        fields = '__all__'
