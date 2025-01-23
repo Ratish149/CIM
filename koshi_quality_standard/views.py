@@ -67,9 +67,11 @@ class CalculatePointsView(APIView):
                     "requirement_name": requirement_name,
                     "answers": answers
                 })
-
-        # Calculate category based on earned_points/100
-        points_ratio = round((earned_points / total_points) * 100, 2)  # Round to 2 decimal places
+        
+        if total_points == 0:
+            points_ratio = 0  # Avoid division by zero
+        else:
+            points_ratio = round((earned_points / total_points) * 100, 2) # Round to 2 decimal places
         category = ''
         percentage = 0
 
