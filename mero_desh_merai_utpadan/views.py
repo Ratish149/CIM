@@ -182,14 +182,16 @@ class ContactFormListCreateView(generics.ListCreateAPIView):
         # Send email to admin
         subject = f"New Contact Form Submission: {serializer.validated_data['subject']}"
         from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [settings.DEFAULT_FROM_EMAIL]
+        
+        # Update recipient_list to include the specified email
+        recipient_list = ['biratexpo2025@gmail.com']  # Updated recipient list
         
         # Send both HTML and plain text versions
         send_mail(
             subject=subject,
             message=strip_tags(html_message),  # Plain text version
             from_email=from_email,
-            recipient_list=[recipient_list],
+            recipient_list=recipient_list,
             html_message=html_message  # HTML version
         )
 
