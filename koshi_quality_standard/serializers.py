@@ -40,3 +40,8 @@ class ContactFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactForm
         fields = '__all__'
+
+class ResponseListSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Response
+        fields = ['id','name','email','phone','earned_points','category']
