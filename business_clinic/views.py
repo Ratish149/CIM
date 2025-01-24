@@ -12,13 +12,10 @@ from .models import (
     Issue,
     IssueAction,
 )
-from django.conf import settings
-
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django_filters import rest_framework as django_filters
 from django.db.models import Count
-from django.core.mail import send_mail  # Import send_mail for sending emails
 
 class NatureOfIndustryCategoryListCreateView(generics.ListCreateAPIView):
     queryset = NatureOfIndustryCategory.objects.all()
@@ -74,8 +71,6 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
         
         # Save the issue
         issue = serializer.save()
-        changes_made = False  # Track if any changes were made
-        change_details = []  # List to hold details of changes
         
         # Handle category and subcategory changes together
         if 'nature_of_industry_category' in self.request.data:
@@ -85,68 +80,97 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
             new_subcategory = str(issue.nature_of_industry_sub_category)
             
             if old_category != new_category or old_subcategory != new_subcategory:
-                change_details.append(f"Industry Category changed from '{old_category} → {old_subcategory}' to '{new_category} → {new_subcategory}'")
-                changes_made = True  # Mark that changes were made
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_category_change',
+                    old_value=f"{old_category} → {old_subcategory}",
+                    new_value=f"{new_category} → {new_subcategory}",
+                    comment=comment
+                )
+                return issue
 
         if 'nature_of_industry_sub_category' in self.request.data:
             old_subcategory = str(old_instance.nature_of_industry_sub_category)
             new_subcategory = str(issue.nature_of_industry_sub_category)
             if old_subcategory != new_subcategory:
-                change_details.append(f"Industry Subcategory changed from '{old_subcategory}' to '{new_subcategory}'")
-                changes_made = True
-
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_subcategory_change',
+                    old_value=old_subcategory,
+                    new_value=new_subcategory,
+                    comment=comment
+                )
+        
         if 'implementation_level' in self.request.data:
             old_implementation_level = str(old_instance.implementation_level)
             new_implementation_level = str(issue.implementation_level)
             if old_implementation_level != new_implementation_level:
-                change_details.append(f"Implementation Level changed from '{old_implementation_level}' to '{new_implementation_level}'")
-                changes_made = True
-
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='implementation_level_change',
+                    old_value=old_implementation_level,
+                    new_value=new_implementation_level,
+                    comment=comment
+                )
+        
         if 'progress_status' in self.request.data:
             old_progress_status = str(old_instance.progress_status)
             new_progress_status = str(issue.progress_status)
             if old_progress_status != new_progress_status:
-                change_details.append(f"Progress Status changed from '{old_progress_status}' to '{new_progress_status}'")
-                changes_made = True
-
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='progress_status_change',
+                    old_value=old_progress_status,
+                    new_value=new_progress_status,
+                    comment=comment
+                )
+        
         if 'nature_of_issue' in self.request.data:
             old_nature_of_issue = str(old_instance.nature_of_issue)
             new_nature_of_issue = str(issue.nature_of_issue)
             if old_nature_of_issue != new_nature_of_issue:
-                change_details.append(f"Nature of Issue changed from '{old_nature_of_issue}' to '{new_nature_of_issue}'")
-                changes_made = True
-
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='nature_of_issue_change',
+                    old_value=old_nature_of_issue,
+                    new_value=new_nature_of_issue,
+                    comment=comment
+                )
+        
         if 'industry_specific_or_common_issue' in self.request.data:
             old_industry_specific_or_common_issue = str(old_instance.industry_specific_or_common_issue)
             new_industry_specific_or_common_issue = str(issue.industry_specific_or_common_issue)
             if old_industry_specific_or_common_issue != new_industry_specific_or_common_issue:
-                change_details.append(f"Industry Specific or Common Issue changed from '{old_industry_specific_or_common_issue}' to '{new_industry_specific_or_common_issue}'")
-                changes_made = True
-
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_specific_or_common_issue_change',
+                    old_value=old_industry_specific_or_common_issue,
+                    new_value=new_industry_specific_or_common_issue,
+                    comment=comment
+                )
+        
         if 'policy_related_or_procedural_issue' in self.request.data:
             old_policy_related_or_procedural_issue = str(old_instance.policy_related_or_procedural_issue)
             new_policy_related_or_procedural_issue = str(issue.policy_related_or_procedural_issue)
             if old_policy_related_or_procedural_issue != new_policy_related_or_procedural_issue:
-                change_details.append(f"Policy Related or Procedural Issue changed from '{old_policy_related_or_procedural_issue}' to '{new_policy_related_or_procedural_issue}'")
-                changes_made = True
-
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='policy_related_or_procedural_issue_change',
+                    old_value=old_policy_related_or_procedural_issue,
+                    new_value=new_policy_related_or_procedural_issue,
+                    comment=comment
+                )
         if 'industry_size' in self.request.data:
             old_industry_size = str(old_instance.industry_size)
             new_industry_size = str(issue.industry_size)
             if old_industry_size != new_industry_size:
-                change_details.append(f"Industry Size changed from '{old_industry_size}' to '{new_industry_size}'")
-                changes_made = True
-
-        # Send email if changes were made
-        if changes_made and user:
-            change_summary = "\n".join(change_details)  # Create a summary of changes
-            send_mail(
-                'Issue Updated',
-                f'Your issue has been updated with the following changes:\n\n{change_summary}',
-                settings.DEFAULT_FROM_EMAIL,  # Replace with your sender email
-                [user.email],  # Send to the user's email
-                fail_silently=False,
-            )
+                IssueAction.objects.create(
+                    issue=issue,
+                    action_type='industry_size_change',
+                    old_value=old_industry_size,
+                    new_value=new_industry_size,
+                    comment=comment
+                )
 
         return issue
 
