@@ -21,6 +21,7 @@ import csv
 from rest_framework import filters
 from django.db.models import Q
 
+
 class WishListCreateView(generics.ListCreateAPIView):
     serializer_class = WishSerializer
 
@@ -223,3 +224,17 @@ class HSCodeBulkUploadView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class LatestWishAndOfferListView(generics.ListAPIView):
+    def get_queryset(self):
+        wishes = Wish.objects.all().order_by('-created_at')[:5]
+        offers = Offer.objects.all().order_by('-created_at')[:5]
+        return {'wishes': wishes, 'offers': offers}
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        wishes_serialized = WishSerializer(queryset['wishes'], many=True).data
+        offers_serialized = OfferSerializer(queryset['offers'], many=True).data
+        return Response({'wishes': wishes_serialized, 'offers': offers_serialized})
+
+    

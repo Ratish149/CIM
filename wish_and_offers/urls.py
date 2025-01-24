@@ -10,7 +10,8 @@ from .views import (
     ServiceListCreateView,
     CategoryListView,
     HSCodeListView,
-    HSCodeBulkUploadView
+    HSCodeBulkUploadView,
+    LatestWishAndOfferListView
 )
 
 urlpatterns = [
@@ -21,6 +22,8 @@ urlpatterns = [
     # Offer URLs
     path('offers/', OfferListCreateView.as_view(), name='offer-list-create'),
     path('offers/<int:pk>/', OfferRetrieveUpdateDestroyView.as_view(), name='offer-retrieve-update-destroy'),
+
+    path('wish-offers/', LatestWishAndOfferListView.as_view(), name='latest-wish-and-offer-list'),
     
     # Event-specific Wish and Offer URLs
     path('events/<slug:event_slug>/wishes/', WishListCreateView.as_view(), name='wish-list-create'),
