@@ -19,6 +19,7 @@ from rest_framework.response import Response
 from django_filters import rest_framework as django_filters
 from django.db.models import Count
 from django.core.mail import send_mail  # Import send_mail for sending emails
+from django.template.loader import render_to_string  # Import render_to_string
 
 class NatureOfIndustryCategoryListCreateView(generics.ListCreateAPIView):
     queryset = NatureOfIndustryCategory.objects.all()
@@ -198,71 +199,13 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
     def send_change_email(self, issue, action):
         if issue.contact_email:
             subject = 'Important Update: Your Issue Has Been Modified'
-            message = f"""
-            <html>
-                <head>
-                    <style>
-                        body {{
-                            font-family: Arial, sans-serif;
-                            line-height: 1.6;
-                            margin: 0;
-                            padding: 20px;
-                            background-color: #f4f4f4;
-                        }}
-                        .container {{
-                            max-width: 600px;
-                            margin: auto;
-                            background: white;
-                            padding: 20px;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                        }}
-                        .header {{
-                            font-size: 24px;
-                            font-weight: bold;
-                            color: #333;
-                        }}
-                        .content {{
-                            margin: 20px 0;
-                            color: #555;
-                        }}
-                        .footer {{
-                            margin-top: 20px;
-                            font-size: 12px;
-                            color: gray;
-                        }}
-                        .changes {{
-                            border: 1px solid #ccc;
-                            padding: 10px;
-                            background-color: #f9f9f9;
-                            border-radius: 4px;
-                        }}
-                        .changes strong {{
-                            color: #333;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="header">Dear {issue.contact_name},</div>
-                        <div class="content">
-                            We would like to inform you that your issue titled "<strong>{issue.title}</strong>" has been updated with the following changes:
-                            <div class="changes">
-                                <strong>Old Value:</strong> {action.old_value}<br>
-                                <strong>New Value:</strong> {action.new_value}<br>
-                                <strong>Comment:</strong> {action.comment}
-                            </div>
-                        </div>
-                        <div class="footer">
-                            If you have any questions or need further assistance, please do not hesitate to reach out.<br>
-                            Track your issue for further updates and details.<br>
-                            Best regards,<br>
-                            CIM
-                        </div>
-                    </div>
-                </body>
-            </html>
-            """
+            
+            # Render the email template with context
+            message = render_to_string('email_template/update_email.html', {
+                'issue': issue,
+                'action': action,
+            })
+            
             send_mail(
                 subject,
                 message,

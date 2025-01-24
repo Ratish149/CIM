@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Follow-Up on Your Issue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dcdde1;
+        }
+        .header {
+            background: linear-gradient(90deg, #2c3e50, #4a69bd);
+            color: #ffffff;
+            padding: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 35px;
+            color: #2f3640;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        .content p {
+            margin: 15px 0;
+        }
+        .content p strong {
+            color: #2c3e50;
+        }
+        .content .tracking-id {
+            background-color: #f0f3f7;
+            padding: 10px 15px;
+            border-left: 4px solid #4a69bd;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-top: 1px solid #dcdde1;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .changes {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .changes strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Follow-Up on Your Issue</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{ issue.contact_name }},</p>
+            <p>Namaste.</p>
+            <p>We hope this message finds you well. We are reaching out to follow up on your issue registered with the <strong>CIM Business Clinic</strong>. Your concerns are important to us, and we want to ensure that they are being addressed effectively.</p>
+            <p>We would like to inform you that your issue titled "<strong>{{ issue.title }}</strong>" has been updated with the following changes:</p>
+            <div class="changes">
+                <strong>Old Value:</strong> {{ action.old_value }}<br>
+                <strong>New Value:</strong> {{ action.new_value }}<br>
+                <strong>Comment:</strong> {{ action.comment }}
+            </div>
+            <p>Our team is currently reviewing the details you provided, and we will keep you updated on any progress. Your input is invaluable in our efforts to advocate for better policies.</p>
+            <div class="tracking-id">Tracking ID: {{ issue.id }}</div>
+            <p>Thank you for your continued support and collaboration.</p>
+        </div>
+        <div class="footer">
+            <p>Warm regards,</p>
+            <p><strong>Chamber of Industries Morang (CIM)</strong></p>
+        </div>
+    </div>
+</body>
+</html>
