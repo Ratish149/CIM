@@ -233,8 +233,8 @@ class LatestWishAndOfferListView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        wishes_serialized = WishSerializer(queryset['wishes'], many=True).data
-        offers_serialized = OfferSerializer(queryset['offers'], many=True).data
+        wishes_serialized = WishWithOffersSerializer(queryset['wishes'], many=True).data
+        offers_serialized = OfferWithWishesSerializer(queryset['offers'], many=True).data
         return Response({'wishes': wishes_serialized, 'offers': offers_serialized})
 
     
