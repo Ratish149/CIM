@@ -15,18 +15,30 @@ class ContactView(APIView):
     class ContactSerializer(serializers.ModelSerializer):  # Nested serializer class
         class Meta:
             model = Contact
-            fields = ['name', 'email', 'message']  # Specify the fields to be serialized
+            fields = ['name', 'email', 'phone_number', 'message','created_at']  # Specify the fields to be serialized
 
     def post(self, request):
         serializer = self.ContactSerializer(data=request.data)  # Use the nested ContactSerializer
         if serializer.is_valid():
             contact = serializer.save()
-            # Send email
+            # Send email to admin with contact details
+            email_subject = 'New Contact Received'
+            email_body = (
+                f'Dear Admin,\n\n'
+                f'A new contact submission has been received:\n\n'
+                f'Name: {contact.name}\n'
+                f'Email: {contact.email}\n'
+                f'Phone Number: {contact.phone_number}\n'
+                f'Message: {contact.message}\n'
+                f'Created At: {contact.created_at}\n\n'
+                'Please review the details and follow up with the contact as necessary.\n\n'
+   
+            )
             send_mail(
-                'Thank you for contacting us!',
-                f'Hello {contact.name},\n\nThank you for reaching out! We have received your message:\n\n"{contact.message}"\n\nWe will get back to you shortly.\n\nBest regards,\nYour Company',
+                email_subject,
+                email_body,
                 settings.DEFAULT_FROM_EMAIL,  # Use the default sender email from settings
-                [contact.email],
+                [settings.EMAIL_HOST_USER],  # Replace with the admin's email address
                 fail_silently=False,
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
