@@ -94,7 +94,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True  # Mark that changes were made
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
 
         if 'nature_of_industry_sub_category' in self.request.data:
             old_subcategory = str(old_instance.nature_of_industry_sub_category)
@@ -108,7 +108,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
         
         if 'implementation_level' in self.request.data:
             old_implementation_level = str(old_instance.implementation_level)
@@ -122,7 +122,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
         
         if 'progress_status' in self.request.data:
             old_progress_status = str(old_instance.progress_status)
@@ -136,7 +136,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
         
         if 'nature_of_issue' in self.request.data:
             old_nature_of_issue = str(old_instance.nature_of_issue)
@@ -150,7 +150,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
         
         if 'industry_specific_or_common_issue' in self.request.data:
             old_industry_specific_or_common_issue = str(old_instance.industry_specific_or_common_issue)
@@ -164,7 +164,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
         
         if 'policy_related_or_procedural_issue' in self.request.data:
             old_policy_related_or_procedural_issue = str(old_instance.policy_related_or_procedural_issue)
@@ -178,7 +178,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
         if 'industry_size' in self.request.data:
             old_industry_size = str(old_instance.industry_size)
             new_industry_size = str(issue.industry_size)
@@ -191,21 +191,31 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                     comment=comment
                 )
                 changes_made = True
-                self.send_change_email(issue.contact_email, action)
+                self.send_change_email(issue, action)
 
         return issue
 
-    def send_change_email(self, email, action):
-        if email:
+    def send_change_email(self, issue, action):
+        if issue.contact_email:
+            subject = 'Important Update: Your Issue Has Been Modified'
+            message = (
+                'Dear User,\n\n'
+                f'We would like to inform you that your issue titled "{issue.title}" has been updated with the following changes:\n\n'
+                '----------------------------------------\n'
+                f'**Old Value:** {action.old_value}\n'
+                f'**New Value:** {action.new_value}\n'
+                f'**Comment:** {action.comment}\n'
+                '----------------------------------------\n\n'
+                'If you have any questions or need further assistance, please do not hesitate to reach out.\n\n'
+                'Track your issue for further updates and details.\n\n'
+                'Best regards,\n'
+                'CIM'
+            )
             send_mail(
-                'Issue Updated',
-                f'Your issue has been updated with the following change:\n\n'
-                f'Action Type: {action.action_type}\n'
-                f'Old Value: {action.old_value}\n'  # Retained old_value
-                f'New Value: {action.new_value}\n'  # Retained new_value
-                f'Comment: {action.comment}',
+                subject,
+                message,
                 settings.DEFAULT_FROM_EMAIL,  # Replace with your sender email
-                [email],  # Send to the user's email
+                [issue.contact_email],  # Send to the user's email
                 fail_silently=False,
             )
 
