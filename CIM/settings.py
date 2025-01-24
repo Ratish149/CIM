@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'business_information',
     'voting',
     'corsheaders',
-    'tinymce'
+    'tinymce',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
