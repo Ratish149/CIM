@@ -244,7 +244,7 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
                 </head>
                 <body>
                     <div class="container">
-                        <div class="header">Dear User,</div>
+                        <div class="header">Dear {issue.contact_name},</div>
                         <div class="content">
                             We would like to inform you that your issue titled "<strong>{issue.title}</strong>" has been updated with the following changes:
                             <div class="changes">
