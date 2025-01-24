@@ -198,25 +198,59 @@ class IssueDetailView(generics.RetrieveUpdateDestroyAPIView):
     def send_change_email(self, issue, action):
         if issue.contact_email:
             subject = 'Important Update: Your Issue Has Been Modified'
-            message = (
-                'Dear User,\n\n'
-                f'We would like to inform you that your issue titled "{issue.title}" has been updated with the following changes:\n\n'
-                '----------------------------------------\n'
-                f'**Old Value:** {action.old_value}\n'
-                f'**New Value:** {action.new_value}\n'
-                f'**Comment:** {action.comment}\n'
-                '----------------------------------------\n\n'
-                'If you have any questions or need further assistance, please do not hesitate to reach out.\n\n'
-                'Track your issue for further updates and details.\n\n'
-                'Best regards,\n'
-                'CIM'
-            )
+            message = f"""
+            <html>
+                <head>
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                        }}
+                        .header {{
+                            font-size: 20px;
+                            font-weight: bold;
+                        }}
+                        .content {{
+                            margin: 20px 0;
+                        }}
+                        .footer {{
+                            margin-top: 20px;
+                            font-size: 12px;
+                            color: gray;
+                        }}
+                        .changes {{
+                            border: 1px solid #ccc;
+                            padding: 10px;
+                            background-color: #f9f9f9;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="header">Dear User,</div>
+                    <div class="content">
+                        We would like to inform you that your issue titled "<strong>{issue.title}</strong>" has been updated with the following changes:
+                        <div class="changes">
+                            <strong>Old Value:</strong> {action.old_value}<br>
+                            <strong>New Value:</strong> {action.new_value}<br>
+                            <strong>Comment:</strong> {action.comment}
+                        </div>
+                    </div>
+                    <div class="footer">
+                        If you have any questions or need further assistance, please do not hesitate to reach out.<br>
+                        Track your issue for further updates and details.<br>
+                        Best regards,<br>
+                        CIM
+                    </div>
+                </body>
+            </html>
+            """
             send_mail(
                 subject,
                 message,
                 settings.DEFAULT_FROM_EMAIL,  # Replace with your sender email
                 [issue.contact_email],  # Send to the user's email
                 fail_silently=False,
+                html_message=message  # Send the HTML message
             )
 
 class IssueActionViewSet(generics.ListCreateAPIView):
