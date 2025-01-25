@@ -77,10 +77,14 @@ class IssueSerializer(serializers.ModelSerializer):
         # Load the HTML template
         message = render_to_string('email_template/email_template.html', {'issue': issue})
 
-        EmailMessage(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [issue.contact_email],
-            reply_to=["biratexpo2024@gmail.com"],
-        ).send()
+        email = EmailMessage(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [issue.contact_email],
+        reply_to=["biratexpo2024@gmail.com"],
+    )
+    
+        # Set content type to HTML
+        email.content_subtype = "html"  # This ensures the email is rendered as HTML
+        email.send()
