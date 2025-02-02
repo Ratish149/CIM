@@ -186,7 +186,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 UNFOLD = {
     "SITE_HEADER": _("CIM"),
     "SITE_TITLE": _("CIM"),
-    "THEME": "dark",
+    "THEME": "light",
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,

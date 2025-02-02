@@ -33,6 +33,6 @@ class OfferAdmin(ModelAdmin):
 
 @admin.register(Match)
 class MatchAdmin(ModelAdmin):
-    list_display = ['wish', 'offer', 'match_percentage', 'created_at']
+    list_display = ['wish__full_name' ,'wish','offer__full_name', 'offer', 'match_percentage']
     list_filter = ['created_at']
     search_fields = ['wish__title', 'offer__title']

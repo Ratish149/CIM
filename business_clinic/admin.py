@@ -21,8 +21,10 @@ class IssueAdmin(ModelAdmin):
         'nature_of_issue',
         'industry_size',
         'progress_status',
-        'share_contact_details',
-        'forward_to_authority',
+        'contact_name',
+        'contact_number',
+        'contact_email',
+        'progress_status',
         'implementation_level',
     ]
     list_filter = [

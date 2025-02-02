@@ -16,7 +16,6 @@ class ResponseAdmin(ModelAdmin):
         'category',
         'earned_points',
         'percentage',
-        'created_at'
     )
     
     list_filter = (
