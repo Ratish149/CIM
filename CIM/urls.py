@@ -33,4 +33,6 @@ urlpatterns = [
     path('api/business_information/',include('business_information.urls')),
     path('api/',include('stall_booking.urls')),
     path('api/',include('voting.urls')),
+    path('api/',include('rojgar_pavillion.urls')),
+    path('api/',include('stall_booking.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
