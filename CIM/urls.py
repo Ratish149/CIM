@@ -31,5 +31,6 @@ urlpatterns = [
     path('api/',include('contact.urls')),
     path('api/bds/',include('bds_service.urls')),
     path('api/business_information/',include('business_information.urls')),
+    path('api/',include('stall_booking.urls')),
     path('api/',include('voting.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

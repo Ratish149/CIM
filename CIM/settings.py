@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'bds_service',
     'business_information',
     'voting',
+    'stall_booking',
+    'rojgar_pavillion',
     'corsheaders',
     'tinymce',
     'django_filters'

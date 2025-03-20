@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Training Email Registration</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7f9;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        font-size: 24px;
+        color: #3730a3;
+        margin-bottom: 20px;
+      }
+      .description {
+        color: #4b5563;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      .info-box {
+        background-color: #f0f4f8;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+      .info-box h2 {
+        color: #3730a3;
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+      .info-box p {
+        margin: 10px 0;
+        color: #4b5563;
+      }
+      .highlight {
+        color: #166534;
+        font-weight: bold;
+      }
+      .qr-section {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .qr-section img {
+        width: 150px;
+        height: 150px;
+        margin: 10px auto;
+      }
+      .footer {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin-top: 20px;
+      }
+      .footer p {
+        margin: 0;
+      }
+      .status-box {
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      .status-confirmed {
+        background-color: #f0fdf4;
+        border: 1px solid #4ade80;
+        color: #166534;
+      }
+      .status-pending {
+        background-color: #fffbeb;
+        border: 1px solid #fde047;
+        color: #92400e;
+      }
+      .status-cancelled {
+        background-color: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="header">Registration {{ status }} - BIRAT EXPO 2025</h1>
+      {% if status == 'Confirmed' %}
+
+      <p class="description">
+        Your registration for the training program has been successfully
+        confirmed. Below are your registration details:
+      </p>
+      {% elif status == 'Pending' %}
+      <p class="description">
+        Your registration for the training program has been in pending State.
+        Below are your registration details:
+      </p>
+      {% elif status == 'Cancelled' %}
+      <p class="description">
+        Your registration for the training program has been cancelled. Below are
+        your registration details:
+      </p>
+      {% endif %}
+
+      <div class="info-box">
+        <h2>Registration Information</h2>
+        <p><strong>Registration ID:</strong> {{ registration }}</p>
+        <p><strong>Registration Date:</strong> {{ registration_date }}</p>
+        <p><strong>Topic:</strong> {{ topic }}</p>
+        <p><strong>Date:</strong> {{ date }}</p>
+        <p><strong>Time Slot:</strong> {{ time_slot }}</p>
+
+        <p>
+          <strong>Number of Participants:</strong> {{ number_of_participants }}
+        </p>
+        <p><strong>Total Amount:</strong> {{ total_amount }}</p>
+
+        <h2>Personal Details</h2>
+        <p><strong>Full Name:</strong> {{ full_name }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Mobile Number:</strong> {{ mobile_number }}</p>
+        <p><strong>Qualification:</strong> {{ qualification }}</p>
+        <p><strong>Gender:</strong> {{ gender }}</p>
+        <p><strong>Age:</strong> {{ age }}</p>
+        <p><strong>Address:</strong> {{ address }}</p>
+
+        <p>
+          <strong>Registration Status:</strong>
+          <span class="highlight">{{ status }}</span>
+        </p>
+
+        <h2>Flight Arrival Details</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Flight No</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Arrival Date</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Arrival Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;">{{ flight_no }}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">{{ arrival_date }}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">{{ arrival_time }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Flight Departure Details</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Flight No</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Departure Date</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Departure Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;">{{ return_flight_no }}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">{{ return_flight_time }}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">{{ departure_time }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {% if status == 'Confirmed' and qr_code %}
+        <div class="qr-section">
+          <h2>Your QR Code</h2>
+          <img src="{{ qr_code }}" alt="Registration QR Code" />
+          <p>Please present this QR code at the registration desk</p>
+        </div>
+        {% endif %}
+      </div>
+      {% if status == 'Confirmed' %}
+
+      <div class="status-box status-confirmed">
+        <p>
+          <strong>Important:</strong> Your registration is confirmed. Please
+          make sure to arrive at least 15 minutes before your scheduled session.
+        </p>
+      </div>
+      {% elif status == 'Pending' %}
+      <div class="status-box status-pending">
+        <p><strong>Important:</strong> Your registration is pending.</p>
+      </div>
+      {% elif status == 'Cancelled' %}
+      <div class="status-box status-cancelled">
+        <p><strong>Important:</strong> Your registration is cancelled.</p>
+      </div>
+      {% endif %}
+
+      <div class="footer">
+        <p>&copy; 2025 CIM. All rights reserved.</p>
+        <p>
+          This is an automated confirmed registration email. Please do not reply
+          directly to this email.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
