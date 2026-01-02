@@ -116,11 +116,11 @@ WSGI_APPLICATION = "CIM.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "t2wW7IQff51BlAc1sLQOTev67lemjF6vjKxsneQlzi7NQAFbdjezE4f0bSSWgHL1",
-        "HOST": "lg08k40kcc8k4o40g04sgkks",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
@@ -205,10 +205,10 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "biratexpo2025@gmail.com"
-EMAIL_HOST_PASSWORD = "bokk emuw glri hybr"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
-DEFAULT_FROM_EMAIL = "Birat Expo 2025 <biratexpo2025@gmail.com>"
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 
 TINYMCE_DEFAULT_CONFIG = {
