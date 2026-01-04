@@ -15,12 +15,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import (
+    CompanyLogo,
     ContactForm,
     MeroDeshMeraiUtpadan,
     NatureOfIndustryCategory,
     NatureOfIndustrySubCategory,
 )
 from .serializers import (
+    CompanyLogoSerializer,
     ContactFormSerializer,
     MeroDeshMeraiUtpadanSerializer,
     NatureOfIndustryCategorySerializer,
@@ -360,3 +362,14 @@ class ApproveStatusView(APIView):
                 {"error": f"Error processing status update: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class CompanyLogoListView(generics.ListCreateAPIView):
+    queryset = CompanyLogo.objects.all()
+    serializer_class = CompanyLogoSerializer
+
+
+class CompanyLogoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CompanyLogo.objects.all()
+    serializer_class = CompanyLogoSerializer
+    lookup_field = "slug"

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import (
+    CompanyLogo,
     ContactForm,
     MeroDeshMeraiUtpadan,
     NatureOfIndustryCategory,
@@ -41,4 +42,10 @@ class MeroDeshMeraiUtpadanSerializer(serializers.ModelSerializer):
 class ContactFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactForm
+        fields = "__all__"
+
+
+class CompanyLogoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyLogo
         fields = "__all__"
