@@ -1,10 +1,10 @@
 from django.db import models
-from accounts.models import CustomUser
 from django.utils.text import slugify
+
+from accounts.models import CustomUser
 
 
 class SlugMixin:
-    
     def generate_unique_slug(self):
         base_slug = slugify(self.title)
         slug = base_slug
@@ -19,30 +19,37 @@ class SlugMixin:
         self.generate_unique_slug()
         super().save(*args, **kwargs)
 
+
 class Tag(models.Model):
-    name=models.CharField(max_length=100,unique=True)
+    name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
 
-class Event(SlugMixin,models.Model):
-    STATUS=(
-        ('Published','Published'),
-        ('Draft','Draft'),
-        ('Cancelled','Cancelled')
 
+class Event(SlugMixin, models.Model):
+    STATUS = (
+        ("Published", "Published"),
+        ("Draft", "Draft"),
+        ("Cancelled", "Cancelled"),
     )
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200,unique=True,blank=True)
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
     description = models.TextField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    thumbnail = models.FileField(upload_to='event_thumbnails/', null=True, blank=True)
+    thumbnail = models.FileField(upload_to="event_thumbnails/", null=True, blank=True)
     location = models.CharField(max_length=200)
-    tags = models.ManyToManyField(Tag, related_name='events', blank=True)
-    organizer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='organized_events')
-    status = models.CharField(max_length=20, choices=STATUS, default='Draft')
+    tags = models.ManyToManyField(Tag, related_name="events", blank=True)
+    organizer = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="organized_events",
+        null=True,
+        blank=True,
+    )
+    status = models.CharField(max_length=20, choices=STATUS, default="Draft")
     is_featured = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,36 +58,41 @@ class Event(SlugMixin,models.Model):
     def __str__(self):
         return self.title
 
+
 class Attendee(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='attendees')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
     registration_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'event')
+        unique_together = ("user", "event")
 
     def __str__(self):
         return f"{self.user.username} - {self.event.title}"
 
+
 class Sponsor(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='sponsors')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="sponsors")
     name = models.CharField(max_length=100)
-    logo = models.FileField(upload_to='sponsor_logos/', null=True, blank=True)
+    logo = models.FileField(upload_to="sponsor_logos/", null=True, blank=True)
     website = models.URLField()
 
     def __str__(self):
         return f"{self.name} - {self.event.title}"
 
+
 class AgendaItem(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='agenda_items')
-    date = models.DateField(blank=True,null=True)
-    time = models.TimeField(blank=True,null=True)
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name="agenda_items"
+    )
+    date = models.DateField(blank=True, null=True)
+    time = models.TimeField(blank=True, null=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     speaker = models.CharField(max_length=100, blank=True)
 
     class Meta:
-        ordering = ['time']
+        ordering = ["time"]
 
     def __str__(self):
         return f"{self.time} - {self.title} ({self.event.title})"
