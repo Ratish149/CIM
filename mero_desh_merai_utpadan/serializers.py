@@ -28,7 +28,9 @@ class MeroDeshMeraiUtpadanSerializer(serializers.ModelSerializer):
         queryset=NatureOfIndustryCategory.objects.all()
     )
     nature_of_industry_sub_category = serializers.PrimaryKeyRelatedField(
-        queryset=NatureOfIndustrySubCategory.objects.all(), required=False
+        queryset=NatureOfIndustrySubCategory.objects.all(),
+        required=False,
+        allow_null=True,
     )
     nature_of_industry_sub_category_detail = NatureOfIndustrySubCategorySerializer(
         source="nature_of_industry_sub_category", read_only=True
