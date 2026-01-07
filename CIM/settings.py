@@ -35,10 +35,10 @@ ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = [
     "https://cim.baliyoventures.com",
+    "https://asked-lexington-values-fallen.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "http://be01-103-156-26-69.ngrok-free.app",
-    "https://be01-103-156-26-69.ngrok-free.app",
+    "https://asked-lexington-values-fallen.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
 ]

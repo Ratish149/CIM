@@ -46,6 +46,9 @@ class MeroDeshMeraiUtpadan(models.Model):
     }
 
     name_of_company = models.CharField(max_length=255)
+    company_logo = models.ForeignKey(
+        "CompanyLogo", on_delete=models.CASCADE, null=True, blank=True
+    )
     address_province = models.CharField(max_length=255)
     address_district = models.CharField(max_length=255)
     address_municipality = models.CharField(max_length=255)

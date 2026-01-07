@@ -1,45 +1,54 @@
 from django.contrib import admin
-from .models import MeroDeshMeraiUtpadan,NatureOfIndustryCategory,NatureOfIndustrySubCategory
 from unfold.admin import ModelAdmin
+
+from .models import (
+    CompanyLogo,
+    MeroDeshMeraiUtpadan,
+    NatureOfIndustryCategory,
+    NatureOfIndustrySubCategory,
+)
+
 
 class MeroDeshMeraiUtpadanAdmin(ModelAdmin):
     list_display = (
-        'name_of_company',
-        'contact_name',
-        'contact_number',
-        'contact_email',
-        'industry_size',
-        'address_province',
-        'address_district',
-        'product_market',
-        'status',
-        'created_at'
+        "name_of_company",
+        "contact_name",
+        "contact_number",
+        "contact_email",
+        "industry_size",
+        "address_province",
+        "address_district",
+        "product_market",
+        "status",
+        "created_at",
     )
-    
+
     list_filter = (
-        'industry_size',
-        'product_market',
-        'raw_material',
-        'address_province',
-        'member_of_cim',
-        'interested_in_logo',
-        'already_used_logo',
-        'created_at',
-        'status'
+        "industry_size",
+        "product_market",
+        "raw_material",
+        "address_province",
+        "member_of_cim",
+        "interested_in_logo",
+        "already_used_logo",
+        "created_at",
+        "status",
     )
-    
+
     search_fields = (
-        'name_of_company',
-        'contact_name',
-        'contact_number',
-        'contact_email',
-        'address_province',
-        'address_district',
-        'address_municipality'
+        "name_of_company",
+        "contact_name",
+        "contact_number",
+        "contact_email",
+        "address_province",
+        "address_district",
+        "address_municipality",
     )
+
 
 # Register your models here.
+admin.site.register(CompanyLogo, ModelAdmin)
 
 admin.site.register(MeroDeshMeraiUtpadan, MeroDeshMeraiUtpadanAdmin)
-admin.site.register(NatureOfIndustryCategory,ModelAdmin)
-admin.site.register(NatureOfIndustrySubCategory,ModelAdmin)
+admin.site.register(NatureOfIndustryCategory, ModelAdmin)
+admin.site.register(NatureOfIndustrySubCategory, ModelAdmin)
