@@ -77,7 +77,7 @@ class Sponsor(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="sponsors")
     name = models.CharField(max_length=100)
     logo = models.FileField(upload_to="sponsor_logos/", null=True, blank=True)
-    website = models.URLField()
+    website = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} - {self.event.title}"

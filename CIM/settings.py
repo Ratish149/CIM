@@ -35,10 +35,10 @@ ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = [
     "https://cim.baliyoventures.com",
-    "https://asked-lexington-values-fallen.trycloudflare.com",
+    "https://accessing-monroe-darwin-latex.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://asked-lexington-values-fallen.trycloudflare.com",
+    "https://accessing-monroe-darwin-latex.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
 ]
