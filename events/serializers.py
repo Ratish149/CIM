@@ -1,3 +1,4 @@
+import nepali_datetime
 from rest_framework import serializers
 
 from accounts.serializers import UserSerializer, UserSmallSerializer
@@ -46,8 +47,8 @@ class EventListSerializer(serializers.ModelSerializer):
     attendees = AttendeeSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     sponsor = SponsorSerializer(many=True, read_only=True)
-    # start_date = serializers.SerializerMethodField()
-    # end_date = serializers.SerializerMethodField()
+    start_date = serializers.SerializerMethodField()
+    end_date = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -75,19 +76,23 @@ class EventListSerializer(serializers.ModelSerializer):
         offer_count = obj.offers.filter(status="Pending").count()
         return wish_count + offer_count
 
-    # def get_start_date(self, obj):
-    #     if obj.start_date:
-    #         return nepali_datetime.date.from_datetime_date(
-    #             obj.start_date.date()
-    #         ).strftime("%B %d, %Y")
-    #     return None
+    def get_start_date(self, obj):
+        if obj.start_date:
+            nepali_date = nepali_datetime.date.from_datetime_date(
+                obj.start_date.date()
+            ).strftime("%B %d, %Y")
+            time_str = obj.start_date.strftime("%I:%M %p")
+            return f"{nepali_date} {time_str}"
+        return None
 
-    # def get_end_date(self, obj):
-    #     if obj.end_date:
-    #         return nepali_datetime.date.from_datetime_date(
-    #             obj.end_date.date()
-    #         ).strftime("%B %d, %Y")
-    #     return None
+    def get_end_date(self, obj):
+        if obj.end_date:
+            nepali_date = nepali_datetime.date.from_datetime_date(
+                obj.end_date.date()
+            ).strftime("%B %d, %Y")
+            time_str = obj.end_date.strftime("%I:%M %p")
+            return f"{nepali_date} {time_str}"
+        return None
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
@@ -99,8 +104,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
     agenda_items = AgendaItemSerializer(many=True, read_only=True)
     attendees_count = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
-    # start_date = serializers.SerializerMethodField()
-    # end_date = serializers.SerializerMethodField()
+    start_date = serializers.SerializerMethodField()
+    end_date = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -133,16 +138,20 @@ class EventDetailSerializer(serializers.ModelSerializer):
         offer_count = obj.offers.filter(status="Pending").count()
         return wish_count + offer_count
 
-    # def get_start_date(self, obj):
-    #     if obj.start_date:
-    #         return nepali_datetime.date.from_datetime_date(
-    #             obj.start_date.date()
-    #         ).strftime("%B %d, %Y")
-    #     return None
+    def get_start_date(self, obj):
+        if obj.start_date:
+            nepali_date = nepali_datetime.date.from_datetime_date(
+                obj.start_date.date()
+            ).strftime("%B %d, %Y")
+            time_str = obj.start_date.strftime("%I:%M %p")
+            return f"{nepali_date} {time_str}"
+        return None
 
-    # def get_end_date(self, obj):
-    #     if obj.end_date:
-    #         return nepali_datetime.date.from_datetime_date(
-    #             obj.end_date.date()
-    #         ).strftime("%B %d, %Y")
-    #     return None
+    def get_end_date(self, obj):
+        if obj.end_date:
+            nepali_date = nepali_datetime.date.from_datetime_date(
+                obj.end_date.date()
+            ).strftime("%B %d, %Y")
+            time_str = obj.end_date.strftime("%I:%M %p")
+            return f"{nepali_date} {time_str}"
+        return None
