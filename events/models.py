@@ -93,8 +93,5 @@ class AgendaItem(models.Model):
     description = models.TextField(blank=True)
     speaker = models.CharField(max_length=100, blank=True)
 
-    class Meta:
-        ordering = ["time"]
-
     def __str__(self):
         return f"{self.time} - {self.title} ({self.event.title})"
