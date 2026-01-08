@@ -88,7 +88,7 @@ class AgendaItem(models.Model):
         Event, on_delete=models.CASCADE, related_name="agenda_items"
     )
     date = models.DateField(blank=True, null=True)
-    time = models.TimeField(blank=True, null=True)
+    time = models.CharField(max_length=100, blank=True, null=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     speaker = models.CharField(max_length=100, blank=True)
