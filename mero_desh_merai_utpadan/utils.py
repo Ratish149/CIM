@@ -33,7 +33,7 @@ def process_mdmu_approval(instance, new_status="Approved"):
 
             # Data to populate the form fields
             field_data = {
-                "ChalanNo": f"2081/82 - {instance.id}",
+                "ChalanNo": f"2082/83 - {instance.id}",
                 "CompanyName": instance.name_of_company or "N/A",
                 "Location": instance.address_street or "N/A",
                 "CreatedAt": nepali_date,
