@@ -1,9 +1,18 @@
 from django.contrib import admin
+from django.db import models
+from tinymce.widgets import TinyMCE
 from unfold.admin import ModelAdmin
-from .models import Event, Attendee,AgendaItem,Tag,Sponsor
+
+from .models import AgendaItem, Attendee, Event, Sponsor, Tag
+
+
 # Register your models here.
-admin.site.register(Tag,ModelAdmin)
-admin.site.register(Event,ModelAdmin)
-admin.site.register(Attendee,ModelAdmin)
-admin.site.register(AgendaItem,ModelAdmin)
-admin.site.register(Sponsor,ModelAdmin)
+class EventAdmin(ModelAdmin):
+    formfield_overrides = {models.TextField: {"widget": TinyMCE()}}
+
+
+admin.site.register(Tag, ModelAdmin)
+admin.site.register(Event, EventAdmin)
+admin.site.register(Attendee, ModelAdmin)
+admin.site.register(AgendaItem, ModelAdmin)
+admin.site.register(Sponsor, ModelAdmin)

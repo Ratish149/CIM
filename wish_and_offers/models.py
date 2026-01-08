@@ -177,7 +177,6 @@ class Offer(Detail):
 
     def update_match_percentages(self):
         matches = Match.find_matches_for_offer(self.id)
-        print(matches)
         created_matches = []
         highest_score = 0
         best_wish = None
@@ -186,7 +185,6 @@ class Offer(Detail):
             if score > highest_score:
                 highest_score = score
                 best_wish = match
-            print(score)
             if score >= 80:
                 match_obj, created = Match.objects.update_or_create(
                     wish=match, offer=self, defaults={"match_percentage": score}
@@ -196,10 +194,8 @@ class Offer(Detail):
 
                 # Update the highest score and corresponding wish
 
-        print(highest_score)
         # Update both Offer and Wish with the highest match percentage
         if best_wish:
-            print(best_wish)
             Offer.objects.filter(id=self.id).update(match_percentage=highest_score)
             Wish.objects.filter(id=best_wish.id).update(match_percentage=highest_score)
 
@@ -289,5 +285,4 @@ class Match(models.Model):
             # Ensure Wish's match_percentage is updated
             if score > wish.match_percentage:
                 Wish.objects.filter(id=wish.id).update(match_percentage=score)
-        print(matches)
         return matches
