@@ -64,6 +64,7 @@ class Wish(Detail):
     ]
 
     title = models.CharField(max_length=200, default="")
+    description = models.TextField(blank=True, null=True)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="wishes", null=True, blank=True
     )
@@ -149,6 +150,7 @@ class Offer(Detail):
     ]
 
     title = models.CharField(max_length=200, default="")
+    description = models.TextField(blank=True, null=True)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="offers", null=True, blank=True
     )
@@ -233,7 +235,8 @@ class Match(models.Model):
         weights = {
             "product_match": 40,
             "service_match": 40,
-            "title_similarity": 60,
+            "title_similarity": 40,
+            "description_similarity": 20,
         }
 
         # Product match
@@ -255,6 +258,22 @@ class Match(models.Model):
                 title_similarity / 100 * weights["title_similarity"],
                 weights["title_similarity"],
             )
+
+        # Description similarity
+        if wish.description and offer.description:
+            description_similarity = (
+                SequenceMatcher(
+                    None, wish.description.lower(), offer.description.lower()
+                ).ratio()
+                * 100
+            )
+            if description_similarity == 100:
+                score += weights["description_similarity"]
+            else:
+                score += min(
+                    description_similarity / 100 * weights["description_similarity"],
+                    weights["description_similarity"],
+                )
 
         return int(score)
 
