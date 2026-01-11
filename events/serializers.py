@@ -155,3 +155,30 @@ class EventDetailSerializer(serializers.ModelSerializer):
             time_str = obj.end_date.strftime("%I:%M %p")
             return f"{nepali_date} {time_str}"
         return None
+
+
+class EventCreateSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True, required=False
+    )
+    organizer = UserSmallSerializer(read_only=True)
+
+    class Meta:
+        model = Event
+        fields = [
+            "id",
+            "title",
+            "description",
+            "start_date",
+            "end_date",
+            "location",
+            "organizer",
+            "thumbnail",
+            "slug",
+            "tags",
+            "contact_person",
+            "contact_number",
+            "status",
+            "is_featured",
+            "is_popular",
+        ]
