@@ -29,6 +29,11 @@ class Detail(models.Model):
 
 
 class Category(models.Model):
+    TYPE = [
+        ("Product", "Product"),
+        ("Service", "Service"),
+    ]
+    type = models.CharField(max_length=10, choices=TYPE, null=True, blank=True)
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
     image = models.FileField(upload_to="category_images/", blank=True, null=True)
@@ -37,11 +42,25 @@ class Category(models.Model):
         return self.name
 
 
+class SubCategory(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    example_items = models.TextField(blank=True, null=True)
+    reference = models.CharField(max_length=255, blank=True, null=True)
+    image = models.FileField(upload_to="subcategory_images/", blank=True, null=True)
+
+    class Meta:
+        unique_together = ("category", "name")
+
+    def __str__(self):
+        return f"{self.category.name} - {self.name}"
+
+
 class Service(models.Model):
     name = models.CharField(max_length=200)
     image = models.FileField(upload_to="service_images/", blank=True, null=True)
-    category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True, blank=True
+    subcategory = models.ForeignKey(
+        SubCategory, on_delete=models.SET_NULL, null=True, blank=True
     )
 
     def __str__(self):
@@ -73,6 +92,13 @@ class Wish(Detail):
     )
     service = models.ForeignKey(
         Service,
+        on_delete=models.CASCADE,
+        related_name="service_wishes",
+        blank=True,
+        null=True,
+    )
+    subcategory = models.ForeignKey(
+        SubCategory,
         on_delete=models.CASCADE,
         related_name="service_wishes",
         blank=True,
@@ -160,6 +186,13 @@ class Offer(Detail):
     service = models.ForeignKey(
         Service, on_delete=models.CASCADE, related_name="offers", blank=True, null=True
     )
+    subcategory = models.ForeignKey(
+        SubCategory,
+        on_delete=models.CASCADE,
+        related_name="service_offers",
+        blank=True,
+        null=True,
+    )
     status = models.CharField(max_length=10, choices=OFFER_STATUS, default="Pending")
     type = models.CharField(
         max_length=10,
@@ -234,7 +267,8 @@ class Match(models.Model):
         score = 0
         weights = {
             "product_match": 40,
-            "service_match": 40,
+            "service_match": 20,
+            "subcategory_match": 20,
             "title_similarity": 40,
             "description_similarity": 20,
         }
@@ -246,6 +280,14 @@ class Match(models.Model):
         # Service match
         if wish.service and offer.service and wish.service == offer.service:
             score += weights["service_match"]
+
+        # Subcategory match
+        if (
+            wish.subcategory
+            and offer.subcategory
+            and wish.subcategory == offer.subcategory
+        ):
+            score += weights["subcategory_match"]
 
         # Title similarity
         title_similarity = (

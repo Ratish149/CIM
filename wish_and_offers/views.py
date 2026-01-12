@@ -2,22 +2,26 @@
 
 import csv
 
+import pandas as pd
 from django.db.models import Q
+from django_filters import rest_framework as django_filters
 from rest_framework import filters, generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from events.models import Event
 
-from .models import Category, HSCode, Match, Offer, Service, Wish
+from .models import Category, HSCode, Match, Offer, Service, SubCategory, Wish
 from .serializers import (
     CategorySerializer,
+    CategorySubCategoryBulkUploadSerializer,
     HSCodeFileUploadSerializer,
     HSCodeSerializer,
     MatchSerializer,
     OfferSerializer,
     OfferWithWishesSerializer,
     ServiceSerializer,
+    SubCategorySerializer,
     WishSerializer,
     WishWithOffersSerializer,
 )
@@ -65,8 +69,6 @@ class WishRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WishSerializer
 
     def get(self, request, *args, **kwargs):
-        wish_id = self.kwargs.get("pk")
-        # Retrieve the specific wish object
         wish = (
             self.get_object()
         )  # This will use the default behavior to get the wish by ID
@@ -118,7 +120,6 @@ class OfferRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OfferSerializer
 
     def get(self, request, *args, **kwargs):
-        offer_id = self.kwargs.get("pk")
         # Retrieve the specific offer object
         offer = (
             self.get_object()
@@ -145,27 +146,78 @@ class MatchListView(generics.ListAPIView):
         return super().get_queryset()  # Return all matches if no filters are applied
 
 
+class ServiceFilterSet(django_filters.FilterSet):
+    subcategory_id = django_filters.CharFilter(
+        field_name="subcategory__id", lookup_expr="exact"
+    )
+
+    class Meta:
+        model = Service
+        fields = {
+            "subcategory_id": ["exact"],
+        }
+
+
 class ServiceListCreateView(generics.ListCreateAPIView):
     queryset = Service.objects.all().order_by("name")
     serializer_class = ServiceSerializer
+    filter_backends = [django_filters.DjangoFilterBackend]
+    filterset_class = ServiceFilterSet
 
     def perform_create(self, serializer):
-        category_id = self.request.data.get(
-            "category_id"
+        subcategory_id = self.request.data.get(
+            "subcategory_id"
         )  # Retrieve category ID from request data
-        category = (
-            Category.objects.get(pk=category_id) if category_id else None
+        subcategory = (
+            SubCategory.objects.get(pk=subcategory_id) if subcategory_id else None
         )  # Get the Category object
 
         # Save the service with the associated category
-        service = serializer.save(
-            category=category
-        )  # Save the service with the category
+        serializer.save(subcategory=subcategory)  # Save the service with the category
 
 
-class CategoryListView(generics.ListAPIView):
+class CategoryFilterSet(django_filters.FilterSet):
+    type = django_filters.CharFilter(field_name="type", lookup_expr="icontains")
+
+    class Meta:
+        model = Category
+        fields = {
+            "type": ["icontains"],
+        }
+
+
+class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by("name")
     serializer_class = CategorySerializer
+    filter_backends = [django_filters.DjangoFilterBackend]
+    filterset_class: type[CategoryFilterSet] = CategoryFilterSet
+
+
+class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class SubCategoryFilterSet(django_filters.FilterSet):
+    category = django_filters.ModelChoiceFilter(queryset=Category.objects.all())
+
+    class Meta:
+        model = SubCategory
+        fields = {
+            "category": ["exact"],
+        }
+
+
+class SubCategoryListView(generics.ListCreateAPIView):
+    queryset = SubCategory.objects.all().order_by("name")
+    serializer_class = SubCategorySerializer
+    filter_backends = [django_filters.DjangoFilterBackend]
+    filterset_class: type[SubCategoryFilterSet] = SubCategoryFilterSet
+
+
+class SubCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
 
 
 class HSCodeListView(generics.ListAPIView):
@@ -179,7 +231,32 @@ class HSCodeListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = HSCode.objects.all().order_by("hs_code")
+        subcategory_id = self.request.query_params.get("subcategory_id", None)
         search_query = self.request.query_params.get("search", None)
+
+        if subcategory_id:
+            try:
+                subcategory = SubCategory.objects.get(id=subcategory_id)
+                # Only apply filtering if the category type is "Product"
+                if subcategory.category.type == "Product":
+                    if subcategory.reference:
+                        # Split comma-separated references and create Q objects for prefix matching
+                        references = [
+                            ref.strip()
+                            for ref in subcategory.reference.split(",")
+                            if ref.strip()
+                        ]
+                        if references:
+                            query = Q()
+                            for ref in references:
+                                query |= Q(hs_code__startswith=ref)
+                            queryset = queryset.filter(query)
+                    # If reference is empty, return all HSCodes (already the default)
+                elif subcategory.category.type == "Service":
+                    # HS codes are not applicable for services, return empty
+                    return HSCode.objects.none()
+            except SubCategory.DoesNotExist:
+                pass
 
         if search_query:
             # If the search query contains only numbers, do a prefix search on hs_code
@@ -197,11 +274,9 @@ class HSCodeListView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
+        # If filtering returned no results, fallback to all HS codes
         if not queryset.exists():
-            return Response(
-                {"error": "No matching HS codes found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            queryset = HSCode.objects.all().order_by("hs_code")
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -281,3 +356,94 @@ class LatestWishAndOfferListView(generics.ListAPIView):
             queryset["offers"], many=True
         ).data
         return Response({"wishes": wishes_serialized, "offers": offers_serialized})
+
+
+class CategorySubCategoryBulkUploadView(APIView):
+    serializer_class = CategorySubCategoryBulkUploadSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        excel_file = request.FILES.get("file")
+        upload_type = serializer.validated_data.get("type", "Product")
+        try:
+            df = pd.read_excel(excel_file)
+            # Normalize column names to lowercase to handle variations
+            df.columns = [str(col).lower().strip() for col in df.columns]
+
+            required_columns = ["category", "subcategories"]
+            if not all(col in df.columns for col in required_columns):
+                return Response(
+                    {
+                        "error": f"Missing required columns. Expected: {required_columns}"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            success_count = 0
+            current_category = None
+
+            for _, row in df.iterrows():
+                category_name = (
+                    str(row.get("category")).strip()
+                    if pd.notna(row.get("category"))
+                    else None
+                )
+                subcategory_name = (
+                    str(row.get("subcategories")).strip()
+                    if pd.notna(row.get("subcategories"))
+                    else None
+                )
+                items = (
+                    str(row.get("items")).strip() if pd.notna(row.get("items")) else ""
+                )
+                if items in ["-", "–", "—"]:
+                    items = ""
+
+                reference = (
+                    str(row.get("reference")).strip()
+                    if pd.notna(row.get("reference"))
+                    else ""
+                )
+                if reference in ["-", "–", "—"]:
+                    reference = ""
+
+                if category_name:
+                    current_category, _ = Category.objects.get_or_create(
+                        name=category_name, defaults={"type": upload_type}
+                    )
+
+                if current_category and subcategory_name:
+                    current_subcategory, _ = SubCategory.objects.update_or_create(
+                        category=current_category,
+                        name=subcategory_name,
+                        defaults={
+                            "example_items": items,
+                            "reference": reference,
+                        },
+                    )
+
+                    if upload_type == "Service" and items:
+                        # Split items by comma and create separate Service objects
+                        service_names = [
+                            s.strip() for s in items.split(",") if s.strip()
+                        ]
+                        for service_name in service_names:
+                            Service.objects.get_or_create(
+                                name=service_name, subcategory=current_subcategory
+                            )
+
+                    success_count += 1
+
+            return Response(
+                {"message": f"Successfully processed {success_count} subcategories."},
+                status=status.HTTP_201_CREATED,
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to process file: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

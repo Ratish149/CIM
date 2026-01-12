@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from .models import Category, HSCode, Match, Offer, Service, Wish
+from .models import Category, HSCode, Match, Offer, Service, SubCategory, Wish
 
 
 class HSCodeSerializer(serializers.ModelSerializer):
@@ -14,7 +14,20 @@ class HSCodeSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "name", "description", "image"]
+        fields = ["id", "name", "description", "image", "type"]
+
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = [
+            "id",
+            "name",
+            "example_items",
+            "reference",
+            "image",
+            "category",
+        ]
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -49,6 +62,7 @@ class WishSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "event",
+            "subcategory",
             "product",
             "service",
             "status",
@@ -79,6 +93,7 @@ class OfferSerializer(serializers.ModelSerializer):
             "municipality",
             "ward",
             "company_website",
+            "subcategory",
             "image",
             "title",
             "description",
@@ -212,6 +227,18 @@ class OfferSmallSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+class CategorySubCategoryBulkUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+    type = serializers.ChoiceField(choices=Category.TYPE, default="Product")
+
+    def validate_file(self, value):
+        if not value.name.endswith((".xlsx", ".xls")):
+            raise serializers.ValidationError(
+                "Only Excel files (.xlsx, .xls) are allowed"
+            )
+        return value
 
 
 class HSCodeFileUploadSerializer(serializers.Serializer):
