@@ -20,6 +20,7 @@ from .serializers import (
     MatchSerializer,
     OfferSerializer,
     OfferWithWishesSerializer,
+    ServiceDetailSerializer,
     ServiceSerializer,
     SubCategorySerializer,
     WishSerializer,
@@ -164,6 +165,11 @@ class ServiceListCreateView(generics.ListCreateAPIView):
     filter_backends = [django_filters.DjangoFilterBackend]
     filterset_class = ServiceFilterSet
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ServiceDetailSerializer
+        return ServiceSerializer
+
     def perform_create(self, serializer):
         subcategory_id = self.request.data.get(
             "subcategory_id"
@@ -174,6 +180,20 @@ class ServiceListCreateView(generics.ListCreateAPIView):
 
         # Save the service with the associated category
         serializer.save(subcategory=subcategory)  # Save the service with the category
+
+
+class ServiceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
+    def get(self, request, *args, **kwargs):
+        service = (
+            self.get_object()
+        )  # This will use the default behavior to get the service by ID
+        # Use the new serializer to get service with subcategory
+        service_serializer = ServiceDetailSerializer(service)
+
+        return Response(service_serializer.data)
 
 
 class CategoryFilterSet(django_filters.FilterSet):

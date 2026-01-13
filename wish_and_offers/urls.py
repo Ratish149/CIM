@@ -13,6 +13,7 @@ from .views import (
     OfferListCreateView,
     OfferRetrieveUpdateDestroyView,
     ServiceListCreateView,
+    ServiceRetrieveUpdateDestroyView,
     SubCategoryListView,
     SubCategoryRetrieveUpdateDestroyView,
     WishListCreateView,
@@ -64,6 +65,11 @@ urlpatterns = [
         "matches/", MatchListView.as_view(), name="match-list"
     ),  # URL for listing matches
     path("services/", ServiceListCreateView.as_view(), name="service-list-create"),
+    path(
+        "services/<int:pk>/",
+        ServiceRetrieveUpdateDestroyView.as_view(),
+        name="service-detail",
+    ),
     path("categories/", CategoryListView.as_view(), name="category-list"),
     path(
         "categories/bulk-upload/",

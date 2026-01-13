@@ -30,12 +30,24 @@ class SubCategorySerializer(serializers.ModelSerializer):
         ]
 
 
+class SubCategorySmallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = ["id", "name"]
+
+
 class ServiceSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
+    class Meta:
+        model = Service
+        fields = ["id", "name", "image", "subcategory"]
+
+
+class ServiceDetailSerializer(serializers.ModelSerializer):
+    subcategory = SubCategorySmallSerializer(read_only=True)
 
     class Meta:
         model = Service
-        fields = ["id", "name", "image", "category"]
+        fields = ["id", "name", "image", "subcategory"]
 
 
 class WishSerializer(serializers.ModelSerializer):
