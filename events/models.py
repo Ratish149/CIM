@@ -6,13 +6,22 @@ from accounts.models import CustomUser
 
 class SlugMixin:
     def generate_unique_slug(self):
-        base_slug = slugify(self.title)
+        # allow_unicode=True keeps the Nepali characters
+        base_slug = slugify(self.title, allow_unicode=True)
+
+        # If title is all symbols, slugify might return empty
+        if not base_slug:
+            base_slug = "event"
+
         slug = base_slug
         counter = 1
         model = self.__class__
+
+        # Check for uniqueness
         while model.objects.filter(slug=slug).exclude(id=self.id).exists():
             slug = f"{base_slug}-{counter}"
             counter += 1
+
         self.slug = slug
 
     def save(self, *args, **kwargs):
@@ -35,7 +44,7 @@ class Event(SlugMixin, models.Model):
         ("Cancelled", "Cancelled"),
     )
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique=True, blank=True)
+    slug = models.SlugField(max_length=200, unique=True, blank=True, allow_unicode=True)
     description = models.TextField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
