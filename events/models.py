@@ -30,6 +30,19 @@ class Tag(models.Model):
         return self.name
 
 
+class EventOrganizer(models.Model):
+    name = models.CharField(max_length=100)
+    logo = models.FileField(upload_to="event_organizer_logos/", null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    address = models.CharField(max_length=200, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Event(SlugMixin, models.Model):
     STATUS = (
         ("Published", "Published"),
@@ -44,13 +57,14 @@ class Event(SlugMixin, models.Model):
     thumbnail = models.FileField(upload_to="event_thumbnails/", null=True, blank=True)
     location = models.CharField(max_length=200)
     tags = models.ManyToManyField(Tag, related_name="events", blank=True)
-    organizer = models.ForeignKey(
-        CustomUser,
+    event_organizer = models.ForeignKey(
+        EventOrganizer,
         on_delete=models.CASCADE,
         related_name="organized_events",
         null=True,
         blank=True,
     )
+
     event_file = models.FileField(upload_to="event_files/", null=True, blank=True)
     contact_person = models.CharField(max_length=100, null=True, blank=True)
     contact_number = models.CharField(max_length=20, null=True, blank=True)

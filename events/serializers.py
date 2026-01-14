@@ -3,7 +3,7 @@ from rest_framework import serializers
 from accounts.serializers import UserSerializer, UserSmallSerializer
 from wish_and_offers.serializers import OfferSmallSerializer, WishSmallSerializer
 
-from .models import AgendaItem, Attendee, Event, Sponsor, Tag
+from .models import AgendaItem, Attendee, Event, EventOrganizer, Sponsor, Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -40,8 +40,14 @@ class AttendeeSmallSerializer(serializers.ModelSerializer):
         fields = ["id", "user"]
 
 
+class EventOrganizerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventOrganizer
+        fields = ["id", "name", "logo", "email", "phone", "address"]
+
+
 class EventListSerializer(serializers.ModelSerializer):
-    organizer = UserSmallSerializer(read_only=True)
+    event_organizer = EventOrganizerSerializer(read_only=True)
     attendees_count = serializers.SerializerMethodField()
     attendees = AttendeeSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
@@ -57,7 +63,7 @@ class EventListSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "location",
-            "organizer",
+            "event_organizer",
             "attendees_count",
             "thumbnail",
             "slug",
@@ -75,7 +81,7 @@ class EventListSerializer(serializers.ModelSerializer):
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
-    organizer = UserSmallSerializer(read_only=True)
+    event_organizer = EventOrganizerSerializer(read_only=True)
     attendees = AttendeeSmallSerializer(many=True, read_only=True)
     wishes = WishSmallSerializer(many=True, read_only=True)
     offers = OfferSmallSerializer(many=True, read_only=True)
@@ -93,7 +99,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "location",
-            "organizer",
+            "event_organizer",
             "attendees_count",
             "attendees",
             "sponsors",
@@ -121,7 +127,6 @@ class EventCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True, required=False
     )
-    organizer = UserSmallSerializer(read_only=True)
 
     class Meta:
         model = Event
@@ -132,7 +137,7 @@ class EventCreateSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "location",
-            "organizer",
+            "event_organizer",
             "thumbnail",
             "slug",
             "tags",

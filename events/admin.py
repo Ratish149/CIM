@@ -3,7 +3,7 @@ from django.db import models
 from tinymce.widgets import TinyMCE
 from unfold.admin import ModelAdmin
 
-from .models import AgendaItem, Attendee, Event, Sponsor, Tag
+from .models import AgendaItem, Attendee, Event, EventOrganizer, Sponsor, Tag
 
 
 # Register your models here.
@@ -12,6 +12,7 @@ class EventAdmin(ModelAdmin):
 
 
 admin.site.register(Tag, ModelAdmin)
+admin.site.register(EventOrganizer, ModelAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Attendee, ModelAdmin)
 admin.site.register(AgendaItem, ModelAdmin)
