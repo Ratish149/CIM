@@ -304,9 +304,23 @@ class Match(models.Model):
             score += weights["subcategory_match"]
 
         # Title similarity
-        title_similarity = (
-            SequenceMatcher(None, wish.title.lower(), offer.title.lower()).ratio() * 100
-        )
+        a, b = wish.title.lower(), offer.title.lower()
+        title_similarity = SequenceMatcher(None, a, b).ratio()
+
+        # Check for substring match (lenient matching for "mac book" in "selling mac book")
+        if (a in b or b in a) and len(min(a, b, key=len)) > 3:
+            title_similarity = max(title_similarity, 0.9)
+
+        # Keyword overlap
+        words_a = set(a.split())
+        words_b = set(b.split())
+        if words_a and words_b:
+            smaller_set = words_a if len(words_a) < len(words_b) else words_b
+            overlap = len(words_a & words_b) / len(smaller_set)
+            title_similarity = max(title_similarity, overlap)
+
+        title_similarity *= 100
+
         if title_similarity == 100:  # Perfect match
             score += weights["title_similarity"]
         else:
