@@ -273,13 +273,19 @@ class Match(models.Model):
             "description_similarity": 20,
         }
 
-        # If categories are missing on either side, prioritize title similarity
+        # If categories or descriptions are missing, prioritize title similarity
         wish_has_category = wish.product or wish.service or wish.subcategory
         offer_has_category = offer.product or offer.service or offer.subcategory
+        wish_has_description = bool(wish.description and wish.description.strip())
+        offer_has_description = bool(offer.description and offer.description.strip())
 
         if not wish_has_category or not offer_has_category:
-            weights["title_similarity"] = 80  # Enough to trigger a match on its own
-            weights["description_similarity"] = 20
+            if not wish_has_description or not offer_has_description:
+                weights["title_similarity"] = 100
+                weights["description_similarity"] = 0
+            else:
+                weights["title_similarity"] = 80
+                weights["description_similarity"] = 20
 
         # Product match
         if wish.product and offer.product and wish.product == offer.product:
