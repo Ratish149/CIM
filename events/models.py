@@ -1,31 +1,20 @@
-import re
-
 from django.db import models
+from slugify import slugify  # Use the external library
 
 from accounts.models import CustomUser
 
 
 class SlugMixin:
     def generate_unique_slug(self):
-        # 1. Convert to lowercase and strip whitespace
-        val = self.title.strip().lower()
-        # 2. Replace spaces and commas with dashes
-        val = re.sub(r"[\s,]+", "-", val)
-        # 3. Remove characters that aren't word characters or dashes
-        # This regex [^\w-] keeps Unicode letters/numbers and existing dashes
-        base_slug = re.sub(r"[^\w-]", "", val)
-
-        if not base_slug:
-            base_slug = "event"
+        # python-slugify handles Unicode marks much more accurately
+        base_slug = slugify(self.title, allow_unicode=True)
 
         slug = base_slug
         counter = 1
         model = self.__class__
-
         while model.objects.filter(slug=slug).exclude(id=self.id).exists():
             slug = f"{base_slug}-{counter}"
             counter += 1
-
         self.slug = slug
 
     def save(self, *args, **kwargs):
