@@ -51,6 +51,7 @@ class Event(SlugMixin, models.Model):
         null=True,
         blank=True,
     )
+    event_file = models.FileField(upload_to="event_files/", null=True, blank=True)
     contact_person = models.CharField(max_length=100, null=True, blank=True)
     contact_number = models.CharField(max_length=20, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS, default="Draft")

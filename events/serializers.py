@@ -98,6 +98,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
             "attendees",
             "sponsors",
             "agenda_items",
+            "event_file",
             "created_at",
             "updated_at",
             "thumbnail",
