@@ -1,15 +1,20 @@
+import re
+
 from django.db import models
-from django.utils.text import slugify
 
 from accounts.models import CustomUser
 
 
 class SlugMixin:
     def generate_unique_slug(self):
-        # allow_unicode=True keeps the Nepali characters
-        base_slug = slugify(self.title, allow_unicode=True)
+        # 1. Convert to lowercase and strip whitespace
+        val = self.title.strip().lower()
+        # 2. Replace spaces and commas with dashes
+        val = re.sub(r"[\s,]+", "-", val)
+        # 3. Remove characters that aren't word characters or dashes
+        # This regex [^\w-] keeps Unicode letters/numbers and existing dashes
+        base_slug = re.sub(r"[^\w-]", "", val)
 
-        # If title is all symbols, slugify might return empty
         if not base_slug:
             base_slug = "event"
 
@@ -17,7 +22,6 @@ class SlugMixin:
         counter = 1
         model = self.__class__
 
-        # Check for uniqueness
         while model.objects.filter(slug=slug).exclude(id=self.id).exists():
             slug = f"{base_slug}-{counter}"
             counter += 1
