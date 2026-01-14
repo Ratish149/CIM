@@ -21,7 +21,7 @@ class Detail(models.Model):
     province = models.CharField(max_length=100, null=True, blank=True)
     municipality = models.CharField(max_length=100, null=True, blank=True)
     ward = models.CharField(max_length=100, null=True, blank=True)
-    company_website = models.URLField(null=True, blank=True)
+    company_website = models.CharField(max_length=255, null=True, blank=True)
     image = models.FileField(upload_to="wish_and_offers/images", null=True, blank=True)
 
     class Meta:
