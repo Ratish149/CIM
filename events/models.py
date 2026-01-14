@@ -64,6 +64,7 @@ class Event(SlugMixin, models.Model):
         null=True,
         blank=True,
     )
+    order = models.IntegerField(default=0, blank=True, null=True)
 
     event_file = models.FileField(upload_to="event_files/", null=True, blank=True)
     contact_person = models.CharField(max_length=100, null=True, blank=True)

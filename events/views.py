@@ -12,7 +12,7 @@ from .serializers import (
 
 
 class EventListCreateView(generics.ListCreateAPIView):
-    queryset = Event.objects.filter(status="Published").order_by("-created_at")
+    queryset = Event.objects.filter(status="Published").order_by("order")
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -28,7 +28,7 @@ class GetFeaturedEvents(generics.ListAPIView):
 
     def get_queryset(self):
         return Event.objects.filter(status="Published", is_featured=True).order_by(
-            "-created_at"
+            "order"
         )
 
 
@@ -37,7 +37,7 @@ class GetPopularEvents(generics.ListAPIView):
 
     def get_queryset(self):
         return Event.objects.filter(status="Published", is_popular=True).order_by(
-            "-created_at"
+            "order"
         )
 
 
