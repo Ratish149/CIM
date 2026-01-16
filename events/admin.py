@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db import models
+from django.utils.safestring import mark_safe
 from tinymce.widgets import TinyMCE
 from unfold.admin import ModelAdmin, TabularInline
 
@@ -20,6 +21,17 @@ class EventImageInline(TabularInline):
     model = EventImage
     tab = True
     extra = 1
+    readonly_fields = ["image_preview"]
+    fields = ["image", "image_preview"]
+
+    def image_preview(self, obj):
+        if obj.image:
+            return mark_safe(
+                f'<img src="{obj.image.url}" width="150" height="auto" style="border-radius: 8px;" />'
+            )
+        return "No Image"
+
+    image_preview.short_description = "Preview"
 
 
 class EventAdmin(ModelAdmin):

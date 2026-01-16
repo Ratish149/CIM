@@ -3,6 +3,7 @@
 import csv
 
 import pandas as pd
+from django.db import transaction
 from django.db.models import Q
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, generics, status
@@ -497,7 +498,7 @@ class DataConversionView(generics.CreateAPIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Copy data to target
+        # Prepare data for target
         data = {
             "full_name": source_obj.full_name,
             "designation": source_obj.designation,
@@ -522,10 +523,11 @@ class DataConversionView(generics.CreateAPIView):
             "status": "Pending",  # Reset status to Pending for the new object
         }
 
-        target_obj = target_model.objects.create(**data)
-
-        # Delete source
-        source_obj.delete()
+        with transaction.atomic():
+            # Delete source first to prevent 100% match with the new target object
+            source_obj.delete()
+            # Create target object
+            target_obj = target_model.objects.create(**data)
 
         return Response(
             target_serializer(target_obj).data, status=status.HTTP_201_CREATED
