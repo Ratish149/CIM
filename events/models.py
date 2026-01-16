@@ -43,6 +43,13 @@ class EventOrganizer(models.Model):
         return self.name
 
 
+class EventImage(models.Model):
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="images")
+    image = models.FileField(upload_to="event_images/",null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class Event(SlugMixin, models.Model):
     STATUS = (
         ("Published", "Published"),

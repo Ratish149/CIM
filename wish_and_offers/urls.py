@@ -6,6 +6,7 @@ from .views import (
     CategoryListView,
     CategoryRetrieveUpdateDestroyView,
     CategorySubCategoryBulkUploadView,
+    DataConversionView,
     HSCodeBulkUploadView,
     HSCodeListView,
     LatestWishAndOfferListView,
@@ -89,4 +90,5 @@ urlpatterns = [
     ),
     path("hs-codes/", HSCodeListView.as_view(), name="hs-code-list"),
     path("hs-codes/upload/", HSCodeBulkUploadView.as_view(), name="hs-code-upload"),
+    path("convert-data/", DataConversionView.as_view(), name="data-conversion"),
 ]

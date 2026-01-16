@@ -15,6 +15,7 @@ from .models import Category, HSCode, Match, Offer, Service, SubCategory, Wish
 from .serializers import (
     CategorySerializer,
     CategorySubCategoryBulkUploadSerializer,
+    DataConversionSerializer,
     HSCodeFileUploadSerializer,
     HSCodeSerializer,
     MatchSerializer,
@@ -467,3 +468,65 @@ class CategorySubCategoryBulkUploadView(APIView):
                 {"error": f"Failed to process file: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class DataConversionView(generics.CreateAPIView):
+    serializer_class = DataConversionSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        source_type = serializer.validated_data["source_type"]
+        source_id = serializer.validated_data["source_id"]
+
+        if source_type == "wish":
+            source_model = Wish
+            target_model = Offer
+            target_serializer = OfferSerializer
+        else:
+            source_model = Offer
+            target_model = Wish
+            target_serializer = WishSerializer
+
+        try:
+            source_obj = source_model.objects.get(id=source_id)
+        except source_model.DoesNotExist:
+            return Response(
+                {"error": f"{source_type.capitalize()} with ID {source_id} not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Copy data to target
+        data = {
+            "full_name": source_obj.full_name,
+            "designation": source_obj.designation,
+            "mobile_no": source_obj.mobile_no,
+            "alternate_no": source_obj.alternate_no,
+            "email": source_obj.email,
+            "company_name": source_obj.company_name,
+            "address": source_obj.address,
+            "country": source_obj.country,
+            "province": source_obj.province,
+            "municipality": source_obj.municipality,
+            "ward": source_obj.ward,
+            "company_website": source_obj.company_website,
+            "image": source_obj.image,
+            "title": source_obj.title,
+            "description": source_obj.description,
+            "event": source_obj.event,
+            "product": source_obj.product,
+            "service": source_obj.service,
+            "subcategory": source_obj.subcategory,
+            "type": source_obj.type,
+            "status": "Pending",  # Reset status to Pending for the new object
+        }
+
+        target_obj = target_model.objects.create(**data)
+
+        # Delete source
+        source_obj.delete()
+
+        return Response(
+            target_serializer(target_obj).data, status=status.HTTP_201_CREATED
+        )

@@ -260,3 +260,20 @@ class HSCodeFileUploadSerializer(serializers.Serializer):
         if not value.name.endswith(".csv"):
             raise serializers.ValidationError("Only CSV files are allowed")
         return value
+
+
+class DataConversionSerializer(serializers.Serializer):
+    TYPE_CHOICES = [
+        ("wish", "Wish"),
+        ("offer", "Offer"),
+    ]
+    source_type = serializers.ChoiceField(choices=TYPE_CHOICES)
+    source_id = serializers.IntegerField()
+    target_type = serializers.ChoiceField(choices=TYPE_CHOICES)
+
+    def validate(self, data):
+        if data["source_type"] == data["target_type"]:
+            raise serializers.ValidationError(
+                "Source and target types must be different."
+            )
+        return data

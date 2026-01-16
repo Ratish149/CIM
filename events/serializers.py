@@ -3,7 +3,15 @@ from rest_framework import serializers
 from accounts.serializers import UserSerializer, UserSmallSerializer
 from wish_and_offers.serializers import OfferSmallSerializer, WishSmallSerializer
 
-from .models import AgendaItem, Attendee, Event, EventOrganizer, Sponsor, Tag
+from .models import (
+    AgendaItem,
+    Attendee,
+    Event,
+    EventImage,
+    EventOrganizer,
+    Sponsor,
+    Tag,
+)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -44,6 +52,12 @@ class EventOrganizerSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventOrganizer
         fields = ["id", "name", "logo", "email", "phone", "address"]
+
+
+class EventImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventImage
+        fields = ["id", "image"]
 
 
 class EventListSerializer(serializers.ModelSerializer):
@@ -89,6 +103,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
     agenda_items = AgendaItemSerializer(many=True, read_only=True)
     attendees_count = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
+    images = EventImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
@@ -105,6 +120,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
             "sponsors",
             "agenda_items",
             "event_file",
+            "images",
             "created_at",
             "updated_at",
             "thumbnail",
