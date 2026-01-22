@@ -60,6 +60,31 @@ class EventImageSerializer(serializers.ModelSerializer):
         fields = ["id", "image"]
 
 
+class EventImageCreateSerializer(serializers.ModelSerializer):
+    # We define this to handle multiple files in the input
+    images = serializers.ListField(
+        child=serializers.ImageField(
+            max_length=1000000, allow_empty_file=False, use_url=False
+        ),
+        write_only=True,
+    )
+
+    class Meta:
+        model = EventImage
+        fields = ["id", "event", "images"]  # 'event' is needed to link the images
+
+    def create(self, validated_data):
+        images_data = validated_data.pop("images")
+        event = validated_data.pop("event")
+        image_instances = []
+
+        for image_data in images_data:
+            instance = EventImage.objects.create(event=event, image=image_data)
+            image_instances.append(instance)
+
+        return image_instances  # Note: This returns a list, so the View needs to handle the response
+
+
 class EventListSerializer(serializers.ModelSerializer):
     event_organizer = EventOrganizerSerializer(read_only=True)
     attendees_count = serializers.SerializerMethodField()
@@ -143,6 +168,9 @@ class EventCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True, required=False
     )
+    event_organizer = serializers.PrimaryKeyRelatedField(
+        queryset=EventOrganizer.objects.all(), required=False
+    )
 
     class Meta:
         model = Event
@@ -157,6 +185,8 @@ class EventCreateSerializer(serializers.ModelSerializer):
             "thumbnail",
             "slug",
             "tags",
+            "event_file",
+            "order",
             "contact_person",
             "contact_number",
             "status",

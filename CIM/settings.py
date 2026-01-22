@@ -35,10 +35,10 @@ ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = [
     "https://cim.baliyoventures.com",
-    "https://delivery-safari-metallic-regarded.trycloudflare.com",
+    "https://corp-feed-practical-indianapolis.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://delivery-safari-metallic-regarded.trycloudflare.com",
+    "https://corp-feed-practical-indianapolis.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
 ]
@@ -151,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kathmandu"
 
 USE_I18N = True
 

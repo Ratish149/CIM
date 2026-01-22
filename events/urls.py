@@ -5,15 +5,47 @@ from .views import (
     AgendaItemRetrieveUpdateDestroyView,
     AttendeeListCreateView,
     AttendeeRetrieveDestroyView,
+    EventImageListCreateView,
+    EventImageRetreveUpdateDeleteView,
     EventListCreateView,
+    EventOrganizerListCreateView,
+    EventOrganizerRetreveUpdateDeleteView,
     EventRetrieveUpdateDestroyView,
     GetFeaturedEvents,
     GetPopularEvents,
     SponsorListCreateView,
     SponsorRetrieveUpdateDestroyView,
+    TagListCreateView,
+    TagRetreveUpdateDeleteView,
 )
 
 urlpatterns = [
+    path(
+        "event-tags/",
+        TagListCreateView.as_view(),
+        name="event-organizer-list-create",
+    ),
+    path(
+        "event-tags/<int:id>/",
+        TagRetreveUpdateDeleteView.as_view(),
+        name="event-detail",
+    ),
+    path(
+        "event-organizers/",
+        EventOrganizerListCreateView.as_view(),
+        name="event-organizer-list-create",
+    ),
+    path(
+        "event-organizers/<int:id>/",
+        EventOrganizerRetreveUpdateDeleteView.as_view(),
+        name="event-detail",
+    ),
+    path("event-images/", EventImageListCreateView.as_view(), name="event-list-create"),
+    path(
+        "event-images/<int:id>/",
+        EventImageRetreveUpdateDeleteView.as_view(),
+        name="event-detail",
+    ),
     path("events/", EventListCreateView.as_view(), name="event-list-create"),
     path(
         "events/<str:slug>/",

@@ -45,7 +45,7 @@ class EventOrganizer(models.Model):
 
 class EventImage(models.Model):
     event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="images")
-    image = models.FileField(upload_to="event_images/",null=True,blank=True)
+    image = models.FileField(upload_to="event_images/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -59,8 +59,8 @@ class Event(SlugMixin, models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True, allow_unicode=True)
     description = models.TextField()
-    start_date = models.CharField(max_length=200, null=True, blank=True)
-    end_date = models.CharField(max_length=200, null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
     thumbnail = models.FileField(upload_to="event_thumbnails/", null=True, blank=True)
     location = models.CharField(max_length=200)
     tags = models.ManyToManyField(Tag, related_name="events", blank=True)
@@ -76,7 +76,7 @@ class Event(SlugMixin, models.Model):
     event_file = models.FileField(upload_to="event_files/", null=True, blank=True)
     contact_person = models.CharField(max_length=100, null=True, blank=True)
     contact_number = models.CharField(max_length=20, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS, default="Draft")
+    status = models.CharField(max_length=20, choices=STATUS, default="Published")
     is_featured = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

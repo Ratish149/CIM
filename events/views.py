@@ -1,18 +1,86 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
 
-from .models import AgendaItem, Attendee, Event, Sponsor
+from .models import (
+    AgendaItem,
+    Attendee,
+    Event,
+    EventImage,
+    EventOrganizer,
+    Sponsor,
+    Tag,
+)
 from .serializers import (
     AgendaItemSerializer,
     AttendeeSerializer,
     EventCreateSerializer,
     EventDetailSerializer,
+    EventImageCreateSerializer,
+    EventImageSerializer,
     EventListSerializer,
+    EventOrganizerSerializer,
     SponsorSerializer,
+    TagSerializer,
 )
 
 
+class TagListCreateView(generics.ListCreateAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+
+class TagRetreveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    lookup_field = "id"
+
+
+class EventOrganizerListCreateView(generics.ListCreateAPIView):
+    queryset = EventOrganizer.objects.all()
+    serializer_class = EventOrganizerSerializer
+
+
+class EventOrganizerRetreveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = EventOrganizer.objects.all()
+    serializer_class = EventOrganizerSerializer
+    lookup_field = "id"
+
+
+class EventImageListCreateView(generics.ListCreateAPIView):
+    queryset = EventImage.objects.all()
+    serializer_class = EventImageCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        image_instances = serializer.save()
+
+        output_serializer = EventImageSerializer(image_instances, many=True)
+
+        return Response(
+            {
+                "message": f"Successfully uploaded {len(image_instances)} images.",
+                "data": output_serializer.data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return EventImageCreateSerializer
+        return EventImageSerializer
+
+
+class EventImageRetreveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = EventImage.objects.all()
+    serializer_class = EventImageSerializer
+    lookup_field = "id"
+
+
 class EventListCreateView(generics.ListCreateAPIView):
-    queryset = Event.objects.filter(status="Published").order_by("order")
+    queryset = Event.objects.filter(status="Published").order_by("start_date")
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -44,7 +112,6 @@ class GetPopularEvents(generics.ListAPIView):
 class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventDetailSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = "slug"
 
 
