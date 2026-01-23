@@ -1,6 +1,9 @@
+from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
+from .filters import EventFilter
 from .models import (
     AgendaItem,
     Attendee,
@@ -81,6 +84,8 @@ class EventImageRetreveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.filter(status="Published").order_by("start_date")
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = EventFilter
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -89,6 +94,15 @@ class EventListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save()
+
+
+class PastEventListView(generics.ListAPIView):
+    serializer_class = EventListSerializer
+
+    def get_queryset(self):
+        return Event.objects.filter(
+            status="Published", end_date__lt=timezone.now().date()
+        ).order_by("start_date")
 
 
 class GetFeaturedEvents(generics.ListAPIView):

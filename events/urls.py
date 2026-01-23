@@ -13,6 +13,7 @@ from .views import (
     EventRetrieveUpdateDestroyView,
     GetFeaturedEvents,
     GetPopularEvents,
+    PastEventListView,
     SponsorListCreateView,
     SponsorRetrieveUpdateDestroyView,
     TagListCreateView,
@@ -47,6 +48,7 @@ urlpatterns = [
         name="event-detail",
     ),
     path("events/", EventListCreateView.as_view(), name="event-list-create"),
+    path("past-events/", PastEventListView.as_view(), name="past-event-list"),
     path(
         "events/<str:slug>/",
         EventRetrieveUpdateDestroyView.as_view(),
