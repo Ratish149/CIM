@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, permissions, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from .filters import EventFilter
@@ -82,10 +83,17 @@ class EventImageRetreveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
 
 
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"  # Allow client to override page size
+    max_page_size = 100  # Maximum
+
+
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.filter(status="Published").order_by("start_date")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = EventFilter
+    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":
