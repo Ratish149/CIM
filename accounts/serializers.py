@@ -1,6 +1,10 @@
 from rest_framework import serializers
 
-from .models import CustomUser, File, Organization
+from .models import (
+    CustomUser,
+    File,
+    Organization,
+)
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -38,6 +42,50 @@ class UserSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+class UserSerializerForJobSeeker(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "bio",
+            "date_of_birth",
+            "phone_number",
+            "address",
+            "designation",
+            "alternate_no",
+            "avatar",
+        )
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "phone_number",
+            "address",
+        )
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        username = validated_data.get("email")
+        email = validated_data.get("email")
+
+        if CustomUser.objects.filter(email=email).exists():
+            raise serializers.ValidationError("Email already exists")
+
+        user = CustomUser.objects.create_user(**validated_data, username=username)
+        return user
+
+
 class UserSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -63,9 +111,3 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "logo",
             "files",
         )
-
-
-class UserSmallSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ("id", "username", "email", "avatar")

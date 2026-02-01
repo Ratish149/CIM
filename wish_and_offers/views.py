@@ -3,10 +3,15 @@
 import csv
 
 import pandas as pd
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -30,18 +35,47 @@ from .serializers import (
 )
 
 
+class WishFilterSet(django_filters.FilterSet):
+    category = django_filters.CharFilter(
+        field_name="subcategory__category__name", lookup_expr="icontains"
+    )
+    category_id = django_filters.CharFilter(
+        field_name="subcategory__category__id", lookup_expr="exact"
+    )
+    subcategory = django_filters.CharFilter(
+        field_name="subcategory__name", lookup_expr="icontains"
+    )
+
+    class Meta:
+        model = Wish
+        fields = []
+
+
 class WishListCreateView(generics.ListCreateAPIView):
     serializer_class = WishSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
     search_fields = ["title"]
+    filterset_class = WishFilterSet
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     def get_queryset(self):
         event_slug = self.kwargs.get("event_slug")
         if event_slug:
-            return Wish.objects.filter(event__slug=event_slug).order_by("-created_at")
-        return Wish.objects.all().order_by("-created_at")
+            queryset = Wish.objects.filter(event__slug=event_slug)
+        else:
+            queryset = Wish.objects.all()
+
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(user=self.request.user)
+
+        return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
+        user = self.request.user
         event_id = self.request.data.get("event_id")
         product_id = self.request.data.get("product")
         service_id = self.request.data.get("service")
@@ -52,10 +86,41 @@ class WishListCreateView(generics.ListCreateAPIView):
         service = Service.objects.get(pk=service_id) if service_id else None
 
         # Capture the created wish and its matches
-        wish = serializer.save(event=event, product=product, service=service)
+        wish = serializer.save(event=event, product=product, service=service, user=user)
 
         # Retrieve matches for the created wish
         match_objects = Match.objects.filter(wish=wish)
+
+        # Send email to all Offer creators
+        offers = Offer.objects.all()
+        recipient_emails = set()
+        for offer in offers:
+            if offer.user and offer.user.email:
+                recipient_emails.add(offer.user.email)
+            elif offer.email:
+                recipient_emails.add(offer.email)
+
+        if recipient_emails:
+            subject = "New Wish Added"
+            context = {
+                "type": "Wish",
+                "title": wish.title,
+                "description": wish.description,
+            }
+            html_message = render_to_string(
+                "email_templates/new_item_notification.html", context
+            )
+            plain_message = strip_tags(html_message)
+            from_email = settings.EMAIL_HOST_USER
+            send_mail(
+                subject,
+                plain_message,
+                from_email,
+                list(recipient_emails),
+                html_message=html_message,
+                fail_silently=True,
+            )
+
         return Response(
             {
                 "wish": WishWithOffersSerializer(wish).data,
@@ -80,19 +145,65 @@ class WishRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
         return Response(wish_serializer.data)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        event_id = request.data.get("event_id")
+        product_id = request.data.get("product")
+        service_id = request.data.get("service")
+
+        event = Event.objects.get(pk=event_id) if event_id else instance.event
+        product = HSCode.objects.get(pk=product_id) if product_id else instance.product
+        service = Service.objects.get(pk=service_id) if service_id else instance.service
+
+        # Save the updated wish and its matches
+        wish = serializer.save(event=event, product=product, service=service)
+
+        # Retrieve matches for the updated wish
+        match_objects = Match.objects.filter(wish=wish)
+        return Response(
+            {
+                "wish": WishWithOffersSerializer(wish).data,
+                "matches": MatchSerializer(match_objects, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class OfferFilterSet(WishFilterSet):
+    class Meta:
+        model = Offer
+        fields = []
+
 
 class OfferListCreateView(generics.ListCreateAPIView):
     serializer_class = OfferSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
     search_fields = ["title"]
+    filterset_class = OfferFilterSet
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     def get_queryset(self):
         event_slug = self.kwargs.get("event_slug")
         if event_slug:
-            return Offer.objects.filter(event__slug=event_slug).order_by("-created_at")
-        return Offer.objects.all().order_by("-created_at")
+            queryset = Offer.objects.filter(event__slug=event_slug)
+        else:
+            queryset = Offer.objects.all()
+
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(user=self.request.user)
+
+        return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
+        user = self.request.user
         event_id = self.request.data.get("event_id")
         product_id = self.request.data.get("product")
         service_id = self.request.data.get("service")
@@ -103,10 +214,43 @@ class OfferListCreateView(generics.ListCreateAPIView):
         service = Service.objects.get(pk=service_id) if service_id else None
 
         # Capture the created offer and its matches
-        offer = serializer.save(event=event, product=product, service=service)
+        offer = serializer.save(
+            event=event, product=product, service=service, user=user
+        )
 
         # Retrieve matches for the created offer
         match_objects = Match.objects.filter(offer=offer)
+
+        # Send email to all Wish creators
+        wishes = Wish.objects.all()
+        recipient_emails = set()
+        for wish_obj in wishes:
+            if wish_obj.user and wish_obj.user.email:
+                recipient_emails.add(wish_obj.user.email)
+            elif wish_obj.email:
+                recipient_emails.add(wish_obj.email)
+
+        if recipient_emails:
+            subject = "New Offer Added"
+            context = {
+                "type": "Offer",
+                "title": offer.title,
+                "description": offer.description,
+            }
+            html_message = render_to_string(
+                "email_templates/new_item_notification.html", context
+            )
+            plain_message = strip_tags(html_message)
+            from_email = settings.EMAIL_HOST_USER
+            send_mail(
+                subject,
+                plain_message,
+                from_email,
+                list(recipient_emails),
+                html_message=html_message,
+                fail_silently=True,
+            )
+
         return Response(
             {
                 "offer": OfferWithWishesSerializer(offer).data,
@@ -132,6 +276,33 @@ class OfferRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
         return Response(offer_serializer.data)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        event_id = request.data.get("event_id")
+        product_id = request.data.get("product")
+        service_id = request.data.get("service")
+
+        event = Event.objects.get(pk=event_id) if event_id else instance.event
+        product = HSCode.objects.get(pk=product_id) if product_id else instance.product
+        service = Service.objects.get(pk=service_id) if service_id else instance.service
+
+        # Save the updated offer and its matches
+        offer = serializer.save(event=event, product=product, service=service)
+
+        # Retrieve matches for the updated offer
+        match_objects = Match.objects.filter(offer=offer)
+        return Response(
+            {
+                "offer": OfferWithWishesSerializer(offer).data,
+                "matches": MatchSerializer(match_objects, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
 
 class MatchListView(generics.ListAPIView):
     queryset = Match.objects.all().order_by("id")
@@ -156,9 +327,7 @@ class ServiceFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Service
-        fields = {
-            "subcategory_id": ["exact"],
-        }
+        fields = []
 
 
 class ServiceListCreateView(generics.ListCreateAPIView):
@@ -473,6 +642,7 @@ class CategorySubCategoryBulkUploadView(APIView):
 
 class DataConversionView(generics.CreateAPIView):
     serializer_class = DataConversionSerializer
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -501,6 +671,7 @@ class DataConversionView(generics.CreateAPIView):
         # Prepare data for target
         data = {
             "full_name": source_obj.full_name,
+            "user": source_obj.user,
             "designation": source_obj.designation,
             "mobile_no": source_obj.mobile_no,
             "alternate_no": source_obj.alternate_no,

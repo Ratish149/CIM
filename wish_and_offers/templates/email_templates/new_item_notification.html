@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New {{ type }} Notification</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ed1b24;
+        }
+        .header h1 {
+            color: #ed1b24;
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+        .item-card {
+            background-color: #f9f9f9;
+            border-left: 4px solid #ed1b24;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .item-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .item-description {
+            color: #666666;
+            font-style: italic;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+        }
+        .button {
+            display: inline-block;
+            background-color: #ed1b24;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px;">
+        <div class="container">
+            <div class="header">
+                <h1>New {{ type }} Alert!</h1>
+            </div>
+            <div class="content">
+                <p>Hello,</p>
+                <p>A new <strong>{{ type }}</strong> has just been added to the platform that might be relevant to you.</p>
+                
+                <div class="item-card">
+                    <div class="item-title">{{ title }}</div>
+                    {% if description %}
+                    <div class="item-description">"{{ description|truncatewords:30 }}"</div>
+                    {% endif %}
+                </div>
+
+                <p>Please log in to the platform to view more details and connect.</p>
+                
+                <div style="text-align: center;">
+                    <a href="https://cim.baliyoventures.com/" class="button">View Details</a>
+                </div>
+            </div>
+            <div class="footer">
+                <p>&copy; {% now "Y" %} CIM Baliyo Ventures. All rights reserved.</p>
+                <p>You received this email because you are a registered user.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

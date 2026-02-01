@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
 
+from accounts.models import CustomUser
+
 # Create your models here.
 
 
@@ -44,6 +46,9 @@ class MeroDeshMeraiUtpadan(models.Model):
         ("Approved", "Approved"),
         ("Rejected", "Rejected"),
     }
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, null=True, blank=True
+    )
 
     name_of_company = models.CharField(max_length=255)
     company_logo = models.ForeignKey(

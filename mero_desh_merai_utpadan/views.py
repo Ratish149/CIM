@@ -156,9 +156,10 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         return paginator.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
+        user = request.user
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
+        instance = serializer.save(user=user)
 
         # Automatically approve and send email
         success, error_message = process_mdmu_approval(instance, new_status="Approved")

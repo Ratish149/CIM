@@ -14,9 +14,11 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-# from dotenv import load_dotenv
-# load_dotenv()
 from django.utils.translation import gettext_lazy as _
+
+# from dotenv import load_dotenv
+
+# load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,10 +37,10 @@ ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = [
     "https://cim.baliyoventures.com",
-    "https://bars-fixtures-test-hey.trycloudflare.com",
+    "https://dog-ctrl-parade-cars.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://bars-fixtures-test-hey.trycloudflare.com",
+    "https://dog-ctrl-parade-cars.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
 ]
@@ -46,6 +48,12 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
     "unfold",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.headless",
+    "allauth.socialaccount.providers.google",
+    "allauth.usersessions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -70,7 +78,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "tinymce",
     "django_filters",
+    "jobbriz",
 ]
+
+SITE_ID = 1
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -82,6 +94,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    "CIM.middleware.CSRFExemptForAllauthHeadless",
 ]
 
 ROOT_URLCONF = "CIM.urls"
@@ -250,4 +264,36 @@ TINYMCE_DEFAULT_CONFIG = {
         input.click();
     }""",
     "content_style": "body { font-family:Roboto,Helvetica,Arial,sans-serif; font-size:14px }",
+}
+
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "key": "",
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+# Custom Social Account Adapter
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
+
+# Custom Headless Adapter
+
+HEADLESS_ADAPTER = "accounts.adapters.CustomHeadlessAdapter"
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=365),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
 }

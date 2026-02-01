@@ -6,17 +6,21 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
+from accounts.models import CustomUser
 from events.models import Event
 
 
 class Detail(models.Model):
-    full_name = models.CharField(max_length=100)
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, null=True, blank=True
+    )
+    full_name = models.CharField(max_length=100, null=True, blank=True)
     designation = models.CharField(max_length=100, null=True, blank=True)
-    mobile_no = models.CharField(max_length=15)
+    mobile_no = models.CharField(max_length=15, null=True, blank=True)
     alternate_no = models.CharField(max_length=15, null=True, blank=True)
-    email = models.EmailField()
-    company_name = models.CharField(max_length=100)
-    address = models.CharField(max_length=200)
+    email = models.EmailField(null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    address = models.CharField(max_length=200, null=True, blank=True)
     country = models.CharField(max_length=100, default="Nepal", null=True, blank=True)
     province = models.CharField(max_length=100, null=True, blank=True)
     municipality = models.CharField(max_length=100, null=True, blank=True)
@@ -81,8 +85,14 @@ class Wish(Detail):
         ("Accepted", "Accepted"),
         ("Rejected", "Rejected"),
     ]
-
     title = models.CharField(max_length=200, default="")
+    offer = models.ForeignKey(
+        "wish_and_offers.Offer",
+        on_delete=models.CASCADE,
+        related_name="wishes",
+        null=True,
+        blank=True,
+    )
     description = models.TextField(blank=True, null=True)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="wishes", null=True, blank=True
@@ -176,6 +186,13 @@ class Offer(Detail):
     ]
 
     title = models.CharField(max_length=200, default="")
+    wish = models.ForeignKey(
+        "wish_and_offers.Wish",
+        on_delete=models.CASCADE,
+        related_name="offers",
+        null=True,
+        blank=True,
+    )
     description = models.TextField(blank=True, null=True)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="offers", null=True, blank=True

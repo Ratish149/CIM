@@ -59,6 +59,8 @@ class WishSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "full_name",
+            "offer",
+            "user",
             "designation",
             "mobile_no",
             "alternate_no",
@@ -93,6 +95,8 @@ class OfferSerializer(serializers.ModelSerializer):
         model = Offer
         fields = [
             "id",
+            "user",
+            "wish",
             "full_name",
             "designation",
             "mobile_no",

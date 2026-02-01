@@ -4,6 +4,7 @@ arabic-reshaper==3.0.0
 asgiref==3.8.1
 asn1crypto==1.5.1
 certifi==2024.12.14
+cffi==1.17.1
 chardet==5.2.0
 charset-normalizer==3.4.1
 ci-info==0.3.0
@@ -15,6 +16,7 @@ cryptography==44.0.0
 cssselect2==0.7.0
 defusedxml==0.7.1
 Django==5.1.4
+django-allauth==65.14.0
 django-cors-headers==4.6.0
 django-filter==24.3
 django-nepali-datetime-field==0.8.0

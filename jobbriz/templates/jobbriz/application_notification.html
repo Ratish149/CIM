@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Job Application</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        .header {
+            border-bottom: 2px solid #eeeeee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 18px;
+            color: #34495e;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .label {
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 12px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .value {
+            font-size: 14px;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #e8f4f8;
+            color: #2980b9;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+            font-size: 12px;
+            color: #999999;
+        }
+        .button {
+            display: inline-block;
+            background-color: #27ae60;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #219150;
+        }
+        .cover-letter {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Job Application</h1>
+            <p>For position: <strong>{{ job_title }}</strong></p>
+        </div>
+        
+        <div class="content">
+            <p>Dear Hiring Team,</p>
+            <p>You have received a new application for the <strong>{{ job_title }}</strong> position.</p>
+
+            <div class="section">
+                <div class="section-title">Applicant Details</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Name</span>
+                        <div class="value">{{ applicant_name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Email</span>
+                        <div class="value"><a href="mailto:{{ applicant_email }}">{{ applicant_email }}</a></div>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Location</span>
+                        <div class="value">
+                            {% for location in applicant_locations %}
+                                {{ location.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                Not specified
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Experience</span>
+                        <div class="value">{{ applicant_experience }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {% if applicant_skills %}
+            <div class="section">
+                <div class="section-title">Skills</div>
+                <div>
+                    {% for skill in applicant_skills %}
+                        <span class="tag">{{ skill.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if applicant_education %}
+            <div class="section">
+                <div class="section-title">Education</div>
+                {% for edu in applicant_education %}
+                <div class="info-item">
+                    <div class="value" style="font-weight: bold;">{{ edu.course_or_qualification }}</div>
+                    <div class="value" style="color: #666;">{{ edu.institution }} {% if edu.year_of_completion %}({{ edu.year_of_completion }}){% endif %}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if cover_letter %}
+            <div class="section">
+                <div class="section-title">Cover Letter</div>
+                <div class="cover-letter">
+                    "{{ cover_letter }}"
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="footer">
+            <p>&copy; {{ current_year }} CIM. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
