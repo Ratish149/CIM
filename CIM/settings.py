@@ -36,6 +36,8 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = [
+    "https://www.biratbazaar.com",
+    "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
     "https://architects-murphy-opposition-testimonials.trycloudflare.com",
 ]
@@ -43,6 +45,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://architects-murphy-opposition-testimonials.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
+    "https://biratbazaar.com",
+    "https://www.biratbazaar.com",
 ]
 # Application definition
 
