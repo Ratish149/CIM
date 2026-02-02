@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, generics, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,6 +36,12 @@ from .serializers import (
 )
 
 
+class WishandOfferPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+
+
 class WishFilterSet(django_filters.FilterSet):
     category = django_filters.CharFilter(
         field_name="subcategory__category__name", lookup_expr="icontains"
@@ -56,11 +63,7 @@ class WishListCreateView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
     search_fields = ["title"]
     filterset_class = WishFilterSet
-
-    def get_permissions(self):
-        if self.request.method == "POST":
-            return [IsAuthenticated()]
-        return super().get_permissions()
+    pagination_class = WishandOfferPagination
 
     def get_queryset(self):
         event_slug = self.kwargs.get("event_slug")
@@ -75,7 +78,7 @@ class WishListCreateView(generics.ListCreateAPIView):
         return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
-        user = self.request.user
+        user = self.request.user if self.request.user.is_authenticated else None
         event_id = self.request.data.get("event_id")
         product_id = self.request.data.get("product")
         service_id = self.request.data.get("service")
@@ -184,11 +187,7 @@ class OfferListCreateView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
     search_fields = ["title"]
     filterset_class = OfferFilterSet
-
-    def get_permissions(self):
-        if self.request.method == "POST":
-            return [IsAuthenticated()]
-        return super().get_permissions()
+    pagination_class = WishandOfferPagination
 
     def get_queryset(self):
         event_slug = self.kwargs.get("event_slug")
@@ -203,7 +202,7 @@ class OfferListCreateView(generics.ListCreateAPIView):
         return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
-        user = self.request.user
+        user = self.request.user if self.request.user.is_authenticated else None
         event_id = self.request.data.get("event_id")
         product_id = self.request.data.get("product")
         service_id = self.request.data.get("service")

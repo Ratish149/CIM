@@ -156,7 +156,7 @@ class MeroDeshMeraiUtpadanListCreateView(generics.ListCreateAPIView):
         return paginator.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        user = request.user
+        user = request.user if request.user.is_authenticated else None
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save(user=user)
