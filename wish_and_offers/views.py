@@ -52,6 +52,12 @@ class WishFilterSet(django_filters.FilterSet):
     subcategory = django_filters.CharFilter(
         field_name="subcategory__name", lookup_expr="icontains"
     )
+    subcategory_id = django_filters.CharFilter(
+        field_name="subcategory__id", lookup_expr="exact"
+    )
+    event_slug = django_filters.CharFilter(
+        field_name="event__slug", lookup_expr="exact"
+    )
 
     class Meta:
         model = Wish
