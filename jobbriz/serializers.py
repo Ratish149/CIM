@@ -4,12 +4,13 @@ from accounts.models import CustomUser
 from accounts.serializers import UserSerializerForJobSeeker
 
 from .models import (
+    ApprenticeshipApplication,
+    ApprenticeshipDocument,
     CareerHistory,
     Certification,
-    Company,
     Education,
     HireRequest,
-    Industry,
+    InternshipIndustry,
     JobApplication,
     JobPost,
     JobSeeker,
@@ -24,15 +25,9 @@ from .models import (
 )
 
 
-class CompanySmallSerializer(serializers.ModelSerializer):
+class InternshipIndustrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Company
-        fields = ["id", "company_name", "slug", "logo", "industry"]
-
-
-class IndustrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Industry
+        model = InternshipIndustry
         fields = "__all__"
         read_only_fields = ("slug",)
 
@@ -74,27 +69,6 @@ class UnitGroupSerializer(serializers.ModelSerializer):
         fields = ["id", "minor_group", "code", "title", "slug", "description"]
 
 
-class CompanySerializer(serializers.ModelSerializer):
-    user = UserSerializerForJobSeeker(read_only=True)
-    industry = IndustrySerializer(read_only=True)
-    logo = serializers.FileField(required=False)
-    company_registration_certificate = serializers.FileField(required=False)
-    established_date = serializers.DateField(required=False)
-    website = serializers.URLField(required=False)
-    description = serializers.CharField(required=False)
-
-    class Meta:
-        model = Company
-        fields = "__all__"
-        read_only_fields = ("slug", "is_verified")
-
-    def create(self, validated_data):
-        industry_data = validated_data.pop("industry")
-        industry = Industry.objects.get_or_create(**industry_data)[0]
-        company = Company.objects.create(industry=industry, **validated_data)
-        return company
-
-
 class LocationSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
@@ -112,7 +86,6 @@ class JobListAllSerializer(serializers.ModelSerializer):
     user = UserSerializerForJobSeeker(read_only=True)
     location = LocationSmallSerializer(many=True, read_only=True)
     unit_group = UnitGroupSmallSerializer(read_only=True)
-    job_post_count = serializers.SerializerMethodField()
     total_applicant_count = serializers.SerializerMethodField()
     has_already_saved = serializers.SerializerMethodField()
     is_applied = serializers.SerializerMethodField()
@@ -129,23 +102,12 @@ class JobListAllSerializer(serializers.ModelSerializer):
                 return False
         return False
 
-    def get_job_post_count(self, obj):
-        request = self.context.get("request")
-        if request and hasattr(request, "user") and request.user.is_authenticated:
-            try:
-                company = Company.objects.get(user=request.user)
-                return JobPost.objects.filter(company=company).count()
-            except Company.DoesNotExist:
-                return 0
-        return 0
-
     def get_total_applicant_count(self, obj):
         request = self.context.get("request")
         if request and hasattr(request, "user") and request.user.is_authenticated:
             try:
-                company = Company.objects.get(user=request.user)
-                return JobApplication.objects.filter(job__company=company).count()
-            except Company.DoesNotExist:
+                return JobApplication.objects.filter(job=obj).count()
+            except JobApplication.DoesNotExist:
                 return 0
         return 0
 
@@ -182,7 +144,6 @@ class JobListAllSerializer(serializers.ModelSerializer):
             "unit_group",
             "has_already_saved",
             "total_applicant_count",
-            "job_post_count",
             "is_applied",
         ]
         depth = 2
@@ -225,7 +186,6 @@ class JobPostListSerializer(serializers.ModelSerializer):
 
 
 class JobPostDetailSerializer(serializers.ModelSerializer):
-    company = CompanySerializer(read_only=True)
     location = LocationSerializer(many=True, read_only=True)
     unit_group = UnitGroupSerializer(read_only=True)
     applications_count = serializers.IntegerField(read_only=True)
@@ -294,6 +254,16 @@ class EducationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Education
         fields = "__all__"
+
+    def to_internal_value(self, data):
+        print(f"EducationSerializer received: {data}")
+        try:
+            result = super().to_internal_value(data)
+            print(f"EducationSerializer validated: {result}")
+            return result
+        except Exception as e:
+            print(f"EducationSerializer validation error: {e}")
+            raise
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -486,23 +456,6 @@ class JobSeekerSerializer2(serializers.ModelSerializer):
     skills = SkillSerializer(many=True, required=False)
     preferred_locations = LocationSerializer(many=True, required=False)
     career_histories = CareerHistorySerializer(many=True, required=False)
-    already_hired = serializers.SerializerMethodField()
-
-    def get_already_hired(self, obj):
-        request = self.context.get("request")
-        if (
-            request
-            and hasattr(request, "user")
-            and request.user.user_type == "Employer"
-        ):
-            try:
-                company = Company.objects.get(user=request.user)
-                return HireRequest.objects.filter(
-                    job__company=company, job_seeker=obj.user
-                ).exists()
-            except Company.DoesNotExist:
-                return False
-        return False
 
     class Meta:
         model = JobSeeker
@@ -517,7 +470,6 @@ class JobPostCreateUpdateSerializer(serializers.ModelSerializer):
     location = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Location.objects.all(), required=False
     )
-    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
     unit_group = serializers.PrimaryKeyRelatedField(queryset=UnitGroup.objects.all())
 
     class Meta:
@@ -528,7 +480,6 @@ class JobPostCreateUpdateSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     jobseeker_data = serializers.SerializerMethodField()
-    company_data = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -556,11 +507,182 @@ class UserSerializer(serializers.ModelSerializer):
         except JobSeeker.DoesNotExist:
             return None
 
-    def get_company_data(self, obj):
-        try:
-            company = obj.company_profile
-            return {
-                "slug": company.slug,
-            }
-        except Company.DoesNotExist:
-            return None
+
+class InternshipRegistrationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for internship registration that handles education and documents.
+    """
+
+    # Special fields handled manually
+    education = serializers.ListField(
+        child=serializers.DictField(), required=False, write_only=True
+    )
+    documents = serializers.ListField(required=False, write_only=True)
+
+    class Meta:
+        model = JobSeeker
+        fields = [
+            "full_name",
+            "permanent_district",
+            "permanent_municipality",
+            "permanent_province",
+            "permanent_ward",
+            "current_district",
+            "current_municipality",
+            "current_province",
+            "current_ward",
+            "contact_number",
+            "email",
+            "date_of_birth",
+            "motivational_letter",
+            "supervisor_name",
+            "supervisor_email",
+            "supervisor_phone",
+            "internship_industry",
+            "preferred_department",
+            "internship_duration",
+            "internship_month",
+            "preferred_start_date",
+            "availability",
+            "education",
+            "documents",
+        ]
+
+    def to_internal_value(self, data):
+        """Parse JSON strings for education data."""
+        import json
+
+        # Convert QueryDict to dict
+        if hasattr(data, "dict"):
+            new_data = {}
+            for key in data.keys():
+                if key == "documents":
+                    new_data[key] = data.getlist(key)
+                elif key == "education":
+                    # Get the value (might be JSON string)
+                    value = data.get(key)
+                    if isinstance(value, str) and value.strip():
+                        try:
+                            new_data["education"] = json.loads(value)
+                        except (ValueError, TypeError):
+                            new_data["education"] = []
+                    else:
+                        new_data["education"] = []
+                else:
+                    new_data[key] = data.get(key)
+            data = new_data
+
+        # Parse education if it's a JSON string
+        if "education" in data and isinstance(data["education"], str):
+            try:
+                data["education"] = json.loads(data["education"])
+            except (ValueError, TypeError):
+                data["education"] = []
+
+        return super().to_internal_value(data)
+
+    def create(self, validated_data):
+        """Create JobSeeker with education and documents."""
+        request = self.context.get("request")
+
+        # Extract education and documents
+        education_list = validated_data.pop("education", [])
+        documents = validated_data.pop("documents", [])
+
+        # Get documents from request.FILES if not in validated_data
+        if not documents and request and request.FILES:
+            documents = request.FILES.getlist("documents")
+
+        # Determine user
+        user = request.user if request and request.user.is_authenticated else None
+
+        # Create or update JobSeeker
+        if user:
+            job_seeker, created = JobSeeker.objects.update_or_create(
+                user=user, defaults=validated_data
+            )
+        else:
+            job_seeker = JobSeeker.objects.create(user=None, **validated_data)
+
+        # Create and add education records
+        for edu_data in education_list:
+            try:
+                education = Education.objects.create(
+                    institution=edu_data.get("institution", ""),
+                    course_or_qualification=edu_data.get(
+                        "course_or_qualification", "No Education"
+                    ),
+                    year_of_completion=edu_data.get("year_of_completion"),
+                    course_highlights=edu_data.get("course_highlights", ""),
+                )
+                job_seeker.education.add(education)
+            except Exception as e:
+                print(f"Error creating education: {e}")
+
+        # Create and add documents as certifications
+        for doc_file in documents:
+            if hasattr(doc_file, "name"):
+                try:
+                    certification = Certification.objects.create(
+                        name=doc_file.name,
+                        issuing_organisation="Internship Document",
+                        image=doc_file,
+                    )
+                    job_seeker.certifications.add(certification)
+                except Exception as e:
+                    print(f"Error creating certification: {e}")
+
+        return job_seeker
+
+
+class ApprenticeshipDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApprenticeshipDocument
+        fields = ["id", "document", "name", "uploaded_at"]
+
+
+class ApprenticeshipApplicationSerializer(serializers.ModelSerializer):
+    documents = serializers.ListField(
+        child=serializers.FileField(), required=False, write_only=True
+    )
+    uploaded_documents = ApprenticeshipDocumentSerializer(
+        source="documents", many=True, read_only=True
+    )
+
+    class Meta:
+        model = ApprenticeshipApplication
+        fields = "__all__"
+
+    def to_internal_value(self, data):
+        """Parse QueryDict to handle documents list correctly."""
+        if hasattr(data, "dict"):
+            new_data = {}
+            for key in data.keys():
+                if key == "documents":
+                    # Important: getlist to retrieve all files
+                    new_data[key] = data.getlist(key)
+                else:
+                    new_data[key] = data.get(key)
+            data = new_data
+
+        return super().to_internal_value(data)
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+
+        # Extract documents
+        documents_data = validated_data.pop("documents", [])
+
+        # Get documents from request.FILES if not in validated_data
+        if not documents_data and request and request.FILES:
+            documents_data = request.FILES.getlist("documents")
+
+        application = ApprenticeshipApplication.objects.create(**validated_data)
+
+        for doc in documents_data:
+            if hasattr(doc, "name"):
+                ApprenticeshipDocument.objects.create(
+                    application=application, document=doc, name=doc.name
+                )
+
+        return application

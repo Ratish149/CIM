@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.text import slugify
-from django.utils.translation import gettext_lazy as _
 
 from accounts.models import CustomUser
 
@@ -127,9 +126,6 @@ class JobPost(SlugMixin, models.Model):
         null=True,
     )
 
-    company = models.ForeignKey(
-        "jobbriz.Company", on_delete=models.CASCADE, blank=True, null=True
-    )
     company_name = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
@@ -275,7 +271,7 @@ class Education(models.Model):
     course_or_qualification = models.CharField(
         max_length=50, choices=COURSE_OR_QUALIFICATION_CHOICES
     )
-    institution = models.CharField(max_length=50)
+    institution = models.CharField(max_length=255)
     year_of_completion = models.DateField(blank=True, null=True)
     course_highlights = models.TextField(blank=True)
 
@@ -321,6 +317,24 @@ class CareerHistory(models.Model):
         ordering = ["start_date"]
 
 
+class InternshipIndustry(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    link = models.TextField(null=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Industries"
+
+
 class JobSeeker(models.Model):
     LEVEL_CHOICES = [
         ("RPL", "RPL"),
@@ -338,11 +352,39 @@ class JobSeeker(models.Model):
     AVAILABILITY_CHOICES = [
         ("Full Time", "Full Time"),
         ("Part Time", "Part Time"),
+        ("Shift Based", "Shift Based"),
         ("Contract", "Contract"),
         ("Internship", "Internship"),
     ]
 
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    full_name = models.CharField(max_length=255, null=True, blank=True)
+    permanent_province = models.CharField(max_length=255, null=True, blank=True)
+    permanent_district = models.CharField(max_length=255, null=True, blank=True)
+    permanent_municipality = models.CharField(max_length=255, null=True, blank=True)
+    permanent_ward = models.CharField(max_length=255, null=True, blank=True)
+    current_province = models.CharField(max_length=255, null=True, blank=True)
+    current_district = models.CharField(max_length=255, null=True, blank=True)
+    current_municipality = models.CharField(max_length=255, null=True, blank=True)
+    current_ward = models.CharField(max_length=255, null=True, blank=True)
+    contact_number = models.CharField(max_length=15, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    internship_industry = models.ForeignKey(
+        InternshipIndustry, on_delete=models.CASCADE, null=True, blank=True
+    )
+    supervisor_name = models.CharField(max_length=255, null=True, blank=True)
+    supervisor_email = models.EmailField(null=True, blank=True)
+    supervisor_phone = models.CharField(max_length=255, null=True, blank=True)
+    preferred_department = models.CharField(max_length=255, null=True, blank=True)
+    internship_duration = models.CharField(max_length=255, null=True, blank=True)
+    internship_month = models.CharField(max_length=255, null=True, blank=True)
+    preferred_start_date = models.DateField(null=True, blank=True)
+    motivational_letter = models.TextField(null=True, blank=True)
+
     cv = models.FileField(upload_to="cvs/", blank=True, null=True)
     skill_levels = models.CharField(
         max_length=200, choices=LEVEL_CHOICES, default="None", blank=True, null=True
@@ -379,11 +421,19 @@ class JobSeeker(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
 
     def __str__(self):
-        return f"Job Seeker - {self.user.username}"
+        if self.user:
+            return f"Job Seeker - {self.user.username}"
+        return f"Job Seeker - {self.full_name or 'Guest'}"
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.user.username)
+            if self.user:
+                base_slug = slugify(self.user.username)
+            elif self.full_name:
+                base_slug = slugify(self.full_name)
+            else:
+                base_slug = "guest-intern"
+
             slug = base_slug
             counter = 1
             # Check if slug exists and generate a unique one
@@ -394,70 +444,104 @@ class JobSeeker(models.Model):
         super().save(*args, **kwargs)
 
 
-class Industry(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField()
-    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "Industries"
-
-
-class Company(models.Model):
-    COMPANY_SIZE_CHOICES = [
-        ("1-10", "1-10 employees"),
-        ("11-50", "11-50 employees"),
-        ("51-200", "51-200 employees"),
-        ("201-500", "201-500 employees"),
-        ("501-1000", "501-1000 employees"),
-        ("1001+", "1001+ employees"),
+class ApprenticeshipApplication(models.Model):
+    GENDER_CHOICES = [
+        ("Male", "Male"),
+        ("Female", "Female"),
+        ("Other", "Other"),
     ]
 
-    user = models.OneToOneField(
-        CustomUser, on_delete=models.CASCADE, related_name="company_profile"
-    )
-    company_name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-    industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
-    company_size = models.CharField(max_length=20, choices=COMPANY_SIZE_CHOICES)
-    registration_number = models.CharField(
-        max_length=50, unique=True, blank=True, null=True
-    )
-    website = models.URLField(blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    logo = models.FileField(upload_to="company_logos/", null=True, blank=True)
-    established_date = models.DateField(null=True, blank=True)
-    company_email = models.EmailField(null=True, blank=True)
-    company_registration_certificate = models.FileField(
-        upload_to="company_registration_certificates/", null=True, blank=True
-    )
-    is_verified = models.BooleanField(default=False)
+    EDUCATION_LEVEL_CHOICES = [
+        ("Grade 10", "Grade 10"),
+        ("SEE completed", "SEE completed"),
+    ]
 
-    class Meta:
-        verbose_name = _("Company")
-        verbose_name_plural = _("Companies")
-        ordering = ["company_name"]
+    TRADE_CHOICES = [
+        ("Mechanical", "Mechanical"),
+        ("Automobile", "Automobile"),
+        ("Electrical", "Electrical"),
+        ("Civil", "Civil"),
+        ("IT", "IT"),
+        ("Hotel Mgmt.", "Hotel Mgmt."),
+        ("ECD", "Early Childhood Development"),
+        ("Tea Technology", "Tea Technology"),
+    ]
 
-    def save(self, *args, **kwargs):
-        base_slug = slugify(self.company_name)
-        if not self.slug or base_slug != slugify(
-            Company.objects.get(pk=self.pk).company_name if self.pk else ""
-        ):
-            slug = base_slug
-            counter = 1
-            # Check if slug exists and generate a unique one
-            while Company.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.slug = slug
-        super().save(*args, **kwargs)
+    # Step 1: Applicant Details
+    full_name = models.CharField(max_length=255)
+    mobile_number = models.CharField(max_length=20)
+    email_address = models.EmailField()
+    province = models.CharField(max_length=255, null=True, blank=True)
+    district = models.CharField(max_length=255, null=True, blank=True)
+    municipality = models.CharField(max_length=255, null=True, blank=True)
+    ward = models.CharField(max_length=255, null=True, blank=True)
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+
+    # Step 2: Education & Eligibility
+    education_level = models.CharField(max_length=50, choices=EDUCATION_LEVEL_CHOICES)
+    school_name = models.CharField(max_length=255)
+    year_of_see_completion = models.CharField(
+        max_length=4, help_text="Year of SEE Completion"
+    )
+
+    # Step 3: Trade & Institute Selection
+    trade = models.CharField(
+        max_length=50, choices=TRADE_CHOICES, verbose_name="Trade / Field Applying For"
+    )
+    preferred_training_provider = models.CharField(
+        max_length=255,
+        verbose_name="Preferred Training Provider",
+    )
+
+    # Step 4: Requested Industry for Placement
+    industry_preference_1 = models.ForeignKey(
+        InternshipIndustry,
+        on_delete=models.CASCADE,
+        related_name="apprenticeship_pref_1",
+        verbose_name="Requested Industry (1st Preference)",
+    )
+    industry_preference_2 = models.ForeignKey(
+        InternshipIndustry,
+        on_delete=models.CASCADE,
+        related_name="apprenticeship_pref_2",
+        verbose_name="Requested Industry (2nd Preference)",
+        blank=True,
+        null=True,
+    )
+    industry_preference_3 = models.ForeignKey(
+        InternshipIndustry,
+        on_delete=models.CASCADE,
+        related_name="apprenticeship_pref_3",
+        verbose_name="Requested Industry (3rd Preference)",
+        blank=True,
+        null=True,
+    )
+    preferred_location = models.CharField(max_length=50, blank=True, null=True)
+
+    # Step 5: Motivation Letter
+    motivation_letter = models.TextField(
+        help_text="Why choose this industry? (150–300 words)"
+    )
+
+    # Step 6: Upload Documents
+    citizenship = models.FileField(upload_to="apprenticeship/citizenship/")
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.company_name
+        return f"Apprenticeship Application - {self.full_name}"
+
+
+class ApprenticeshipDocument(models.Model):
+    application = models.ForeignKey(
+        ApprenticeshipApplication,
+        on_delete=models.CASCADE,
+        related_name="documents",
+    )
+    document = models.FileField(upload_to="apprenticeship/documents/")
+    name = models.CharField(max_length=255, blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Document for {self.application.full_name}"

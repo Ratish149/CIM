@@ -41,11 +41,11 @@ class MeroDeshMeraiUtpadan(models.Model):
         ("International", "International"),
         ("Both", "Both"),
     )
-    STATUS = {
+    STATUS = (
         ("Pending", "Pending"),
         ("Approved", "Approved"),
         ("Rejected", "Rejected"),
-    }
+    )
     user = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, null=True, blank=True
     )

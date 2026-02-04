@@ -88,3 +88,132 @@ def send_job_application_emails(application):
         )
         msg_company.attach_alternative(html_content_company, "text/html")
         msg_company.send()
+
+
+def send_internship_registration_emails(job_seeker):
+    """
+    Sends email notifications for a new internship registration.
+    1. To the Job Seeker: Confirmation.
+    2. To the Industry: Notification (if industry email exists).
+    """
+    industry = job_seeker.internship_industry
+    current_year = date.today().year
+
+    # --- 1. Email to Job Seeker ---
+    if job_seeker.email:
+        subject_seeker = "Internship Registration Confirmed"
+        context_seeker = {
+            "full_name": job_seeker.full_name or job_seeker.user.username,
+            "industry_name": industry.name if industry else "the selected industry",
+            "preferred_start_date": job_seeker.preferred_start_date,
+            "internship_duration": job_seeker.internship_duration,
+            "current_year": current_year,
+        }
+
+        html_content_seeker = render_to_string(
+            "jobbriz/internship_registration_confirmation.html", context_seeker
+        )
+        text_content_seeker = strip_tags(html_content_seeker)
+
+        msg_seeker = EmailMultiAlternatives(
+            subject_seeker,
+            text_content_seeker,
+            settings.DEFAULT_FROM_EMAIL,
+            [job_seeker.email],
+        )
+        msg_seeker.attach_alternative(html_content_seeker, "text/html")
+        msg_seeker.send()
+
+    # --- 2. Email to Industry ---
+    if industry and industry.email:
+        subject_industry = f"New Intern Interest: {job_seeker.full_name}"
+        context_industry = {
+            "job_seeker": job_seeker,
+            "current_year": current_year,
+        }
+
+        html_content_industry = render_to_string(
+            "jobbriz/internship_registration_industry_notification.html",
+            context_industry,
+        )
+        text_content_industry = strip_tags(html_content_industry)
+
+        msg_industry = EmailMultiAlternatives(
+            subject_industry,
+            text_content_industry,
+            settings.DEFAULT_FROM_EMAIL,
+            [industry.email],
+        )
+        msg_industry.attach_alternative(html_content_industry, "text/html")
+        msg_industry.send()
+
+
+def send_apprenticeship_application_emails(application):
+    """
+    Sends email notifications for a new apprenticeship application.
+    1. To the Applicant: Confirmation.
+    2. To the Preferred Industries: Notification.
+    """
+    current_year = date.today().year
+
+    # --- 1. Email to Applicant ---
+    if application.email_address:
+        subject_applicant = "Apprenticeship Application Received"
+        context_applicant = {
+            "full_name": application.full_name,
+            "trade": application.trade,
+            "preferred_provider": application.preferred_training_provider,
+            "applied_date": application.created_at.strftime("%B %d, %Y"),
+            "current_year": current_year,
+        }
+
+        html_content_applicant = render_to_string(
+            "jobbriz/apprenticeship_confirmation.html", context_applicant
+        )
+        text_content_applicant = strip_tags(html_content_applicant)
+
+        msg_applicant = EmailMultiAlternatives(
+            subject_applicant,
+            text_content_applicant,
+            settings.DEFAULT_FROM_EMAIL,
+            [application.email_address],
+        )
+        msg_applicant.attach_alternative(html_content_applicant, "text/html")
+        msg_applicant.send()
+
+    # --- 2. Email to Industries ---
+    pref_industries = [
+        application.industry_preference_1,
+        application.industry_preference_2,
+        application.industry_preference_3,
+    ]
+
+    # Filter out None and get unique emails
+    industry_emails = set()
+    for industry in pref_industries:
+        if industry and industry.email:
+            industry_emails.add(industry.email)
+
+    if industry_emails:
+        subject_industry = f"New Apprenticeship Interest: {application.full_name}"
+        context_industry = {
+            "application": application,
+            "current_year": current_year,
+        }
+
+        html_content_industry = render_to_string(
+            "jobbriz/apprenticeship_industry_notification.html",
+            context_industry,
+        )
+        text_content_industry = strip_tags(html_content_industry)
+
+        # Send separate emails or one with BCC? Better to send separate or single with all recipients.
+        # Here we send to all unique industry emails in one list.
+        msg_industry = EmailMultiAlternatives(
+            subject_industry,
+            text_content_industry,
+            settings.DEFAULT_FROM_EMAIL,
+            list(industry_emails),
+        )
+        msg_industry.attach_alternative(html_content_industry, "text/html")
+        msg_industry.send()

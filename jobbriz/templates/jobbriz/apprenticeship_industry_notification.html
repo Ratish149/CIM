@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Profile - Apprenticeship</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            color: #2d3748;
+        }
+        .email-wrapper {
+            width: 100%;
+            background-color: #f4f7f6;
+            padding: 20px 0;
+        }
+        .email-content {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .email-body {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .intro-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            color: #4a5568;
+        }
+        /* CV Component styles */
+        .cv-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .cv-header {
+            background-color: #34495e;
+            color: #ffffff;
+            padding: 20px;
+        }
+        .cv-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .cv-header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+            font-size: 13px;
+        }
+        .cv-section {
+            padding: 20px;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .cv-section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            color: #38a169;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .field-group {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .field-label {
+            font-weight: 600;
+            color: #718096;
+            width: 130px;
+            display: inline-block;
+        }
+        .field-value {
+            color: #2d3748;
+            display: inline-block;
+            width: calc(100% - 140px);
+            vertical-align: top;
+        }
+        .email-footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+            background-color: #f8fafc;
+        }
+        .cta-section {
+            margin-top: 25px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-content">
+            <div class="email-body">
+                <p class="greeting">Dear <strong>Industry Partner</strong>,</p>
+                
+                <p class="intro-text">
+                    A new candidate has submitted an application for an apprenticeship and selected your industry as a preference. 
+                    Please find the candidate's profile overview below.
+                </p>
+
+                <!-- CV Format Card -->
+                <div class="cv-card">
+                    <div class="cv-header">
+                        <h2>{{ application.full_name }}</h2>
+                        <p>Apprentice Candidate - {{ application.trade }}</p>
+                    </div>
+                    
+                    <div class="cv-section">
+                        <span class="section-title">Contact Information</span>
+                        <div class="field-group">
+                            <span class="field-label">Email:</span>
+                            <span class="field-value">{{ application.email_address }}</span>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Mobile:</span>
+                            <span class="field-value">{{ application.mobile_number }}</span>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Location:</span>
+                            <span class="field-value">{{ application.municipality }}, {{ application.district }}</span>
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <span class="section-title">Education & Trade</span>
+                        <div class="field-group">
+                            <span class="field-label">Trade Applied:</span>
+                            <span class="field-value">{{ application.trade }}</span>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">Education:</span>
+                            <span class="field-value">{{ application.education_level }}</span>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">School:</span>
+                            <span class="field-value">{{ application.school_name }}</span>
+                        </div>
+                        <div class="field-group">
+                            <span class="field-label">SEE Completion:</span>
+                            <span class="field-value">{{ application.year_of_see_completion }}</span>
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <span class="section-title">Preferences</span>
+                        <div class="field-group">
+                            <span class="field-label">Training Provider:</span>
+                            <span class="field-value">{{ application.preferred_training_provider }}</span>
+                        </div>
+                    </div>
+
+                    {% if application.motivation_letter %}
+                    <div class="cv-section">
+                        <span class="section-title">Motivation Summary</span>
+                        <div style="font-size: 13px; line-height: 1.6; color: #4a5568; margin: 0;">{{ application.motivation_letter|safe }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="email-footer">
+                <p>&copy; {{ current_year }} CIM. All rights reserved.</p>
+                <p>This is an automated notification from the CIM apprenticeship platform.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

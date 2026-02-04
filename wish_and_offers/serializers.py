@@ -11,10 +11,18 @@ class HSCodeSerializer(serializers.ModelSerializer):
         fields = ["id", "hs_code", "description"]
 
 
+class SubCategorySmallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = ["id", "name"]
+
+
 class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubCategorySmallSerializer(many=True, read_only=True)
+
     class Meta:
         model = Category
-        fields = ["id", "name", "description", "image", "type"]
+        fields = ["id", "name", "description", "image", "type", "subcategories"]
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
@@ -28,12 +36,6 @@ class SubCategorySerializer(serializers.ModelSerializer):
             "image",
             "category",
         ]
-
-
-class SubCategorySmallSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SubCategory
-        fields = ["id", "name"]
 
 
 class ServiceSerializer(serializers.ModelSerializer):

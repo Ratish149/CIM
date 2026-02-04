@@ -47,7 +47,9 @@ class Category(models.Model):
 
 
 class SubCategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="subcategories"
+    )
     name = models.CharField(max_length=100)
     example_items = models.TextField(blank=True, null=True)
     reference = models.CharField(max_length=255, blank=True, null=True)

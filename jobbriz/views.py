@@ -5,19 +5,19 @@ from django.db import models
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from rest_framework import filters, generics, permissions, status, views
+from rest_framework import filters, generics, parsers, permissions, status, views
 from rest_framework.exceptions import APIException, NotFound, ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import (
+    ApprenticeshipApplication,
     CareerHistory,
     Certification,
-    Company,
     Education,
     HireRequest,
-    Industry,
+    InternshipIndustry,
     JobApplication,
     JobPost,
     JobSeeker,
@@ -31,14 +31,15 @@ from .models import (
     UnitGroup,
 )
 from .serializers import (
+    ApprenticeshipApplicationSerializer,
     CareerHistorySerializer,
     CertificationSerializer,
-    CompanySerializer,
     EducationSerializer,
     HireRequestSerializer,
     HireRequestStatusUpdateSerializer,
     ImportGroupsSerializer,
-    IndustrySerializer,
+    InternshipIndustrySerializer,
+    InternshipRegistrationSerializer,
     JobApplicationSerializer,
     JobApplicationStatusUpdateSerializer,
     JobListAllSerializer,
@@ -56,7 +57,11 @@ from .serializers import (
     UnitGroupSerializer,
     UserSerializer,
 )
-from .utils import send_job_application_emails
+from .utils import (
+    send_apprenticeship_application_emails,
+    send_internship_registration_emails,
+    send_job_application_emails,
+)
 
 
 class HasJobseekerProfileView(APIView):
@@ -97,44 +102,41 @@ class JobSeekerDetailView(generics.RetrieveUpdateDestroyAPIView):
         return JobSeekerSerializer2
 
 
-class CompanyListCreateView(generics.ListCreateAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-
-class CompanyDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
-    lookup_field = "slug"
-
-    def get_permissions(self):
-        if self.request.method == "GET":
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
-
-    def get_serializer_class(self):
-        if self.request.method in ["PATCH", "PUT", "POST"]:
-            return CompanySerializer  # Use the same serializer for updates
-        return CompanySerializer  # Default to the same serializer for retrieval
-
-
 class LocationListCreateView(generics.ListCreateAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
 
 
 class IndustryListCreateView(generics.ListCreateAPIView):
-    queryset = Industry.objects.all()
-    serializer_class = IndustrySerializer
+    queryset = InternshipIndustry.objects.all()
+    serializer_class = InternshipIndustrySerializer
 
 
 class LanguageListCreateView(generics.ListCreateAPIView):
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer
+
+
+class InternshipRegistrationView(generics.ListCreateAPIView):
+    """
+    API view to register a new user and create an internship profile in one call.
+    """
+
+    queryset = JobSeeker.objects.all()
+    serializer_class = InternshipRegistrationSerializer
+    permission_classes = (permissions.AllowAny,)
+    parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser)
+
+    def perform_create(self, serializer):
+        # Save the job seeker profile
+        job_seeker = serializer.save()
+
+        # Send email notifications
+        try:
+            send_internship_registration_emails(job_seeker)
+        except Exception as e:
+            # Log error but don't fail the request
+            print(f"Failed to send internship registration emails: {e}")
 
 
 class CertificationListCreateView(generics.ListCreateAPIView):
@@ -278,35 +280,6 @@ class CertificationDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Certification.objects.all()
     serializer_class = CertificationSerializer
     permission_classes = (permissions.IsAuthenticated,)
-
-
-class CustomPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = "page_size"
-    max_page_size = 100
-
-
-class CompanyListView(generics.ListAPIView):
-    serializer_class = CompanySerializer
-    permission_classes = (permissions.AllowAny,)
-    pagination_class = CustomPagination
-
-    def get_queryset(self):
-        queryset = Company.objects.filter(is_verified=True).order_by("-id")
-        search = self.request.query_params.get("search", None)
-        industry = self.request.query_params.get("industry", None)
-
-        if search:
-            queryset = queryset.filter(
-                Q(company_name__icontains=search) | Q(description__icontains=search)
-            )
-
-        if industry:
-            queryset = queryset.filter(industry__id=industry)
-
-        paginator = CustomPagination()
-        paginated_queryset = paginator.paginate_queryset(queryset, self.request)
-        return paginated_queryset
 
 
 class MajorGroupListCreateView(generics.ListCreateAPIView):
@@ -516,42 +489,6 @@ class JobPostViewCountView(views.APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class CompanyJobListView(generics.ListAPIView):
-    serializer_class = JobListAllSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def get_queryset(self):
-        company_slug = self.kwargs.get("company_slug")
-        company = get_object_or_404(Company, slug=company_slug)
-        queryset = JobPost.objects.filter(company=company, status="Published")
-
-        # Filter by location
-        location = self.request.query_params.get("location")
-        if location:
-            queryset = queryset.filter(location__slug=location)
-
-        # Filter by employment type
-        employment_type = self.request.query_params.get("employment_type")
-        if employment_type:
-            queryset = queryset.filter(employment_type=employment_type)
-
-        # Filter by education
-        education = self.request.query_params.get("education")
-        if education:
-            queryset = queryset.filter(required_education=education)
-
-        status = self.request.query_params.get("status")
-        if status:
-            queryset = queryset.filter(status=status)
-
-        # Filter by skill level
-        skill_level = self.request.query_params.get("skill_level")
-        if skill_level:
-            queryset = queryset.filter(required_skill_level=skill_level)
-
-        return queryset.order_by("-posted_date")
-
-
 class JobApplicationCreateView(generics.CreateAPIView):
     serializer_class = JobApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -599,16 +536,8 @@ class JobApplicationListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == "Job Seeker":
+        if user:
             return JobApplication.objects.filter(applicant=user)
-        elif user.user_type == "Employer":
-            company = Company.objects.get(user=user)
-            job_applications = JobApplication.objects.filter(job__company=company)
-            job_slug = self.request.query_params.get("job_slug")
-            if job_slug:
-                job_post = JobPost.objects.get(slug=job_slug)
-                job_applications = job_applications.filter(job=job_post)
-            return job_applications
         return JobApplication.objects.none()
 
 
@@ -618,11 +547,8 @@ class JobApplicationDetailView(generics.RetrieveUpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == "Job Seeker":
+        if user:
             return JobApplication.objects.filter(applicant=user)
-        elif user.user_type == "Employer":
-            company = Company.objects.get(user=user)
-            return JobApplication.objects.filter(job__company=company)
         return JobApplication.objects.none()
 
 
@@ -632,9 +558,8 @@ class UpdateApplicationStatusView(generics.UpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == "Employer":
-            company = Company.objects.get(user=user)
-            return JobApplication.objects.filter(job__company=company)
+        if user:
+            return JobApplication.objects.filter(applicant=user)
         return JobApplication.objects.none()
 
 
@@ -693,10 +618,7 @@ class HireRequestListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == "Employer":
-            company = Company.objects.get(user=user)
-            return HireRequest.objects.filter(job__company=company)
-        if user.user_type == "Job Seeker":
+        if user:
             return HireRequest.objects.filter(job_seeker=user)
         return HireRequest.objects.none()
 
@@ -707,10 +629,7 @@ class HireRequestDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == "Employer":
-            company = Company.objects.get(user=user)
-            return HireRequest.objects.filter(job__company=company)
-        elif user.user_type == "Job Seeker":
+        if user:
             return HireRequest.objects.filter(job_seeker=user)
         return HireRequest.objects.none()
 
@@ -721,7 +640,7 @@ class HireRequestStatusUpdateView(generics.UpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == "Job Seeker":
+        if user:
             return HireRequest.objects.filter(job_seeker=user)
         return HireRequest.objects.none()
 
@@ -921,3 +840,24 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ApprenticeshipApplicationCreateView(generics.CreateAPIView):
+    """
+    API view to create an apprenticeship application with multiple documents.
+    """
+
+    queryset = ApprenticeshipApplication.objects.all()
+    serializer_class = ApprenticeshipApplicationSerializer
+    permission_classes = (permissions.AllowAny,)
+    parser_classes = (parsers.MultiPartParser, parsers.FormParser)
+
+    def perform_create(self, serializer):
+        application = serializer.save()
+
+        # Send email notifications
+        try:
+            send_apprenticeship_application_emails(application)
+        except Exception as e:
+            # Log error but don't fail the request
+            print(f"Failed to send apprenticeship application emails: {e}")

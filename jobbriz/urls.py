@@ -53,11 +53,6 @@ urlpatterns = [
         "jobs/<slug:slug>/view/", views.JobPostViewCountView.as_view(), name="job-view"
     ),
     path("applied-jobs/", views.AppliedJobsView.as_view(), name="applied-jobs"),
-    path(
-        "jobs/company/<slug:company_slug>/",
-        views.CompanyJobListView.as_view(),
-        name="company-jobs",
-    ),
     # Job Applications
     path(
         "jobs/<slug:job_slug>/apply/",
@@ -115,18 +110,20 @@ urlpatterns = [
     ),
     path("jobseekers/", views.JobSeekerListCreateView.as_view(), name="jobseeker-list"),
     path(
+        "internship/register/",
+        views.InternshipRegistrationView.as_view(),
+        name="internship-register",
+    ),
+    path(
+        "apprenticeship/apply/",
+        views.ApprenticeshipApplicationCreateView.as_view(),
+        name="apprenticeship-apply",
+    ),
+    path(
         "jobseekers/<slug:slug>/",
         views.JobSeekerDetailView.as_view(),
         name="jobseeker-detail",
     ),
-    # Company URLs
-    path("companies/", views.CompanyListCreateView.as_view(), name="company-list"),
-    path(
-        "companies/<slug:slug>/",
-        views.CompanyDetailView.as_view(),
-        name="company-detail",
-    ),
-    path("companies-list/", views.CompanyListView.as_view(), name="companies-list"),
     # Location URLs
     path("locations/", views.LocationListCreateView.as_view(), name="location-list"),
     # Industry URLs

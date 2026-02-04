@@ -2,10 +2,10 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin
 
 from .models import (
-
-    Company,
+    ApprenticeshipApplication,
+    ApprenticeshipDocument,
     HireRequest,
-    Industry,
+    InternshipIndustry,
     JobApplication,
     JobPost,
     JobSeeker,
@@ -16,6 +16,32 @@ from .models import (
     SubMajorGroup,
     UnitGroup,
 )
+
+admin.site.register(ApprenticeshipDocument, ModelAdmin)
+
+
+@admin.register(ApprenticeshipApplication)
+class ApprenticeshipApplicationAdmin(ModelAdmin):
+    list_display = (
+        "full_name",
+        "mobile_number",
+        "email_address",
+        "district",
+        "municipality",
+        "ward",
+        "created_at",
+    )
+    list_filter = ("district", "municipality", "ward", "created_at")
+    search_fields = (
+        "full_name",
+        "mobile_number",
+        "email_address",
+        "district",
+        "municipality",
+        "ward",
+    )
+    date_hierarchy = "created_at"
+    readonly_fields = ("created_at",)
 
 
 @admin.register(MajorGroup)
@@ -67,7 +93,7 @@ class UnitGroupAdmin(ModelAdmin):
     )
 
 
-@admin.register(Industry)
+@admin.register(InternshipIndustry)
 class IndustryAdmin(ModelAdmin):
     list_display = ("name",)
 
@@ -76,7 +102,6 @@ class IndustryAdmin(ModelAdmin):
 class JobPostAdmin(ModelAdmin):
     list_display = (
         "title",
-        "company",
         "status",
         "employment_type",
         "required_skill_level",
@@ -90,11 +115,10 @@ class JobPostAdmin(ModelAdmin):
         "employment_type",
         "required_skill_level",
         "required_education",
-        "company",
     )
-    search_fields = ("title", "company__company_name", "description")
+    search_fields = ("title", "description")
     readonly_fields = ("slug", "posted_date", "views_count", "applications_count")
-    autocomplete_fields = ["company", "unit_group", "location"]
+    autocomplete_fields = ["unit_group", "location"]
     date_hierarchy = "posted_date"
     list_editable = ["status"]
 
@@ -147,7 +171,7 @@ class JobPostAdmin(ModelAdmin):
 @admin.register(JobApplication)
 class JobApplicationAdmin(ModelAdmin):
     list_display = ("job", "applicant", "status", "applied_date", "updated_at")
-    list_filter = ("status", "applied_date", "job__company")
+    list_filter = ("status", "applied_date")
     search_fields = (
         "job__title",
         "applicant__user__username",
@@ -167,7 +191,7 @@ class JobApplicationAdmin(ModelAdmin):
 @admin.register(SavedJob)
 class SavedJobAdmin(ModelAdmin):
     list_display = ("job", "job_seeker", "saved_date")
-    list_filter = ("saved_date", "job__company")
+    list_filter = ("saved_date",)
     search_fields = (
         "job__title",
         "job_seeker__user__username",
@@ -183,7 +207,7 @@ class SavedJobAdmin(ModelAdmin):
 @admin.register(HireRequest)
 class HireRequestAdmin(ModelAdmin):
     list_display = ("job", "job_seeker", "status", "requested_date")
-    list_filter = ("status", "requested_date", "job__company")
+    list_filter = ("status", "requested_date")
     search_fields = (
         "job__title",
         "job_seeker__user__username",
@@ -208,13 +232,6 @@ class HireRequestAdmin(ModelAdmin):
             },
         ),
     )
-
-
-@admin.register(Company)
-class CompanyAdmin(ModelAdmin):
-    list_display = ("company_name", "company_email", "company_size")
-    search_fields = ("company_name", "company_email")
-    readonly_fields = ("slug",)
 
 
 @admin.register(JobSeeker)
