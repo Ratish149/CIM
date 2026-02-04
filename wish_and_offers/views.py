@@ -115,6 +115,7 @@ class WishListCreateView(generics.ListCreateAPIView):
                 "type": "Wish",
                 "title": wish.title,
                 "description": wish.description,
+                "item": wish,
             }
             html_message = render_to_string(
                 "email_templates/new_item_notification.html", context
@@ -241,6 +242,7 @@ class OfferListCreateView(generics.ListCreateAPIView):
                 "type": "Offer",
                 "title": offer.title,
                 "description": offer.description,
+                "item": offer,
             }
             html_message = render_to_string(
                 "email_templates/new_item_notification.html", context

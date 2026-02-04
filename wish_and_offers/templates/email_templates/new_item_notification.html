@@ -3,98 +3,279 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New {{ type }} Notification</title>
+    <title>New {{ type }} Notification / नयाँ {{ type }} सूचना</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
-            color: #333333;
+            background-color: #f0f2f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1a202c;
+        }
+        .wrapper {
+            padding: 20px 10px;
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .brand-header {
+            background-color: #2563eb;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .header {
             text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #ed1b24;
         }
-        .header h1 {
-            color: #ed1b24;
-            margin: 0;
-            font-size: 24px;
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 1px;
         }
-        .content {
-            padding: 30px 20px;
-            line-height: 1.6;
+        .logo-slash {
+            color: #ffffff;
         }
-        .item-card {
-            background-color: #f9f9f9;
-            border-left: 4px solid #ed1b24;
-            padding: 15px;
-            margin: 20px 0;
+        .hero-section {
+            padding: 25px 20px;
+            background-color: #ffffff;
+            text-align: center;
+            border-bottom: 1px solid #edf2f7;
         }
-        .item-title {
-            font-weight: bold;
+        .hero-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0 0 5px;
+            color: #1a202c;
+            line-height: 1.2;
+        }
+        .hero-title-ne {
+            display: block;
+            font-size: 16px;
+            color: #4a5568;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        .hero-subtitle {
+            font-size: 14px;
+            color: #2563eb;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        .content-body {
+            padding: 20px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .section-point {
+            width: 6px;
+            height: 6px;
+            background-color: #2563eb;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #718096;
+            letter-spacing: 1.2px;
+        }
+        .data-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .item-name {
             font-size: 18px;
+            font-weight: 700;
+            color: #2563eb;
             margin-bottom: 5px;
-            color: #2c3e50;
         }
-        .item-description {
-            color: #666666;
+        .item-desc {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.5;
             font-style: italic;
         }
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            color: #999999;
-            padding-top: 20px;
-            border-top: 1px solid #eeeeee;
+        .info-grid {
+            display: grid;
+            gap: 12px;
         }
-        .button {
+        .info-item {
+            display: block;
+        }
+        .info-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #1a202c;
+            font-weight: 600;
+        }
+        .info-value-ne {
+            display: block;
+            font-size: 11px;
+            color: #a0aec0;
+            font-weight: 400;
+            margin-top: 1px;
+        }
+        .cta-container {
+            text-align: center;
+            padding: 10px 0 0;
+        }
+        .btn-primary {
             display: inline-block;
-            background-color: #ed1b24;
-            color: #ffffff;
+            background-color: #2563eb;
+            color: #ffffff !important;
             text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 4px;
-            margin-top: 20px;
-            font-weight: bold;
+            padding: 14px 30px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+            transition: all 0.3s ease;
+        }
+        .platform-link {
+            display: block;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #718096;
+            text-decoration: none;
+        }
+        .platform-link strong {
+            color: #1a202c;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            background-color: #f8fafc;
+            border-top: 1px solid #edf2f7;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.5;
+        }
+        .footer-copyright {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div style="padding: 20px;">
+    <div class="wrapper">
         <div class="container">
-            <div class="header">
-                <h1>New {{ type }} Alert!</h1>
+            <div class="brand-header">
+                <a href="https://biratbazaar.com/"><img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="BIRATBAZAR" style="height: 40px; width: auto; border: 0;"></a>
             </div>
-            <div class="content">
-                <p>Hello,</p>
-                <p>A new <strong>{{ type }}</strong> has just been added to the platform that might be relevant to you.</p>
+            
+            <div class="hero-section">
+                <h1 class="hero-title">
+                    New {{ type }} Opportunity Available
+                    <span class="hero-title-ne">नयाँ {{ type }} अवसर उपलब्ध छ।</span>
+                </h1>
+            </div>
+
+            <div class="content-body">
+                <div class="section-header">
+                    <div class="section-point"></div>
+                    <div class="section-title">Item Overview / सामग्रीको विवरण</div>
+                </div>
                 
-                <div class="item-card">
-                    <div class="item-title">{{ title }}</div>
+                <div class="data-card">
+                    <div class="item-name">{{ title }}</div>
                     {% if description %}
-                    <div class="item-description">"{{ description|truncatewords:30 }}"</div>
+                    <div class="item-desc">"{{ description|truncatewords:40 }}"</div>
                     {% endif %}
                 </div>
 
-                <p>Please log in to the platform to view more details and connect.</p>
-                
-                <div style="text-align: center;">
-                    <a href="https://cim.baliyoventures.com/" class="button">View Details</a>
+                <div class="section-header">
+                    <div class="section-point"></div>
+                    <div class="section-title">Contact Information / पठाउनेको विवरण</div>
+                </div>
+
+                <div class="data-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Full Name / पूरा नाम</div>
+                            <div class="info-value">
+                                {% if item.user %}
+                                    {{ item.user.get_full_name|default:item.user.username }}
+                                {% else %}
+                                    {{ item.full_name }}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">Email Address / इमेल इमेल</div>
+                            <div class="info-value">
+                                {% if item.user %}{{ item.user.email }}{% else %}{{ item.email }}{% endif %}
+                            </div>
+                        </div>
+
+                        {% with phone=item.user.phone_number|default:item.mobile_no %}
+                        {% if phone %}
+                        <div class="info-item">
+                            <div class="info-label">Phone Number / फोन नम्बर</div>
+                            <div class="info-value">{{ phone }}</div>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        {% if not item.user and item.alternate_no %}
+                        <div class="info-item">
+                            <div class="info-label">Alt Number / वैकल्पिक फोन</div>
+                            <div class="info-value">{{ item.alternate_no }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if item.company_name or item.user.organizations.first %}
+                        <div class="info-item">
+                            <div class="info-label">Organization / संस्था</div>
+                            <div class="info-value">
+                                {% if item.user and item.user.organizations.first %}
+                                    {{ item.user.organizations.first.name }}
+                                {% else %}
+                                    {{ item.company_name }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cta-container">
+                    
+                    <div class="platform-link">
+                        Please visit <a href="https://biratbazaar.com/" style="color: #2563eb; font-weight: 700; text-decoration: none;">biratbazaar.com</a> for more wishes or offers, or be active in Biratbazar to explore more opportunities.<br>
+                        थप इच्छा वा प्रस्तावहरूको लागि <a href="https://biratbazaar.com/" style="color: #2563eb; font-weight: 700; text-decoration: none;">बिराटबजार</a> भ्रमण गर्नुहोस्, वा थप अवसरहरू अन्वेषण गर्न सक्रिय रहनुहोस्।
+                    </div>
+                    <a href="https://biratbazaar.com/" class="btn-primary">View Full Details / थप विवरण हेर्नुहोस्</a>
                 </div>
             </div>
+
             <div class="footer">
-                <p>&copy; {% now "Y" %} CIM Baliyo Ventures. All rights reserved.</p>
-                <p>You received this email because you are a registered user.</p>
+                <p class="footer-text">
+                    You received this notification because you are a valued member of the Biratbazar ecosystem.<br>
+                </p>
+                <div class="footer-copyright">
+                    &copy; {% now "Y" %} CIM. All rights reserved.
+                </div>
             </div>
         </div>
     </div>
