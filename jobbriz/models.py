@@ -190,6 +190,87 @@ class JobApplication(models.Model):
         super().save(*args, **kwargs)
 
 
+class WorkInterest(models.Model):
+    PROFICIENCY_LEVEL_CHOICES = [
+        ("Beginner", "Beginner"),
+        ("Intermediate", "Intermediate"),
+        ("Expert", "Expert"),
+    ]
+
+    AVAILABILITY_CHOICES = [
+        ("Full Time", "Full Time"),
+        ("Part Time", "Part Time"),
+        ("Internship", "Internship"),
+        ("Freelance", "Freelance"),
+    ]
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="work_interest_profiles",
+        null=True,
+        blank=True,
+    )
+    name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    unit_group = models.ForeignKey(
+        UnitGroup, on_delete=models.CASCADE, related_name="interested_profiles"
+    )
+    title = models.CharField(
+        max_length=255, help_text="e.g. Web Developer, Electrician, Plumber"
+    )
+    summary = models.TextField(
+        help_text="Describe your interest and expertise", blank=True
+    )
+    skills = models.ManyToManyField(
+        "Skill", blank=True, related_name="work_interest_profiles"
+    )
+    proficiency_level = models.CharField(
+        max_length=15, choices=PROFICIENCY_LEVEL_CHOICES
+    )
+    availability = models.CharField(
+        max_length=20, choices=AVAILABILITY_CHOICES, default="Full Time"
+    )
+    preferred_locations = models.ManyToManyField("Location", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "unit_group")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title}"
+
+
+class WorkInterestHire(models.Model):
+    work_interest = models.ForeignKey(
+        WorkInterest,
+        on_delete=models.CASCADE,
+        related_name="hires",
+        null=True,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="hires",
+        null=True,
+        blank=True,
+    )
+    name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+
+    message = models.TextField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Hire Request for {self.work_interest.title}"
+
+
 class HireRequest(models.Model):
     STATUS_CHOICES = [
         ("Pending", "Pending"),

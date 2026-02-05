@@ -4,7 +4,7 @@ import csv
 
 import pandas as pd
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.db.models import Q
 from django.template.loader import render_to_string
@@ -79,7 +79,9 @@ class WishListCreateView(generics.ListCreateAPIView):
             queryset = Wish.objects.all()
 
         if self.request.user.is_authenticated:
-            queryset = queryset.filter(user=self.request.user)
+            queryset = queryset.filter(
+                Q(user=self.request.user) | Q(email=self.request.user.email)
+            )
 
         return queryset.order_by("-created_at")
 
@@ -122,14 +124,15 @@ class WishListCreateView(generics.ListCreateAPIView):
             )
             plain_message = strip_tags(html_message)
             from_email = settings.EMAIL_HOST_USER
-            send_mail(
-                subject,
-                plain_message,
-                from_email,
-                list(recipient_emails),
-                html_message=html_message,
-                fail_silently=True,
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=plain_message,
+                from_email=from_email,
+                to=[from_email],
+                bcc=list(recipient_emails),
             )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=True)
 
         return Response(
             {
@@ -204,7 +207,9 @@ class OfferListCreateView(generics.ListCreateAPIView):
             queryset = Offer.objects.all()
 
         if self.request.user.is_authenticated:
-            queryset = queryset.filter(user=self.request.user)
+            queryset = queryset.filter(
+                Q(user=self.request.user) | Q(email=self.request.user.email)
+            )
 
         return queryset.order_by("-created_at")
 
@@ -249,14 +254,15 @@ class OfferListCreateView(generics.ListCreateAPIView):
             )
             plain_message = strip_tags(html_message)
             from_email = settings.EMAIL_HOST_USER
-            send_mail(
-                subject,
-                plain_message,
-                from_email,
-                list(recipient_emails),
-                html_message=html_message,
-                fail_silently=True,
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=plain_message,
+                from_email=from_email,
+                to=[from_email],
+                bcc=list(recipient_emails),
             )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=True)
 
         return Response(
             {

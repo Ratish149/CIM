@@ -124,6 +124,22 @@ urlpatterns = [
         views.JobSeekerDetailView.as_view(),
         name="jobseeker-detail",
     ),
+    # Work Interest URLs
+    path(
+        "work-interests/",
+        views.WorkInterestListCreateView.as_view(),
+        name="work-interest-list",
+    ),
+    path(
+        "work-interests/<int:pk>/",
+        views.WorkInterestDetailView.as_view(),
+        name="work-interest-detail",
+    ),
+    path(
+        "work-interests/<int:pk>/hire/",
+        views.WorkInterestHireCreateView.as_view(),
+        name="work-interest-hire",
+    ),
     # Location URLs
     path("locations/", views.LocationListCreateView.as_view(), name="location-list"),
     # Industry URLs

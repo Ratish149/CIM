@@ -5,11 +5,14 @@ from django.db import models
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django_filters import rest_framework as django_filters
 from rest_framework import filters, generics, parsers, permissions, status, views
 from rest_framework.exceptions import APIException, NotFound, ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from jobbriz.serializers import WorkInterestListSerializer
 
 from .models import (
     ApprenticeshipApplication,
@@ -29,6 +32,8 @@ from .models import (
     Skill,
     SubMajorGroup,
     UnitGroup,
+    WorkInterest,
+    WorkInterestHire,
 )
 from .serializers import (
     ApprenticeshipApplicationSerializer,
@@ -56,11 +61,14 @@ from .serializers import (
     SubMajorGroupSerializer,
     UnitGroupSerializer,
     UserSerializer,
+    WorkInterestHireSerializer,
+    WorkInterestSerializer,
 )
 from .utils import (
     send_apprenticeship_application_emails,
     send_internship_registration_emails,
     send_job_application_emails,
+    send_work_interest_hire_emails,
 )
 
 
@@ -105,6 +113,8 @@ class JobSeekerDetailView(generics.RetrieveUpdateDestroyAPIView):
 class LocationListCreateView(generics.ListCreateAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
 
 
 class IndustryListCreateView(generics.ListCreateAPIView):
@@ -247,21 +257,20 @@ class CareerHistoryListCreateView(generics.ListCreateAPIView):
 class SkillListCreateView(generics.ListCreateAPIView):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
 
     def perform_create(self, serializer):
-        # Get the JobSeeker instance for the authenticated user
-        try:
-            job_seeker = JobSeeker.objects.get(user=self.request.user)
-        except JobSeeker.DoesNotExist:
-            raise APIException(
-                "You must have a JobSeeker profile to add skills records."
-            )
-
-        # Create the skill record
+        # Save the skill first
         skill = serializer.save()
-        # Add it to the JobSeeker's skills
-        job_seeker.skills.add(skill)
+
+        # Link to JobSeeker profile only if user is authenticated and has a profile
+        if self.request.user.is_authenticated:
+            try:
+                job_seeker = JobSeeker.objects.get(user=self.request.user)
+                job_seeker.skills.add(skill)
+            except JobSeeker.DoesNotExist:
+                pass
 
 
 class SkillDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -340,7 +349,8 @@ class MinorGroupDetailView(generics.RetrieveUpdateDestroyAPIView):
 class UnitGroupListCreateView(generics.ListCreateAPIView):
     queryset = UnitGroup.objects.all()
     serializer_class = UnitGroupSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "code"]
 
     def get_queryset(self):
         minor_groups = self.request.query_params.get("minor_groups")
@@ -861,3 +871,82 @@ class ApprenticeshipApplicationCreateView(generics.CreateAPIView):
         except Exception as e:
             # Log error but don't fail the request
             print(f"Failed to send apprenticeship application emails: {e}")
+
+
+class WorkInterestFilterSet(django_filters.FilterSet):
+    unit_group = django_filters.NumberFilter(
+        field_name="unit_group__id", lookup_expr="exact"
+    )
+    proficiency_level = django_filters.CharFilter(
+        field_name="proficiency_level", lookup_expr="exact"
+    )
+    availability = django_filters.CharFilter(
+        field_name="availability", lookup_expr="exact"
+    )
+    skills = django_filters.CharFilter(method="filter_skills")
+
+    class Meta:
+        model = WorkInterest
+        fields = []
+
+    def filter_skills(self, queryset, name, value):
+        if not value:
+            return queryset
+        skill_names = [s.strip() for s in value.split(",") if s.strip()]
+        if not skill_names:
+            return queryset
+
+        query = Q()
+        for skill_name in skill_names:
+            query |= Q(skills__name__icontains=skill_name)
+
+        return queryset.filter(query).distinct()
+
+
+class WorkInterestListCreateView(generics.ListCreateAPIView):
+    queryset = WorkInterest.objects.all()
+    serializer_class = WorkInterestSerializer
+    filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
+    search_fields = ["title", "skills__name"]
+    filterset_class = WorkInterestFilterSet
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return WorkInterestListSerializer
+        return WorkInterestSerializer
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()
+
+
+class WorkInterestDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = WorkInterest.objects.all()
+    serializer_class = WorkInterestSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return WorkInterestListSerializer
+        return WorkInterestSerializer
+
+
+class WorkInterestHireCreateView(generics.CreateAPIView):
+    queryset = WorkInterestHire.objects.all()
+    serializer_class = WorkInterestHireSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        work_interest_id = self.kwargs.get("pk")
+        work_interest = get_object_or_404(WorkInterest, pk=work_interest_id)
+
+        hire_request = serializer.save(work_interest=work_interest)
+
+        # Send email notifications
+        try:
+            send_work_interest_hire_emails(hire_request)
+        except Exception as e:
+            # Log error but don't fail the request
+            print(f"Failed to send hire request emails: {e}")

@@ -22,6 +22,8 @@ from .models import (
     Skill,
     SubMajorGroup,
     UnitGroup,
+    WorkInterest,
+    WorkInterestHire,
 )
 
 
@@ -686,3 +688,43 @@ class ApprenticeshipApplicationSerializer(serializers.ModelSerializer):
                 )
 
         return application
+
+
+class WorkInterestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkInterest
+        fields = "__all__"
+        read_only_fields = ("created_at", "updated_at", "user")
+
+
+class WorkInterestListSerializer(serializers.ModelSerializer):
+    unit_group = UnitGroupSmallSerializer(read_only=True)
+    skills = SkillSerializer(many=True, read_only=True)
+    preferred_locations = LocationSerializer(many=True, read_only=True)
+    user = UserSerializerForJobSeeker(read_only=True)
+
+    class Meta:
+        model = WorkInterest
+        fields = "__all__"
+        read_only_fields = ("created_at", "updated_at", "user")
+
+
+class WorkInterestHireSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkInterestHire
+        fields = [
+            "id",
+            "work_interest",
+            "name",
+            "email",
+            "phone",
+            "message",
+            "created_at",
+        ]
+        read_only_fields = ["created_at"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user") and request.user.is_authenticated:
+            validated_data["user"] = request.user
+        return super().create(validated_data)

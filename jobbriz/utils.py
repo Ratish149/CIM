@@ -217,3 +217,97 @@ def send_apprenticeship_application_emails(application):
         )
         msg_industry.attach_alternative(html_content_industry, "text/html")
         msg_industry.send()
+
+
+def send_work_interest_hire_emails(hire_request):
+    """
+    Sends email notifications for a new work interest hire request.
+    1. To the Professional: Notification.
+    2. To the Hirer: Confirmation.
+    """
+    work_interest = hire_request.work_interest
+    professional_user = work_interest.user
+    current_year = date.today().year
+
+    # --- 1. Email to Professional ---
+    professional_email = work_interest.email or (
+        professional_user.email if professional_user else None
+    )
+
+    if professional_email:
+        subject_prof = f"New Hire Request: {work_interest.title}"
+        context_prof = {
+            "professional_name": work_interest.name
+            or (
+                f"{professional_user.first_name} {professional_user.last_name}".strip()
+                if professional_user
+                else "Professional"
+            ),
+            "hirer_name": hire_request.name
+            or (
+                f"{hire_request.user.first_name} {hire_request.user.last_name}".strip()
+                if hire_request.user
+                else "Someone"
+            ),
+            "hirer_email": hire_request.email
+            or (hire_request.user.email if hire_request.user else None),
+            "hirer_phone": hire_request.phone,
+            "message": hire_request.message,
+            "work_interest_title": work_interest.title,
+            "current_year": current_year,
+        }
+
+        html_content_prof = render_to_string(
+            "jobbriz/work_interest_hire_notification.html", context_prof
+        )
+        text_content_prof = strip_tags(html_content_prof)
+
+        msg_prof = EmailMultiAlternatives(
+            subject_prof,
+            text_content_prof,
+            settings.DEFAULT_FROM_EMAIL,
+            [professional_email],
+        )
+        msg_prof.attach_alternative(html_content_prof, "text/html")
+        msg_prof.send()
+
+    # --- 2. Email to Hirer ---
+    hirer_email = hire_request.email or (
+        hire_request.user.email if hire_request.user else None
+    )
+
+    if hirer_email:
+        # Use existing professional_name and context for consistency
+        subject_hirer = f"Hire Request Sent: {work_interest.title}"
+        prof_name = work_interest.name or (
+            f"{professional_user.first_name} {professional_user.last_name}".strip()
+            if professional_user
+            else "Professional"
+        )
+
+        context_hirer = {
+            "hirer_name": hire_request.name
+            or (
+                f"{hire_request.user.first_name} {hire_request.user.last_name}".strip()
+                if hire_request.user
+                else "Someone"
+            ),
+            "professional_name": prof_name,
+            "professional_email": professional_email,
+            "work_interest_title": work_interest.title,
+            "current_year": current_year,
+        }
+
+        html_content_hirer = render_to_string(
+            "jobbriz/work_interest_hire_confirmation.html", context_hirer
+        )
+        text_content_hirer = strip_tags(html_content_hirer)
+
+        msg_hirer = EmailMultiAlternatives(
+            subject_hirer,
+            text_content_hirer,
+            settings.DEFAULT_FROM_EMAIL,
+            [hirer_email],
+        )
+        msg_hirer.attach_alternative(html_content_hirer, "text/html")
+        msg_hirer.send()

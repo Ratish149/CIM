@@ -15,9 +15,29 @@ from .models import (
     SavedJob,
     SubMajorGroup,
     UnitGroup,
+    WorkInterest,
+    WorkInterestHire,
 )
 
 admin.site.register(ApprenticeshipDocument, ModelAdmin)
+
+
+@admin.register(WorkInterest)
+class WorkInterestAdmin(ModelAdmin):
+    list_display = ("title", "name", "email", "phone", "created_at", "updated_at")
+    list_filter = ("created_at", "updated_at")
+    search_fields = ("title", "email", "phone")
+    date_hierarchy = "created_at"
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(WorkInterestHire)
+class WorkInterestHireAdmin(ModelAdmin):
+    list_display = ("name", "email", "phone", "created_at", "updated_at")
+    list_filter = ("created_at", "updated_at")
+    search_fields = ("name", "email", "phone")
+    date_hierarchy = "created_at"
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(ApprenticeshipApplication)
