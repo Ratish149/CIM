@@ -400,9 +400,13 @@ class CareerHistory(models.Model):
 
 class InternshipIndustry(models.Model):
     name = models.CharField(max_length=255)
+    logo = models.FileField(
+        upload_to="internship_industry_logos", null=True, blank=True
+    )
+    file_link = models.CharField(max_length=255, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    link = models.TextField(null=True, blank=True)
+    website_link = models.CharField(max_length=255, null=True, blank=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):

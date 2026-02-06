@@ -120,6 +120,8 @@ class LocationListCreateView(generics.ListCreateAPIView):
 class IndustryListCreateView(generics.ListCreateAPIView):
     queryset = InternshipIndustry.objects.all()
     serializer_class = InternshipIndustrySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name"]
 
 
 class LanguageListCreateView(generics.ListCreateAPIView):
