@@ -90,7 +90,6 @@ class JobSeekerDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = JobSeeker.objects.all()
     serializer_class = JobSeekerSerializer2
     permission_classes = (permissions.IsAuthenticated,)
-    lookup_field = "slug"
 
     def get_object(self):
         try:
@@ -262,15 +261,39 @@ class SkillListCreateView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        is_many = isinstance(data, list)
+
+        if isinstance(data, str):
+            # Handle single string input
+            data = {"name": data}
+            is_many = False
+        elif is_many:
+            # Handle list of strings input
+            if data and isinstance(data[0], str):
+                data = [{"name": item} for item in data]
+
+        serializer = self.get_serializer(data=data, many=is_many)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
+
     def perform_create(self, serializer):
         # Save the skill first
-        skill = serializer.save()
+        skill_or_skills = serializer.save()
 
         # Link to JobSeeker profile only if user is authenticated and has a profile
         if self.request.user.is_authenticated:
             try:
                 job_seeker = JobSeeker.objects.get(user=self.request.user)
-                job_seeker.skills.add(skill)
+                if isinstance(skill_or_skills, list):
+                    job_seeker.skills.add(*skill_or_skills)
+                else:
+                    job_seeker.skills.add(skill_or_skills)
             except JobSeeker.DoesNotExist:
                 pass
 

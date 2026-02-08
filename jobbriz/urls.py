@@ -120,7 +120,7 @@ urlpatterns = [
         name="apprenticeship-apply",
     ),
     path(
-        "jobseekers/<slug:slug>/",
+        "jobseekers/detail/",
         views.JobSeekerDetailView.as_view(),
         name="jobseeker-detail",
     ),
