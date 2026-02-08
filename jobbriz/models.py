@@ -146,7 +146,7 @@ class JobPost(SlugMixin, models.Model):
     salary_range_max = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
     )
-    location = models.ManyToManyField("Location", related_name="job_posts")
+    location = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default="Published"
     )
@@ -231,7 +231,7 @@ class WorkInterest(models.Model):
     availability = models.CharField(
         max_length=20, choices=AVAILABILITY_CHOICES, default="Full Time"
     )
-    preferred_locations = models.ManyToManyField("Location", blank=True)
+    preferred_locations = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -483,9 +483,7 @@ class JobSeeker(models.Model):
     )
     work_experience = models.CharField(max_length=200, blank=True, null=True)
     skills = models.ManyToManyField(Skill, blank=True, related_name="job_seeker_skills")
-    preferred_locations = models.ManyToManyField(
-        Location, blank=True, related_name="job_seeker_preferred_locations"
-    )
+    preferred_locations = models.CharField(max_length=255, blank=True, null=True)
     preferred_salary_range_from = models.IntegerField(default=0, blank=True, null=True)
     preferred_salary_range_to = models.IntegerField(default=0, blank=True, null=True)
     remote_work_preference = models.BooleanField(default=False, blank=True, null=True)

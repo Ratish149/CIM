@@ -138,7 +138,9 @@ class JobPostAdmin(ModelAdmin):
     )
     search_fields = ("title", "description")
     readonly_fields = ("slug", "posted_date", "views_count", "applications_count")
-    autocomplete_fields = ["unit_group", "location"]
+    autocomplete_fields = [
+        "unit_group",
+    ]
     date_hierarchy = "posted_date"
     list_editable = ["status"]
 

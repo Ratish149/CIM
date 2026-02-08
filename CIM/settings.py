@@ -39,10 +39,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://alot-decorating-break-while.trycloudflare.com",
+    "https://remarkable-continent-cowboy-genealogy.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://alot-decorating-break-while.trycloudflare.com",
+    "https://remarkable-continent-cowboy-genealogy.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",

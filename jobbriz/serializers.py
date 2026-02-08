@@ -86,7 +86,6 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class JobListAllSerializer(serializers.ModelSerializer):
     user = UserSerializerForJobSeeker(read_only=True)
-    location = LocationSmallSerializer(many=True, read_only=True)
     unit_group = UnitGroupSmallSerializer(read_only=True)
     total_applicant_count = serializers.SerializerMethodField()
     has_already_saved = serializers.SerializerMethodField()
@@ -152,9 +151,6 @@ class JobListAllSerializer(serializers.ModelSerializer):
 
 
 class JobPostListSerializer(serializers.ModelSerializer):
-    location = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Location.objects.all(), required=False
-    )
     applications_count = serializers.IntegerField(read_only=True)
     views_count = serializers.IntegerField(read_only=True)
     unit_group = UnitGroupSerializer(read_only=True)
@@ -188,7 +184,6 @@ class JobPostListSerializer(serializers.ModelSerializer):
 
 
 class JobPostDetailSerializer(serializers.ModelSerializer):
-    location = LocationSerializer(many=True, read_only=True)
     unit_group = UnitGroupSerializer(read_only=True)
     applications_count = serializers.IntegerField(read_only=True)
     views_count = serializers.IntegerField(read_only=True)
@@ -288,12 +283,7 @@ class JobSeekerSerializer(serializers.ModelSerializer):
         many=True, queryset=Language.objects.all(), required=False
     )
     skills = SkillSerializer(many=True, required=False)
-    preferred_locations = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Location.objects.all(), required=False
-    )
-    preferred_unit_groups = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=UnitGroup.objects.all(), required=False
-    )
+
     career_histories = CareerHistorySerializer(many=True, required=False)
 
     class Meta:
@@ -373,7 +363,7 @@ class HireRequestStatusUpdateSerializer(serializers.ModelSerializer):
 
 class HireJobPostListSerializer(serializers.ModelSerializer):
     application_id = serializers.SerializerMethodField()
-    location = LocationSmallSerializer(many=True, read_only=True)
+    # location is now a CharField in model, handled automatically
     unit_group = UnitGroupSmallSerializer(read_only=True)
     has_already_saved = serializers.SerializerMethodField()
 
@@ -469,9 +459,7 @@ class JobSeekerSerializer2(serializers.ModelSerializer):
 class JobPostCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating and updating job posts"""
 
-    location = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Location.objects.all(), required=False
-    )
+    # location handles as CharField from model
     unit_group = serializers.PrimaryKeyRelatedField(queryset=UnitGroup.objects.all())
 
     class Meta:

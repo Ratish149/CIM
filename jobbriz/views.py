@@ -439,7 +439,7 @@ class JobPostListCreateView(generics.ListCreateAPIView):
         # Location filter
         location = self.request.query_params.get("location")
         if location:
-            queryset = queryset.filter(location__name__icontains=location)
+            queryset = queryset.filter(location__icontains=location)
 
         # Employment type filter
         employment_type = self.request.query_params.get("employment_type")
