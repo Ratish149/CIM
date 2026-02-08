@@ -236,7 +236,6 @@ class WorkInterest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("user", "unit_group")
         ordering = ["-created_at"]
 
     def __str__(self):

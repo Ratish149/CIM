@@ -688,7 +688,6 @@ class WorkInterestSerializer(serializers.ModelSerializer):
 class WorkInterestListSerializer(serializers.ModelSerializer):
     unit_group = UnitGroupSmallSerializer(read_only=True)
     skills = SkillSerializer(many=True, read_only=True)
-    preferred_locations = LocationSerializer(many=True, read_only=True)
     user = UserSerializerForJobSeeker(read_only=True)
 
     class Meta:
