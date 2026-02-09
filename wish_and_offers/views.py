@@ -716,3 +716,54 @@ class DataConversionView(generics.CreateAPIView):
         return Response(
             target_serializer(target_obj).data, status=status.HTTP_201_CREATED
         )
+
+
+class TestEmailNotificationView(APIView):
+    def post(self, request, *args, **kwargs):
+        email = request.data.get("email")
+        wish_id = request.data.get("wish_id")
+
+        if not email or not wish_id:
+            return Response(
+                {"error": "Both email and wish_id are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            wish = Wish.objects.get(id=wish_id)
+        except Wish.DoesNotExist:
+            return Response(
+                {"error": "Wish not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        subject = "New Wish Opportunity Available"
+        context = {
+            "type": "Wish",
+            "title": wish.title,
+            "description": wish.description,
+            "item": wish,
+        }
+
+        html_message = render_to_string(
+            "email_templates/new_item_notification.html", context
+        )
+        plain_message = strip_tags(html_message)
+        from_email = settings.EMAIL_HOST_USER
+
+        try:
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=plain_message,
+                from_email=from_email,
+                to=[email],
+            )
+            msg.attach_alternative(html_message, "text/html")
+            msg.send()
+            return Response(
+                {"message": f"Email sent to {email} successfully."},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
