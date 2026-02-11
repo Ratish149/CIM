@@ -25,6 +25,25 @@ class InstituteTokenGenerator(PasswordResetTokenGenerator):
 institute_token_generator = InstituteTokenGenerator()
 
 
+def send_verification_email(institute):
+    uid = urlsafe_base64_encode(force_bytes(institute.pk))
+    token = institute_token_generator.make_token(institute)
+    domain = "https://www.biratbazaar.com"
+    verification_url = f"{domain}/institutes/verify/{uid}/{token}/"
+
+    subject = "Please verify your Institute Email"
+    context = {
+        "institute_name": institute.institute_name,
+        "verification_url": verification_url,
+    }
+    html_content = render_to_string("emails/verify_institute_email.html", context)
+    text_content = strip_tags(html_content)
+
+    email = EmailMultiAlternatives(subject, text_content, to=[institute.email])
+    email.attach_alternative(html_content, "text/html")
+    email.send()
+
+
 class InstituteListCreateView(generics.ListCreateAPIView):
     queryset = Institute.objects.all()
     serializer_class = InstituteSerializer
@@ -38,25 +57,7 @@ class InstituteListCreateView(generics.ListCreateAPIView):
         user.save()
 
         # Send verification email
-        self.send_verification_email(institute)
-
-    def send_verification_email(self, institute):
-        uid = urlsafe_base64_encode(force_bytes(institute.pk))
-        token = institute_token_generator.make_token(institute)
-        domain = "https://www.biratbazaar.com"
-        verification_url = f"{domain}/institutes/verify/{uid}/{token}/"
-
-        subject = "Please verify your Institute Email"
-        context = {
-            "institute_name": institute.institute_name,
-            "verification_url": verification_url,
-        }
-        html_content = render_to_string("emails/verify_institute_email.html", context)
-        text_content = strip_tags(html_content)
-
-        email = EmailMultiAlternatives(subject, text_content, to=[institute.email])
-        email.attach_alternative(html_content, "text/html")
-        email.send()
+        send_verification_email(institute)
 
 
 class InstituteVerifyEmailView(APIView):
@@ -82,6 +83,30 @@ class InstituteVerifyEmailView(APIView):
                 {"error": "Invalid verification link."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class ResendInstituteVerifyEmailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        institute = request.user.institute
+        if not institute:
+            return Response(
+                {"error": "User is not associated with any institute."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if institute.is_verified:
+            return Response(
+                {"message": "Institute is already verified."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        send_verification_email(institute)
+        return Response(
+            {"message": "Verification email resent successfully!"},
+            status=status.HTTP_200_OK,
+        )
 
 
 class InstituteRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):

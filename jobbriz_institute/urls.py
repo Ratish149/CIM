@@ -33,4 +33,9 @@ urlpatterns = [
         views.InstituteVerifyEmailView.as_view(),
         name="institute-verify-email",
     ),
+    path(
+        "institutes/resend-verification/",
+        views.ResendInstituteVerifyEmailView.as_view(),
+        name="institute-resend-verification",
+    ),
 ]
