@@ -5,86 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
             margin: 0;
             padding: 0;
-            background-color: #f4f7f9;
+            background-color: #f0f2f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1a202c;
+        }
+        .wrapper {
+            padding: 20px 10px;
         }
         .container {
             max-width: 600px;
-            margin: 20px auto;
-            background: #ffffff;
-            border-radius: 8px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
-        .header {
-            background-color: #2c3e50;
-            color: #ffffff;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-        }
-        .content {
-            padding: 40px;
-        }
-        .content p {
-            margin-bottom: 20px;
-        }
-        .btn-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .btn {
-            background-color: #3498db;
-            color: #ffffff;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            display: inline-block;
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        .footer {
-            background-color: #ecf0f1;
+        .brand-header {
+            background-color: #2563eb;
             padding: 20px;
             text-align: center;
-            font-size: 12px;
-            color: #7f8c8d;
         }
-        .footer p {
-            margin: 5px 0;
+        .hero-section {
+            padding: 25px 20px;
+            background-color: #ffffff;
+            text-align: center;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .hero-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0 0 5px;
+            color: #1a202c;
+            line-height: 1.2;
+        }
+        .hero-title-ne {
+            display: block;
+            font-size: 16px;
+            color: #4a5568;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        .content-body {
+            padding: 20px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .section-point {
+            width: 6px;
+            height: 6px;
+            background-color: #2563eb;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #718096;
+            letter-spacing: 1.2px;
+        }
+        .data-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .welcome-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .verification-text {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        .cta-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .btn-primary {
+            display: inline-block;
+            background-color: #2563eb;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+            transition: all 0.3s ease;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            background-color: #f8fafc;
+            border-top: 1px solid #edf2f7;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.5;
+        }
+        .footer-copyright {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 15px;
+        }
+        .link-text {
+            word-break: break-all;
+            font-size: 12px;
+            color: #718096;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Verify Your Institute</h1>
-        </div>
-        <div class="content">
-            <p>Hello <strong>{{ institute_name }}</strong>,</p>
-            <p>Thank you for joining our platform. To complete your registration and unlock all features, please verify your email address by clicking the button below:</p>
-            <div class="btn-container">
-                <a href="{{ verification_url }}" class="btn">Verify Email Address</a>
+    <div class="wrapper">
+        <div class="container">
+            <div class="brand-header">
+                <a href="https://biratbazaar.com/"><img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="BIRATBAZAR" style="height: 40px; width: auto; border: 0;"></a>
             </div>
-            <p>If the button above doesn't work, you can also copy and paste the following link into your browser:</p>
-            <p style="word-break: break-all; color: #3498db;">{{ verification_url }}</p>
-            <p>If you didn't create an account, you can safely ignore this email.</p>
-            <p>Best regards,<br>The CIM Team</p>
-        </div>
-        <div class="footer">
-            <p>&copy; 2026 CIM Platform. All rights reserved.</p>
-            <p>Biratnagar, Nepal</p>
+
+            <div class="hero-section">
+                <h1 class="hero-title">
+                    Verify Your Institute Email
+                    <span class="hero-title-ne">तपाईंको संस्थाको ईमेल प्रमाणित गर्नुहोस्</span>
+                </h1>
+            </div>
+
+            <div class="content-body">
+                <div class="section-header">
+                    <div class="section-point"></div>
+                    <div class="section-title">Welcome / स्वागत छ</div>
+                </div>
+
+                <div class="data-card">
+                    <div class="welcome-text">Namaste {{ institute_name }},</div>
+                    <div class="verification-text">
+                        Thank you for joining our platform. To complete your registration and unlock all features, please verify your email address.
+                        <br><br>
+                        हाम्रो प्लेटफर्ममा आबद्ध हुनुभएकोमा धन्यवाद। आफ्नो दर्ता प्रक्रिया पूरा गर्न र सबै सुविधाहरू प्रयोग गर्नका लागि कृपया आफ्नो ईमेल प्रमाणित गर्नुहोस्।
+                    </div>
+                </div>
+
+                <div class="cta-container">
+                    <a href="{{ verification_url }}" class="btn-primary">Verify Email Address / ईमेल प्रमाणित गर्नुहोस्</a>
+                    
+                    <div class="link-text">
+                        If the button above doesn't work, copy and paste this link:<br>
+                        <span style="color: #2563eb;">{{ verification_url }}</span>
+                    </div>
+                </div>
+
+                <p style="font-size: 13px; color: #718096; text-align: center;">
+                    If you didn't create an account, you can safely ignore this email.
+                </p>
+            </div>
+
+            <div class="footer">
+                <p class="footer-text">
+                    Best regards,<br>
+                    <strong>The CIM Team</strong>
+                </p>
+                <div class="footer-copyright">
+                    &copy; {% now "Y" %} CIM Platform. Biratnagar, Nepal.
+                </div>
+            </div>
         </div>
     </div>
 </body>

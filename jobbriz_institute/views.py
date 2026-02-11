@@ -42,12 +42,9 @@ class InstituteListCreateView(generics.ListCreateAPIView):
 
     def send_verification_email(self, institute):
         uid = urlsafe_base64_encode(force_bytes(institute.pk))
-        print("uid", uid)
         token = institute_token_generator.make_token(institute)
-        print("token", token)
-        domain = "http://localhost:3000"
+        domain = "https://www.biratbazaar.com"
         verification_url = f"{domain}/institutes/verify/{uid}/{token}/"
-        print("verification_url", verification_url)
 
         subject = "Please verify your Institute Email"
         context = {
