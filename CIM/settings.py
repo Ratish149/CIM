@@ -15,10 +15,9 @@ from datetime import timedelta
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
+from dotenv import load_dotenv
 
-# from dotenv import load_dotenv
-
-# load_dotenv()
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,10 +38,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://remarkable-continent-cowboy-genealogy.trycloudflare.com",
+    "https://inline-pose-advisory-cottage.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://remarkable-continent-cowboy-genealogy.trycloudflare.com",
+    "https://inline-pose-advisory-cottage.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",
@@ -83,6 +82,8 @@ INSTALLED_APPS = [
     "tinymce",
     "django_filters",
     "jobbriz",
+    "jobbriz_institute",
+    "experience_zone",
 ]
 
 SITE_ID = 1
@@ -125,6 +126,7 @@ WSGI_APPLICATION = "CIM.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
 
 """ DATABASES = {
     "default": {

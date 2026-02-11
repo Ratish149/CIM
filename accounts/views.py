@@ -43,6 +43,10 @@ class UserRegistrationView(generics.CreateAPIView):
         refresh["email"] = user.email
         refresh["phone_number"] = user.phone_number
         refresh["address"] = user.address
+
+        is_institute_verified = user.institute.is_verified if user.institute else False
+        refresh["is_institute_verified"] = is_institute_verified
+
         return Response(
             {
                 "refresh": str(refresh),
@@ -81,6 +85,12 @@ class UserLoginView(generics.CreateAPIView):
         refresh["email"] = user.email
         refresh["phone_number"] = user.phone_number
         refresh["address"] = user.address
+        refresh["is_institute"] = user.has_institute
+        refresh["institute"] = user.institute.id if user.institute else None
+
+        is_institute_verified = user.institute.is_verified if user.institute else False
+        refresh["is_institute_verified"] = is_institute_verified
+
         return Response(
             {
                 "refresh": str(refresh),

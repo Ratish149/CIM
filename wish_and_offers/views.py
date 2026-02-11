@@ -64,6 +64,51 @@ class WishFilterSet(django_filters.FilterSet):
         fields = []
 
 
+def send_new_item_notification(item):
+    """
+    Sends an email notification to all users who have created either a Wish or an Offer.
+    """
+    recipient_emails = set()
+
+    # Collect emails from all Offers
+    for offer in Offer.objects.all():
+        if offer.user and offer.user.email:
+            recipient_emails.add(offer.user.email)
+        elif offer.email:
+            recipient_emails.add(offer.email)
+
+    # Collect emails from all Wishes
+    for wish in Wish.objects.all():
+        if wish.user and wish.user.email:
+            recipient_emails.add(wish.user.email)
+        elif wish.email:
+            recipient_emails.add(wish.email)
+
+    if recipient_emails:
+        item_type = "Wish" if isinstance(item, Wish) else "Offer"
+        subject = f"New {item_type} Added"
+        context = {
+            "type": item_type,
+            "title": item.title,
+            "description": item.description,
+            "item": item,
+        }
+        html_message = render_to_string(
+            "email_templates/new_item_notification.html", context
+        )
+        plain_message = strip_tags(html_message)
+        from_email = settings.EMAIL_HOST_USER
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_message,
+            from_email=from_email,
+            to=[from_email],
+            bcc=list(recipient_emails),
+        )
+        email.attach_alternative(html_message, "text/html")
+        email.send(fail_silently=True)
+
+
 class WishListCreateView(generics.ListCreateAPIView):
     serializer_class = WishSerializer
     filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
@@ -102,37 +147,8 @@ class WishListCreateView(generics.ListCreateAPIView):
         # Retrieve matches for the created wish
         match_objects = Match.objects.filter(wish=wish)
 
-        # Send email to all Offer creators
-        offers = Offer.objects.all()
-        recipient_emails = set()
-        for offer in offers:
-            if offer.user and offer.user.email:
-                recipient_emails.add(offer.user.email)
-            elif offer.email:
-                recipient_emails.add(offer.email)
-
-        if recipient_emails:
-            subject = "New Wish Added"
-            context = {
-                "type": "Wish",
-                "title": wish.title,
-                "description": wish.description,
-                "item": wish,
-            }
-            html_message = render_to_string(
-                "email_templates/new_item_notification.html", context
-            )
-            plain_message = strip_tags(html_message)
-            from_email = settings.EMAIL_HOST_USER
-            email = EmailMultiAlternatives(
-                subject=subject,
-                body=plain_message,
-                from_email=from_email,
-                to=[from_email],
-                bcc=list(recipient_emails),
-            )
-            email.attach_alternative(html_message, "text/html")
-            email.send(fail_silently=True)
+        # Send email to both Wish and Offer creators
+        send_new_item_notification(wish)
 
         return Response(
             {
@@ -232,37 +248,8 @@ class OfferListCreateView(generics.ListCreateAPIView):
         # Retrieve matches for the created offer
         match_objects = Match.objects.filter(offer=offer)
 
-        # Send email to all Wish creators
-        wishes = Wish.objects.all()
-        recipient_emails = set()
-        for wish_obj in wishes:
-            if wish_obj.user and wish_obj.user.email:
-                recipient_emails.add(wish_obj.user.email)
-            elif wish_obj.email:
-                recipient_emails.add(wish_obj.email)
-
-        if recipient_emails:
-            subject = "New Offer Added"
-            context = {
-                "type": "Offer",
-                "title": offer.title,
-                "description": offer.description,
-                "item": offer,
-            }
-            html_message = render_to_string(
-                "email_templates/new_item_notification.html", context
-            )
-            plain_message = strip_tags(html_message)
-            from_email = settings.EMAIL_HOST_USER
-            email = EmailMultiAlternatives(
-                subject=subject,
-                body=plain_message,
-                from_email=from_email,
-                to=[from_email],
-                bcc=list(recipient_emails),
-            )
-            email.attach_alternative(html_message, "text/html")
-            email.send(fail_silently=True)
+        # Send email to both Wish and Offer creators
+        send_new_item_notification(offer)
 
         return Response(
             {

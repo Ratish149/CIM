@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .header { color: #1a73e8; font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .footer { margin-top: 30px; font-size: 12px; color: #777; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Booking Confirmed!</div>
+        <p>Dear {{ booking.contact_person }},</p>
+        <p>Thank you for applying for the <strong>CIM Industry Experience Zone</strong>.</p>
+        <p>Your slot for <strong>{{ month }}</strong> has been officially <strong>Confirmed</strong>.</p>
+        <p><strong>Booking Details:</strong></p>
+        <ul>
+            <li><strong>Company:</strong> {{ booking.company_name }}</li>
+            <li><strong>Month:</strong> {{ month }}</li>
+            <li><strong>Category:</strong> {{ booking.get_category_display }}</li>
+        </ul>
+        <p>Our team will contact you soon with further instructions for the setup and display.</p>
+        <p>Best regards,<br>CIM Team</p>
+        <div class="footer">
+            This is an automated message from Chamber of Industries Morang (CIM).
+        </div>
+    </div>
+</body>
+</html>
