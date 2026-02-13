@@ -70,8 +70,14 @@ class CustomHeadlessAdapter(DefaultHeadlessAdapter):
             ret["access_token"] = str(refresh.access_token)
             ret["refresh_token"] = str(refresh)
 
-        except Exception:
-            return ValueError("Error creating token")
+        except Exception as e:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error creating JWT token for user {user.id}: {str(e)}")
+            # Return basic user info without tokens as fallback
+            # The frontend should handle this case
+            ret["error"] = "Token creation failed"
 
         print("CustomHeadlessAdapter serialize_user", ret)
 
