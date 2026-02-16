@@ -39,10 +39,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://inline-pose-advisory-cottage.trycloudflare.com",
+    "https://computational-disable-thanksgiving-find.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://inline-pose-advisory-cottage.trycloudflare.com",
+    "https://computational-disable-thanksgiving-find.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",

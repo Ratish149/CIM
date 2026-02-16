@@ -320,6 +320,8 @@ class MajorGroupListCreateView(generics.ListCreateAPIView):
     queryset = MajorGroup.objects.all()
     serializer_class = MajorGroupSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "code"]
 
 
 class MajorGroupDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -333,6 +335,8 @@ class SubMajorGroupListCreateView(generics.ListCreateAPIView):
     queryset = SubMajorGroup.objects.all()
     serializer_class = SubMajorGroupSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "code"]
 
     def get_queryset(self):
         major_groups = self.request.query_params.get("major_groups")
@@ -353,6 +357,8 @@ class MinorGroupListCreateView(generics.ListCreateAPIView):
     queryset = MinorGroup.objects.all()
     serializer_class = MinorGroupSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "code"]
 
     def get_queryset(self):
         sub_major_groups = self.request.query_params.get("sub_major_groups")
