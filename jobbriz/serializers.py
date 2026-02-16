@@ -512,6 +512,7 @@ class InternshipRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobSeeker
         fields = [
+            "id",
             "full_name",
             "permanent_district",
             "permanent_municipality",

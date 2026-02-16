@@ -115,9 +115,24 @@ urlpatterns = [
         name="internship-register",
     ),
     path(
+        "internship/register/<int:pk>/",
+        views.InternshipDetailView.as_view(),
+        name="internship-detail",
+    ),
+    path(
         "apprenticeship/apply/",
         views.ApprenticeshipApplicationCreateView.as_view(),
         name="apprenticeship-apply",
+    ),
+    path(
+        "apprenticeship/applications/",
+        views.ApprenticeshipApplicationListView.as_view(),
+        name="apprenticeship-applications",
+    ),
+    path(
+        "apprenticeship/applications/<int:pk>/",
+        views.ApprenticeshipApplicationDetailView.as_view(),
+        name="apprenticeship-application-detail",
     ),
     path(
         "jobseekers/detail/",

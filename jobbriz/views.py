@@ -72,6 +72,12 @@ from .utils import (
 )
 
 
+class CustomPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class HasJobseekerProfileView(APIView):
     def get(self, request):
         return Response(JobSeeker.objects.filter(user=request.user).exists())
@@ -137,6 +143,7 @@ class InternshipRegistrationView(generics.ListCreateAPIView):
     serializer_class = InternshipRegistrationSerializer
     permission_classes = (permissions.AllowAny,)
     parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser)
+    pagination_class = CustomPagination
 
     def perform_create(self, serializer):
         # Save the job seeker profile
@@ -148,6 +155,11 @@ class InternshipRegistrationView(generics.ListCreateAPIView):
         except Exception as e:
             # Log error but don't fail the request
             print(f"Failed to send internship registration emails: {e}")
+
+
+class InternshipDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = JobSeeker.objects.all()
+    serializer_class = InternshipRegistrationSerializer
 
 
 class CertificationListCreateView(generics.ListCreateAPIView):
@@ -398,12 +410,6 @@ class UnitGroupDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = "slug"
 
 
-class CustomPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = "page_size"
-    max_page_size = 100
-
-
 class JobPostListCreateView(generics.ListCreateAPIView):
     serializer_class = JobPostListSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -518,7 +524,6 @@ class MyJobListView(generics.ListAPIView):
 class JobPostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = JobPost.objects.all()
     serializer_class = JobPostDetailSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = "slug"
 
 
@@ -902,6 +907,29 @@ class ApprenticeshipApplicationCreateView(generics.CreateAPIView):
         except Exception as e:
             # Log error but don't fail the request
             print(f"Failed to send apprenticeship application emails: {e}")
+
+
+class ApprenticeshipApplicationListView(generics.ListAPIView):
+    """
+    API view to list all apprenticeship applications.
+    """
+
+    queryset = ApprenticeshipApplication.objects.all()
+    serializer_class: type[ApprenticeshipApplicationSerializer] = (
+        ApprenticeshipApplicationSerializer
+    )
+    pagination_class = CustomPagination
+
+
+class ApprenticeshipApplicationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API view to retrieve an apprenticeship application.
+    """
+
+    queryset = ApprenticeshipApplication.objects.all()
+    serializer_class: type[ApprenticeshipApplicationSerializer] = (
+        ApprenticeshipApplicationSerializer
+    )
 
 
 class WorkInterestFilterSet(django_filters.FilterSet):

@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.template.loader import render_to_string
-from django.utils import timezone
 from django.utils.html import strip_tags
 from rest_framework import generics
 from rest_framework.response import Response
@@ -16,10 +15,17 @@ class ExperienceZoneBookingCreateView(generics.ListCreateAPIView):
     serializer_class = ExperienceZoneBookingSerializer
 
     def get_queryset(self):
-        now = timezone.now()
-        return ExperienceZoneBooking.objects.filter(
-            preferred_month__year=now.year, preferred_month__month=now.month
-        ).order_by("-created_at")
+        queryset = ExperienceZoneBooking.objects.all().order_by("-created_at")
+
+        month = self.request.query_params.get("month")
+        year = self.request.query_params.get("year")
+
+        if year:
+            queryset = queryset.filter(preferred_month__year=year)
+        if month:
+            queryset = queryset.filter(preferred_month__month=month)
+
+        return queryset
 
     def perform_create(self, serializer):
         instance = serializer.save()
@@ -52,6 +58,11 @@ class ExperienceZoneBookingCreateView(generics.ListCreateAPIView):
         except Exception as e:
             # Log the error (can extend this to a proper logger)
             print(f"Failed to send email: {e}")
+
+
+class ExperienceZoneBookingUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ExperienceZoneBookingSerializer
+    queryset = ExperienceZoneBooking.objects.all()
 
 
 class ExperienceZoneOccupancyView(APIView):
