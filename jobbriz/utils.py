@@ -98,6 +98,7 @@ def send_internship_registration_emails(job_seeker):
     """
     industry = job_seeker.internship_industry
     current_year = date.today().year
+    bcc_list = [settings.ADMIN_EMAIL] if settings.ADMIN_EMAIL else []
 
     # --- 1. Email to Job Seeker ---
     if job_seeker.email:
@@ -143,6 +144,7 @@ def send_internship_registration_emails(job_seeker):
             text_content_industry,
             settings.DEFAULT_FROM_EMAIL,
             [industry.email],
+            bcc=bcc_list,
         )
         msg_industry.attach_alternative(html_content_industry, "text/html")
         msg_industry.send()
@@ -155,6 +157,7 @@ def send_apprenticeship_application_emails(application):
     2. To the Preferred Industries: Notification.
     """
     current_year = date.today().year
+    bcc_list = [settings.ADMIN_EMAIL] if settings.ADMIN_EMAIL else []
 
     # --- 1. Email to Applicant ---
     if application.email_address:
@@ -214,6 +217,7 @@ def send_apprenticeship_application_emails(application):
             text_content_industry,
             settings.DEFAULT_FROM_EMAIL,
             list(industry_emails),
+            bcc=bcc_list,
         )
         msg_industry.attach_alternative(html_content_industry, "text/html")
         msg_industry.send()
@@ -228,6 +232,7 @@ def send_work_interest_hire_emails(hire_request):
     work_interest = hire_request.work_interest
     professional_user = work_interest.user
     current_year = date.today().year
+    bcc_list = [settings.ADMIN_EMAIL] if settings.ADMIN_EMAIL else []
 
     # --- 1. Email to Professional ---
     professional_email = work_interest.email or (
@@ -267,6 +272,7 @@ def send_work_interest_hire_emails(hire_request):
             text_content_prof,
             settings.DEFAULT_FROM_EMAIL,
             [professional_email],
+            bcc=bcc_list,
         )
         msg_prof.attach_alternative(html_content_prof, "text/html")
         msg_prof.send()
