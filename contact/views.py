@@ -3,16 +3,30 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Newsletter
+from .models import Contact, Newsletter
 from .serializers import ContactSerializer, NewsletterSerializer
 
 # Create your views here.
 
 
+class CustomPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class ContactView(APIView):
+    def get(self, request):
+        contacts = Contact.objects.all().order_by("-created_at")
+        paginator = CustomPagination()
+        result_page = paginator.paginate_queryset(contacts, request)
+        serializer = ContactSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
     def post(self, request):
         serializer = ContactSerializer(data=request.data)
         if serializer.is_valid():

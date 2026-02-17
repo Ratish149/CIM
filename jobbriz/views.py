@@ -130,6 +130,11 @@ class IndustryListCreateView(generics.ListCreateAPIView):
     search_fields = ["name"]
 
 
+class InternshipIndustryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = InternshipIndustry.objects.all()
+    serializer_class = InternshipIndustrySerializer
+
+
 class LanguageListCreateView(generics.ListCreateAPIView):
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer

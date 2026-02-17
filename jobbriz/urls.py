@@ -159,6 +159,11 @@ urlpatterns = [
     path("locations/", views.LocationListCreateView.as_view(), name="location-list"),
     # Industry URLs
     path("industries/", views.IndustryListCreateView.as_view(), name="industry-list"),
+    path(
+        "industries/<int:pk>/",
+        views.InternshipIndustryDetailView.as_view(),
+        name="industry-detail",
+    ),
     # Additional Model URLs
     path("languages/", views.LanguageListCreateView.as_view(), name="language-list"),
     path("skills/", views.SkillListCreateView.as_view(), name="skill-list"),
