@@ -526,6 +526,117 @@ class JobSeeker(models.Model):
         super().save(*args, **kwargs)
 
 
+class Internship(models.Model):
+    LEVEL_CHOICES = [
+        ("RPL", "RPL"),
+        ("Level 1", "Level 1"),
+        ("Level 2", "Level 2"),
+        ("Level 3", "Level 3"),
+        ("Level 4", "Level 4"),
+        ("Level 5", "Level 5"),
+        ("Level 6", "Level 6"),
+        ("Level 7", "Level 7"),
+        ("Level 8", "Level 8"),
+        ("None", "None"),
+    ]
+
+    AVAILABILITY_CHOICES = [
+        ("Full Time", "Full Time"),
+        ("Part Time", "Part Time"),
+        ("Shift Based", "Shift Based"),
+        ("Contract", "Contract"),
+        ("Internship", "Internship"),
+    ]
+
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    full_name = models.CharField(max_length=255, null=True, blank=True)
+    permanent_province = models.CharField(max_length=255, null=True, blank=True)
+    permanent_district = models.CharField(max_length=255, null=True, blank=True)
+    permanent_municipality = models.CharField(max_length=255, null=True, blank=True)
+    permanent_ward = models.CharField(max_length=255, null=True, blank=True)
+    current_province = models.CharField(max_length=255, null=True, blank=True)
+    current_district = models.CharField(max_length=255, null=True, blank=True)
+    current_municipality = models.CharField(max_length=255, null=True, blank=True)
+    current_ward = models.CharField(max_length=255, null=True, blank=True)
+    contact_number = models.CharField(max_length=15, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    internship_industry = models.ForeignKey(
+        InternshipIndustry, on_delete=models.CASCADE, null=True, blank=True
+    )
+    supervisor_name = models.CharField(max_length=255, null=True, blank=True)
+    supervisor_email = models.EmailField(null=True, blank=True)
+    supervisor_phone = models.CharField(max_length=255, null=True, blank=True)
+    preferred_department = models.CharField(max_length=255, null=True, blank=True)
+    internship_duration = models.CharField(max_length=255, null=True, blank=True)
+    internship_month = models.CharField(max_length=255, null=True, blank=True)
+    preferred_start_date = models.DateField(null=True, blank=True)
+    motivational_letter = models.TextField(null=True, blank=True)
+
+    cv = models.FileField(upload_to="internship_cvs/", blank=True, null=True)
+    skill_levels = models.CharField(
+        max_length=200, choices=LEVEL_CHOICES, default="None", blank=True, null=True
+    )
+    education = models.ManyToManyField(Education, blank=True)
+    career_history = models.ManyToManyField(
+        CareerHistory, blank=True, related_name="internship_seeker_career_history"
+    )
+    preferred_unit_groups = models.ManyToManyField(
+        "jobbriz.UnitGroup",
+        blank=True,
+        related_name="internship_seeker_preferred_unit_groups",
+    )
+    work_experience = models.CharField(max_length=200, blank=True, null=True)
+    skills = models.ManyToManyField(
+        Skill, blank=True, related_name="internship_seeker_skills"
+    )
+    preferred_locations = models.CharField(max_length=255, blank=True, null=True)
+    preferred_salary_range_from = models.IntegerField(default=0, blank=True, null=True)
+    preferred_salary_range_to = models.IntegerField(default=0, blank=True, null=True)
+    remote_work_preference = models.BooleanField(default=False, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    availability = models.CharField(
+        max_length=50,
+        choices=AVAILABILITY_CHOICES,
+        default="Full Time",
+        blank=True,
+        null=True,
+    )
+    certifications = models.ManyToManyField(
+        Certification, blank=True, related_name="internship_seeker_certifications"
+    )
+    languages = models.ManyToManyField(
+        Language, blank=True, related_name="internship_seeker_languages"
+    )
+    slug = models.SlugField(max_length=255, unique=True)
+
+    def __str__(self):
+        if self.user:
+            return f"Job Seeker - {self.user.username}"
+        return f"Job Seeker - {self.full_name or 'Guest'}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            if self.user:
+                base_slug = slugify(self.user.username)
+            elif self.full_name:
+                base_slug = slugify(self.full_name)
+            else:
+                base_slug = "guest-intern"
+
+            slug = base_slug
+            counter = 1
+            # Check if slug exists and generate a unique one
+            while Internship.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+
 class ApprenticeshipApplication(models.Model):
     GENDER_CHOICES = [
         ("Male", "Male"),

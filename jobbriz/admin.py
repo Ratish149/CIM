@@ -5,6 +5,7 @@ from .models import (
     ApprenticeshipApplication,
     ApprenticeshipDocument,
     HireRequest,
+    Internship,
     InternshipIndustry,
     JobApplication,
     JobPost,
@@ -258,6 +259,23 @@ class HireRequestAdmin(ModelAdmin):
 
 @admin.register(JobSeeker)
 class JobSeekerAdmin(ModelAdmin):
+    list_display = (
+        "user",
+        "availability",
+        "preferred_salary_range_from",
+        "preferred_salary_range_to",
+    )
+    search_fields = (
+        "user__username",
+        "user__email",
+        "user__first_name",
+        "user__last_name",
+    )
+    readonly_fields = ("slug",)
+
+
+@admin.register(Internship)
+class InternshipAdmin(ModelAdmin):
     list_display = (
         "user",
         "availability",

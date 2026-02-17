@@ -20,6 +20,7 @@ from .models import (
     Certification,
     Education,
     HireRequest,
+    Internship,
     InternshipIndustry,
     JobApplication,
     JobPost,
@@ -139,7 +140,7 @@ class InternshipRegistrationView(generics.ListCreateAPIView):
     API view to register a new user and create an internship profile in one call.
     """
 
-    queryset = JobSeeker.objects.all()
+    queryset = Internship.objects.all()
     serializer_class = InternshipRegistrationSerializer
     permission_classes = (permissions.AllowAny,)
     parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser)
@@ -158,7 +159,7 @@ class InternshipRegistrationView(generics.ListCreateAPIView):
 
 
 class InternshipDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = JobSeeker.objects.all()
+    queryset = Internship.objects.all()
     serializer_class = InternshipRegistrationSerializer
 
 

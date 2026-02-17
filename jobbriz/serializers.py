@@ -10,6 +10,7 @@ from .models import (
     Certification,
     Education,
     HireRequest,
+    Internship,
     InternshipIndustry,
     JobApplication,
     JobPost,
@@ -510,7 +511,7 @@ class InternshipRegistrationSerializer(serializers.ModelSerializer):
     documents = serializers.ListField(required=False, write_only=True)
 
     class Meta:
-        model = JobSeeker
+        model = Internship
         fields = [
             "id",
             "full_name",
@@ -573,7 +574,7 @@ class InternshipRegistrationSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def create(self, validated_data):
-        """Create JobSeeker with education and documents."""
+        """Create Internship seekr with education and documents."""
         request = self.context.get("request")
 
         # Extract education and documents
@@ -587,13 +588,13 @@ class InternshipRegistrationSerializer(serializers.ModelSerializer):
         # Determine user
         user = request.user if request and request.user.is_authenticated else None
 
-        # Create or update JobSeeker
+        # Create or update Internship seeker
         if user:
-            job_seeker, created = JobSeeker.objects.update_or_create(
+            internship_seeker, created = Internship.objects.update_or_create(
                 user=user, defaults=validated_data
             )
         else:
-            job_seeker = JobSeeker.objects.create(user=None, **validated_data)
+            internship_seeker = Internship.objects.create(user=None, **validated_data)
 
         # Create and add education records
         for edu_data in education_list:
@@ -606,7 +607,7 @@ class InternshipRegistrationSerializer(serializers.ModelSerializer):
                     year_of_completion=edu_data.get("year_of_completion"),
                     course_highlights=edu_data.get("course_highlights", ""),
                 )
-                job_seeker.education.add(education)
+                internship_seeker.education.add(education)
             except Exception as e:
                 print(f"Error creating education: {e}")
 
@@ -619,11 +620,11 @@ class InternshipRegistrationSerializer(serializers.ModelSerializer):
                         issuing_organisation="Internship Document",
                         image=doc_file,
                     )
-                    job_seeker.certifications.add(certification)
+                    internship_seeker.certifications.add(certification)
                 except Exception as e:
                     print(f"Error creating certification: {e}")
 
-        return job_seeker
+        return internship_seeker
 
 
 class ApprenticeshipDocumentSerializer(serializers.ModelSerializer):
