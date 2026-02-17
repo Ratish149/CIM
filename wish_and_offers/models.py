@@ -1,7 +1,7 @@
 from difflib import SequenceMatcher
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -171,13 +171,19 @@ class Wish(Detail):
         plain_message = strip_tags(html_message)
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [self.email] + [match.offer.email for match in matches]
-        send_mail(
-            subject,
-            plain_message,
-            from_email,
-            recipient_list,
-            html_message=html_message,
+
+        if settings.ADMIN_EMAIL and settings.ADMIN_EMAIL not in recipient_list:
+            recipient_list.append(settings.ADMIN_EMAIL)
+
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_message,
+            from_email=from_email,
+            to=[from_email],
+            bcc=recipient_list,
         )
+        email.attach_alternative(html_message, "text/html")
+        email.send(fail_silently=False)
 
 
 class Offer(Detail):
@@ -265,13 +271,19 @@ class Offer(Detail):
         plain_message = strip_tags(html_message)
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [self.email] + [match.wish.email for match in matches]
-        send_mail(
-            subject,
-            plain_message,
-            from_email,
-            recipient_list,
-            html_message=html_message,
+
+        if settings.ADMIN_EMAIL and settings.ADMIN_EMAIL not in recipient_list:
+            recipient_list.append(settings.ADMIN_EMAIL)
+
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_message,
+            from_email=from_email,
+            to=[from_email],
+            bcc=recipient_list,
         )
+        email.attach_alternative(html_message, "text/html")
+        email.send(fail_silently=False)
 
 
 class Match(models.Model):

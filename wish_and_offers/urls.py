@@ -17,7 +17,6 @@ from .views import (
     ServiceRetrieveUpdateDestroyView,
     SubCategoryListView,
     SubCategoryRetrieveUpdateDestroyView,
-    TestEmailNotificationView,
     WishListCreateView,
     WishRetrieveUpdateDestroyView,
 )
@@ -92,9 +91,4 @@ urlpatterns = [
     path("hs-codes/", HSCodeListView.as_view(), name="hs-code-list"),
     path("hs-codes/upload/", HSCodeBulkUploadView.as_view(), name="hs-code-upload"),
     path("convert-data/", DataConversionView.as_view(), name="data-conversion"),
-    path(
-        "test-email/",
-        TestEmailNotificationView.as_view(),
-        name="test-email-notification",
-    ),
 ]
