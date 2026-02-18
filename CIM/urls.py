@@ -39,6 +39,7 @@ urlpatterns = [
     path("api/", include("jobbriz.urls")),
     path("api/", include("jobbriz_institute.urls")),
     path("api/", include("experience_zone.urls")),
+    path("api/", include("incubation_center.urls")),
     path("accounts/", include("allauth.urls")),
     path("_allauth/", include("allauth.headless.urls")),
     path("accounts/", include("allauth.socialaccount.urls")),

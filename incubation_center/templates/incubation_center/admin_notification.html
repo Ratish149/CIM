@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Incubation Center Booking / नयाँ इन्कुबेसन सेन्टर बुकिङ</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f0f2f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a202c; }
+        .wrapper { padding: 20px 10px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .brand-header { background-color: #2563eb; padding: 20px; text-align: center; }
+        .hero-section { padding: 25px 20px; background-color: #ffffff; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .hero-title { font-size: 22px; font-weight: 800; margin: 0 0 5px; color: #1a202c; line-height: 1.2; }
+        .hero-title-ne { display: block; font-size: 16px; color: #4a5568; font-weight: 600; margin-top: 5px; }
+        .content-body { padding: 20px; }
+        .section-header { display: flex; align-items: center; margin-bottom: 12px; }
+        .section-point { width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%; margin-right: 10px; }
+        .section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #718096; letter-spacing: 1.2px; }
+        .data-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .info-grid { display: grid; gap: 12px; }
+        .info-item { display: block; }
+        .info-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 2px; }
+        .info-value { font-size: 14px; color: #1a202c; font-weight: 600; }
+        .footer { padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #edf2f7; }
+        .footer-text { font-size: 12px; color: #718096; line-height: 1.5; }
+        .footer-copyright { font-size: 11px; color: #a0aec0; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="brand-header">
+                <a href="https://biratbazaar.com/"><img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="BIRATBAZAR" style="height: 40px; width: auto; border: 0;"></a>
+            </div>
+            
+            <div class="hero-section">
+                <h1 class="hero-title">
+                    New Booking Request
+                    <span class="hero-title-ne">नयाँ बुकिङ अनुरोध</span>
+                </h1>
+            </div>
+
+            <div class="content-body">
+                <div class="section-header">
+                    <div class="section-point"></div>
+                    <div class="section-title">Applicant Details / आवेदक विवरण</div>
+                </div>
+                
+                <div class="data-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Full Name / पूरा नाम</div>
+                            <div class="info-value">{{ instance.full_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email / इमेल</div>
+                            <div class="info-value">{{ instance.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone / फोन</div>
+                            <div class="info-value">{{ instance.phone }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Company Name / कम्पनीको नाम</div>
+                            <div class="info-value">{{ instance.name }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <div class="section-point"></div>
+                    <div class="section-title">Booking Details / बुकिङ विवरण</div>
+                </div>
+
+                <div class="data-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Purpose / उद्देश्य</div>
+                            <div class="info-value">{{ instance.purpose }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Booking Type / बुकिङ प्रकार</div>
+                            <div class="info-value">{{ instance.booking_type }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Date / मिति</div>
+                            <div class="info-value">{{ instance.booking_date }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Time / समय</div>
+                            <div class="info-value">{{ instance.start_time }} - {{ instance.end_time }}</div>
+                        </div>
+                        {% if instance.room_category %}
+                        <div class="info-item">
+                            <div class="info-label">Room Category / कोठा श्रेणी</div>
+                            <div class="info-value">{{ instance.room_category }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <div class="info-label">Number of Participants / सहभागी संख्या</div>
+                            <div class="info-value">{{ instance.no_of_participants }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p class="footer-text">
+                    This is an automated notification from the Incubation Center system.<br>
+                    यो इन्कुबेसन सेन्टर प्रणालीबाट पठाइएको स्वचालित सूचना हो।
+                </p>
+                <div class="footer-copyright">
+                    &copy; {% now "Y" %} CIM. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
