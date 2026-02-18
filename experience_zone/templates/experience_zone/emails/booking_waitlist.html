@@ -1,30 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waitlisted - CIM Industry Experience Zone</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
-        .header { color: #e67e22; font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-        .footer { margin-top: 30px; font-size: 12px; color: #777; }
+        body { margin: 0; padding: 0; background-color: #f0f2f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a202c; }
+        .wrapper { padding: 20px 10px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .brand-header { background-color: #2563eb; padding: 20px; text-align: center; }
+        .hero-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .hero-title { font-size: 22px; font-weight: 800; color: #e67e22; margin: 0; }
+        .content-body { padding: 20px; }
+        .data-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .info-grid { display: grid; gap: 12px; }
+        .info-item { margin-bottom: 10px; }
+        .info-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 2px; }
+        .info-value { font-size: 14px; color: #1a202c; font-weight: 600; }
+        .footer { padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #edf2f7; font-size: 12px; color: #718096; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">Waitlisted - CIM Industry Experience Zone</div>
-        <p>Dear {{ booking.contact_person }},</p>
-        <p>Thank you for your interest in the <strong>CIM Industry Experience Zone</strong>.</p>
-        <p>Currently, the slots for <strong>{{ month }}</strong> are full (50/50 industries reached). Your application has been placed on the <strong>Waitlist</strong>.</p>
-        <p>If a slot becomes available or for the next month's rotation, you will be notified on a first-come, first-served basis.</p>
-        <p><strong>Booking Summary:</strong></p>
-        <ul>
-            <li><strong>Company:</strong> {{ booking.company_name }}</li>
-            <li><strong>Month:</strong> {{ month }}</li>
-            <li><strong>Category:</strong> {{ booking.get_category_display }}</li>
-        </ul>
-        <p>Thank you for your patience and support for Nepali industries.</p>
-        <p>Best regards,<br>CIM Team</p>
-        <div class="footer">
-            This is an automated message from Chamber of Industries Morang (CIM).
+    <div class="wrapper">
+        <div class="container">
+            <div class="brand-header">
+                <img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="CIM" style="height: 40px; width: auto; border: 0;">
+            </div>
+            <div class="hero-section">
+                <h1 class="hero-title">Waitlisted</h1>
+                <p style="color: #718096; font-weight: 700;">CIM Industry Experience Zone</p>
+            </div>
+            <div class="content-body">
+                <p>Dear {{ booking.contact_person }},</p>
+                <p>Thank you for your interest in the <strong>CIM Industry Experience Zone</strong>.</p>
+                <p>Currently, the slots for <strong>{{ month }}</strong> are full (50/50 industries reached). Your application has been placed on the <strong>Waitlist</strong>.</p>
+                
+                <div class="data-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Company</div>
+                            <div class="info-value">{{ booking.company_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Preferred Month</div>
+                            <div class="info-value">{{ month }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Category</div>
+                            <div class="info-value">{{ booking.get_category_display }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p>If a slot becomes available or for the next month's rotation, you will be notified on a first-come, first-served basis.</p>
+                <p>Thank you for your patience and support for Nepali industries.</p>
+                <p>Best regards,<br>CIM Team</p>
+            </div>
+            <div class="footer">
+                &copy; {% now "Y" %} CIM. All rights reserved.<br>
+                Chamber of Industries Morang
+            </div>
         </div>
     </div>
 </body>

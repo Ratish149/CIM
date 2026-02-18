@@ -44,9 +44,9 @@ class ExperienceZoneBookingCreateView(generics.ListCreateAPIView):
             template_name = "experience_zone/emails/booking_waitlist.html"
 
         try:
+            # 1. Send to User
             html_message = render_to_string(template_name, context)
             plain_message = strip_tags(html_message)
-
             send_mail(
                 subject,
                 plain_message,
@@ -55,6 +55,22 @@ class ExperienceZoneBookingCreateView(generics.ListCreateAPIView):
                 html_message=html_message,
                 fail_silently=False,
             )
+
+            # 2. Send Separate Alert to Admin
+            if settings.ADMIN_EMAIL:
+                admin_subject = f"ADMIN ALERT: New Experience Zone Booking - {instance.company_name}"
+                admin_html_message = render_to_string(
+                    "experience_zone/emails/admin_notification.html", context
+                )
+                admin_plain_message = strip_tags(admin_html_message)
+                send_mail(
+                    admin_subject,
+                    admin_plain_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.ADMIN_EMAIL],
+                    html_message=admin_html_message,
+                    fail_silently=True,
+                )
         except Exception as e:
             # Log the error (can extend this to a proper logger)
             print(f"Failed to send email: {e}")

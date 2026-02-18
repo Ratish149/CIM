@@ -89,6 +89,35 @@ def send_job_application_emails(application):
         msg_company.attach_alternative(html_content_company, "text/html")
         msg_company.send()
 
+    # --- 3. Separate Email to Admin ---
+    if settings.ADMIN_EMAIL:
+        subject_admin = f"ADMIN ALERT: New Job Application - {job.title} - {context_applicant['applicant_name']}"
+        context_admin = (
+            context_company.copy()
+            if company.company_email
+            else context_applicant.copy()
+        )
+        context_admin["is_admin_copy"] = True
+
+        # Use company notification template as a base for admin if possible, else application confirmation
+        template_admin = (
+            "jobbriz/application_notification.html"
+            if company.company_email
+            else "jobbriz/application_confirmation.html"
+        )
+
+        html_content_admin = render_to_string(template_admin, context_admin)
+        text_content_admin = strip_tags(html_content_admin)
+
+        msg_admin = EmailMultiAlternatives(
+            subject_admin,
+            text_content_admin,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+        )
+        msg_admin.attach_alternative(html_content_admin, "text/html")
+        msg_admin.send()
+
 
 def send_internship_registration_emails(job_seeker):
     """
@@ -98,7 +127,6 @@ def send_internship_registration_emails(job_seeker):
     """
     industry = job_seeker.internship_industry
     current_year = date.today().year
-    bcc_list = [settings.ADMIN_EMAIL] if settings.ADMIN_EMAIL else []
 
     # --- 1. Email to Job Seeker ---
     if job_seeker.email:
@@ -144,10 +172,32 @@ def send_internship_registration_emails(job_seeker):
             text_content_industry,
             settings.DEFAULT_FROM_EMAIL,
             [industry.email],
-            bcc=bcc_list,
         )
         msg_industry.attach_alternative(html_content_industry, "text/html")
         msg_industry.send()
+
+    # --- 3. Separate Email to Admin ---
+    if settings.ADMIN_EMAIL:
+        subject_admin = f"ADMIN ALERT: Internship Registration - {job_seeker.full_name}"
+        context_admin = {
+            "job_seeker": job_seeker,
+            "current_year": current_year,
+            "is_admin_copy": True,
+        }
+        html_content_admin = render_to_string(
+            "jobbriz/internship_registration_industry_notification.html",
+            context_admin,
+        )
+        text_content_admin = strip_tags(html_content_admin)
+
+        msg_admin = EmailMultiAlternatives(
+            subject_admin,
+            text_content_admin,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+        )
+        msg_admin.attach_alternative(html_content_admin, "text/html")
+        msg_admin.send()
 
 
 def send_apprenticeship_application_emails(application):
@@ -157,7 +207,6 @@ def send_apprenticeship_application_emails(application):
     2. To the Preferred Industries: Notification.
     """
     current_year = date.today().year
-    bcc_list = [settings.ADMIN_EMAIL] if settings.ADMIN_EMAIL else []
 
     # --- 1. Email to Applicant ---
     if application.email_address:
@@ -210,17 +259,39 @@ def send_apprenticeship_application_emails(application):
         )
         text_content_industry = strip_tags(html_content_industry)
 
-        # Send separate emails or one with BCC? Better to send separate or single with all recipients.
-        # Here we send to all unique industry emails in one list.
         msg_industry = EmailMultiAlternatives(
             subject_industry,
             text_content_industry,
             settings.DEFAULT_FROM_EMAIL,
             list(industry_emails),
-            bcc=bcc_list,
         )
         msg_industry.attach_alternative(html_content_industry, "text/html")
         msg_industry.send()
+
+    # --- 3. Separate Email to Admin ---
+    if settings.ADMIN_EMAIL:
+        subject_admin = (
+            f"ADMIN ALERT: Apprenticeship Interest - {application.full_name}"
+        )
+        context_admin = {
+            "application": application,
+            "current_year": current_year,
+            "is_admin_copy": True,
+        }
+        html_content_admin = render_to_string(
+            "jobbriz/apprenticeship_industry_notification.html",
+            context_admin,
+        )
+        text_content_admin = strip_tags(html_content_admin)
+
+        msg_admin = EmailMultiAlternatives(
+            subject_admin,
+            text_content_admin,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+        )
+        msg_admin.attach_alternative(html_content_admin, "text/html")
+        msg_admin.send()
 
 
 def send_work_interest_hire_emails(hire_request):
@@ -232,7 +303,6 @@ def send_work_interest_hire_emails(hire_request):
     work_interest = hire_request.work_interest
     professional_user = work_interest.user
     current_year = date.today().year
-    bcc_list = [settings.ADMIN_EMAIL] if settings.ADMIN_EMAIL else []
 
     # --- 1. Email to Professional ---
     professional_email = work_interest.email or (
@@ -272,10 +342,42 @@ def send_work_interest_hire_emails(hire_request):
             text_content_prof,
             settings.DEFAULT_FROM_EMAIL,
             [professional_email],
-            bcc=bcc_list,
         )
         msg_prof.attach_alternative(html_content_prof, "text/html")
         msg_prof.send()
+
+    # --- 3. Separate Email to Admin ---
+    if settings.ADMIN_EMAIL:
+        subject_admin = f"ADMIN ALERT: Work Interest Hire - {work_interest.title}"
+        context_admin = {
+            "professional_name": work_interest.name or professional_user.username
+            if professional_user
+            else "Professional",
+            "hirer_name": hire_request.name or hire_request.user.username
+            if hire_request.user
+            else "Someone",
+            "hirer_email": hire_request.email or hire_request.user.email
+            if hire_request.user
+            else None,
+            "hirer_phone": hire_request.phone,
+            "message": hire_request.message,
+            "work_interest_title": work_interest.title,
+            "current_year": current_year,
+            "is_admin_copy": True,
+        }
+        html_content_admin = render_to_string(
+            "jobbriz/work_interest_hire_notification.html", context_admin
+        )
+        text_content_admin = strip_tags(html_content_admin)
+
+        msg_admin = EmailMultiAlternatives(
+            subject_admin,
+            text_content_admin,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+        )
+        msg_admin.attach_alternative(html_content_admin, "text/html")
+        msg_admin.send()
 
     # --- 2. Email to Hirer ---
     hirer_email = hire_request.email or (

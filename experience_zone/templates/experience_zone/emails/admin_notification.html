@@ -3,21 +3,21 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmed / बुकिङ पुष्टि भयो</title>
+    <title>ADMIN ALERT: New Experience Zone Booking</title>
     <style>
         body { margin: 0; padding: 0; background-color: #f0f2f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a202c; }
         .wrapper { padding: 20px 10px; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .brand-header { background-color: #2563eb; padding: 20px; text-align: center; }
         .hero-section { padding: 25px 20px; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .hero-title { font-size: 22px; font-weight: 800; color: #1a202c; margin: 0; }
+        .hero-title { font-size: 20px; font-weight: 800; color: #1a202c; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
         .content-body { padding: 20px; }
         .data-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
         .info-grid { display: grid; gap: 12px; }
         .info-item { margin-bottom: 10px; }
         .info-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 2px; }
         .info-value { font-size: 14px; color: #1a202c; font-weight: 600; }
-        .footer { padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #edf2f7; font-size: 12px; color: #718096; }
+        .footer { padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #edf2f7; font-size: 11px; color: #a0aec0; }
     </style>
 </head>
 <body>
@@ -27,18 +27,31 @@
                 <img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="CIM" style="height: 40px; width: auto; border: 0;">
             </div>
             <div class="hero-section">
-                <h1 class="hero-title">Booking Confirmed!</h1>
-                <p style="color: #2563eb; font-weight: 700;">Industry Experience Zone</p>
+                <h1 class="hero-title">ADMIN ALERT: New Booking Notification</h1>
+                <p style="color: #2563eb; font-weight: 700;">Experience Zone Submission</p>
             </div>
             <div class="content-body">
-                <p>Dear {{ booking.contact_person }},</p>
-                <p>Thank you for applying for the <strong>CIM Industry Experience Zone</strong>. Your slot has been officially <strong>Confirmed</strong>.</p>
-                
                 <div class="data-card">
                     <div class="info-grid">
                         <div class="info-item">
-                            <div class="info-label">Company</div>
+                            <div class="info-label">Status</div>
+                            <div class="info-value" style="color: {% if booking.status == 'Waitlisted' %}#e67e22{% else %}#16a34a{% endif %};">{{ booking.status }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Company Name</div>
                             <div class="info-value">{{ booking.company_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Contact Person</div>
+                            <div class="info-value">{{ booking.contact_person }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{ booking.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">{{ booking.phone }}</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Preferred Month</div>
@@ -50,13 +63,9 @@
                         </div>
                     </div>
                 </div>
-                
-                <p>Our team will contact you soon with further instructions for the setup and display.</p>
-                <p>Best regards,<br>CIM Team</p>
             </div>
             <div class="footer">
-                &copy; {% now "Y" %} CIM. All rights reserved.<br>
-                Chamber of Industries Morang
+                &copy; {% now "Y" %} CIM. This is a system generated administrative notification.
             </div>
         </div>
     </div>
