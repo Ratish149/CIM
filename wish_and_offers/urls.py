@@ -17,6 +17,7 @@ from .views import (
     ServiceRetrieveUpdateDestroyView,
     SubCategoryListView,
     SubCategoryRetrieveUpdateDestroyView,
+    WishAndOfferCombinedListView,
     WishListCreateView,
     WishRetrieveUpdateDestroyView,
 )
@@ -40,6 +41,11 @@ urlpatterns = [
         "wish-offers/",
         LatestWishAndOfferListView.as_view(),
         name="latest-wish-and-offer-list",
+    ),
+    path(
+        "combined/",
+        WishAndOfferCombinedListView.as_view(),
+        name="wish-offer-combined-list",
     ),
     # Event-specific Wish and Offer URLs
     path(

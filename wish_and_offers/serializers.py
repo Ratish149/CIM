@@ -291,3 +291,39 @@ class DataConversionSerializer(serializers.Serializer):
                 "Source and target types must be different."
             )
         return data
+
+
+class CombinedWishOfferSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    model_type = serializers.CharField()
+    full_name = serializers.CharField()
+    designation = serializers.CharField()
+    mobile_no = serializers.CharField()
+    alternate_no = serializers.CharField()
+    email = serializers.EmailField()
+    company_name = serializers.CharField()
+    address = serializers.CharField()
+    country = serializers.CharField()
+    province = serializers.CharField()
+    municipality = serializers.CharField()
+    ward = serializers.CharField()
+    company_website = serializers.CharField()
+    image = serializers.FileField()
+    title = serializers.CharField()
+    description = serializers.CharField()
+    status = serializers.CharField()
+    type = serializers.CharField()
+    match_percentage = serializers.IntegerField()
+    created_at = serializers.DateTimeField()
+    updated_at = serializers.DateTimeField()
+
+    # Nested fields
+    product = HSCodeSerializer(read_only=True)
+    service = ServiceSerializer(read_only=True)
+
+    # Foreign key IDs mapped from union result
+    subcategory = serializers.IntegerField(source="subcategory_id", allow_null=True)
+    event = serializers.IntegerField(source="event_id", allow_null=True)
+    user = serializers.IntegerField(source="user_id", allow_null=True)
+    offer = serializers.IntegerField(source="offer_id", allow_null=True, required=False)
+    wish = serializers.IntegerField(source="wish_id", allow_null=True, required=False)

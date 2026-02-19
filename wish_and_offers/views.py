@@ -6,7 +6,7 @@ import pandas as pd
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import CharField, IntegerField, Q, Value
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django_filters import rest_framework as django_filters
@@ -22,6 +22,7 @@ from .models import Category, HSCode, Match, Offer, Service, SubCategory, Wish
 from .serializers import (
     CategorySerializer,
     CategorySubCategoryBulkUploadSerializer,
+    CombinedWishOfferSerializer,
     DataConversionSerializer,
     HSCodeFileUploadSerializer,
     HSCodeSerializer,
@@ -724,3 +725,103 @@ class DataConversionView(generics.CreateAPIView):
         return Response(
             target_serializer(target_obj).data, status=status.HTTP_201_CREATED
         )
+
+
+class WishAndOfferCombinedListView(generics.ListAPIView):
+    serializer_class = CombinedWishOfferSerializer
+    pagination_class = WishandOfferPagination
+    filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
+    search_fields = ["title", "description"]
+
+    def get_queryset(self):
+        wishes = Wish.objects.annotate(
+            model_type=Value("wish", CharField()),
+            wish_id=Value(None, IntegerField()),
+        )
+        offers = Offer.objects.annotate(
+            model_type=Value("offer", CharField()),
+            offer_id=Value(None, IntegerField()),
+        )
+
+        params = self.request.query_params
+        model_type = params.get("model_type")
+
+        w_qs = WishFilterSet(params, queryset=wishes).qs
+        o_qs = OfferFilterSet(params, queryset=offers).qs
+
+        search = params.get("search")
+        if search:
+            search_query = Q(title__icontains=search) | Q(description__icontains=search)
+            w_qs = w_qs.filter(search_query)
+            o_qs = o_qs.filter(search_query)
+
+        common_fields = [
+            "id",
+            "user_id",
+            "full_name",
+            "designation",
+            "mobile_no",
+            "alternate_no",
+            "email",
+            "company_name",
+            "address",
+            "country",
+            "province",
+            "municipality",
+            "ward",
+            "company_website",
+            "image",
+            "title",
+            "description",
+            "event_id",
+            "subcategory_id",
+            "product_id",
+            "service_id",
+            "status",
+            "type",
+            "match_percentage",
+            "created_at",
+            "updated_at",
+            "model_type",
+            "wish_id",
+            "offer_id",
+        ]
+
+        if model_type == "wish":
+            return w_qs.values(*common_fields).order_by("-created_at")
+        elif model_type == "offer":
+            return o_qs.values(*common_fields).order_by("-created_at")
+
+        combined = (
+            w_qs.values(*common_fields)
+            .union(o_qs.values(*common_fields))
+            .order_by("-created_at")
+        )
+
+        return combined
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            # Collect unique IDs to perform batch lookups for nested serialization
+            product_ids = {
+                item["product_id"] for item in page if item.get("product_id")
+            }
+            service_ids = {
+                item["service_id"] for item in page if item.get("service_id")
+            }
+
+            products = HSCode.objects.filter(id__in=product_ids).in_bulk()
+            services = Service.objects.filter(id__in=service_ids).in_bulk()
+
+            # Inject fetched objects into data dictionaries so the serializer can find them
+            for item in page:
+                item["product"] = products.get(item.get("product_id"))
+                item["service"] = services.get(item.get("service_id"))
+
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
