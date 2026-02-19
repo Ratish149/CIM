@@ -160,8 +160,12 @@ class WishWithOffersSerializer(serializers.ModelSerializer):
         ]
 
     def get_offers(self, obj):
-        # Retrieve offers related to this wish through the Match model
-        matches = Match.objects.filter(wish=obj)
+        # Use prefetched matches if available, otherwise filter
+        if hasattr(obj, "matches"):
+            matches = obj.matches.all()
+        else:
+            matches = Match.objects.filter(wish=obj).select_related("offer")
+
         offers = [match.offer for match in matches]
         return OfferSerializer(offers, many=True).data
 
@@ -200,8 +204,12 @@ class OfferWithWishesSerializer(serializers.ModelSerializer):
         ]
 
     def get_wishes(self, obj):
-        # Retrieve wishes related to this offer through the Match model
-        matches = Match.objects.filter(offer=obj)
+        # Use prefetched matches if available, otherwise filter
+        if hasattr(obj, "matches"):
+            matches = obj.matches.all()
+        else:
+            matches = Match.objects.filter(offer=obj).select_related("wish")
+
         wishes = [match.wish for match in matches]
         return WishSerializer(wishes, many=True).data
 

@@ -2,7 +2,7 @@ import csv
 from io import TextIOWrapper
 
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import Exists, F, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_filters import rest_framework as django_filters
@@ -85,7 +85,7 @@ class HasJobseekerProfileView(APIView):
 
 
 class JobSeekerListCreateView(generics.ListCreateAPIView):
-    queryset = JobSeeker.objects.all()
+    queryset = JobSeeker.objects.select_related("user")
     serializer_class = JobSeekerSerializer2
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -94,7 +94,14 @@ class JobSeekerListCreateView(generics.ListCreateAPIView):
 
 
 class JobSeekerDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = JobSeeker.objects.all()
+    queryset = JobSeeker.objects.select_related("user").prefetch_related(
+        "education",
+        "certifications",
+        "languages",
+        "skills",
+        "career_histories",
+        "preferred_locations",
+    )
     serializer_class = JobSeekerSerializer2
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -433,7 +440,9 @@ class JobPostListCreateView(generics.ListCreateAPIView):
         return paginator.get_paginated_response(serializer.data)
 
     def get_queryset(self):
-        queryset = JobPost.objects.filter(status="Published")
+        queryset = JobPost.objects.filter(status="Published").select_related(
+            "user", "unit_group"
+        )
 
         # Keyword search
         keywords = self.request.query_params.get("keywords")
@@ -512,7 +521,23 @@ class JobPostListCreateView(generics.ListCreateAPIView):
             if date_threshold:
                 queryset = queryset.filter(posted_date__gte=date_threshold)
 
-        return queryset.order_by("-posted_date").distinct()
+        # Annotations for optimized serialization
+        user = self.request.user
+        if user and user.is_authenticated:
+            queryset = queryset.annotate(
+                has_already_saved_annotated=Exists(
+                    SavedJob.objects.filter(job=OuterRef("pk"), job_seeker=user)
+                ),
+                is_applied_annotated=Exists(
+                    JobApplication.objects.filter(job=OuterRef("pk"), applicant=user)
+                ),
+            )
+
+        return (
+            queryset.annotate(total_applicant_count_annotated=F("applications_count"))
+            .order_by("-posted_date")
+            .distinct()
+        )
 
     def perform_create(self, serializer):
         unit_group = UnitGroup.objects.get(code=self.request.data.get("unit_group"))
@@ -524,13 +549,43 @@ class MyJobListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return JobPost.objects.filter(user=self.request.user)
+        user = self.request.user
+        queryset = JobPost.objects.filter(user=user).select_related(
+            "user", "unit_group"
+        )
+
+        if user and user.is_authenticated:
+            queryset = queryset.annotate(
+                has_already_saved_annotated=Exists(
+                    SavedJob.objects.filter(job=OuterRef("pk"), job_seeker=user)
+                ),
+                is_applied_annotated=Exists(
+                    JobApplication.objects.filter(job=OuterRef("pk"), applicant=user)
+                ),
+            )
+
+        return queryset.annotate(
+            total_applicant_count_annotated=F("applications_count")
+        )
 
 
 class JobPostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = JobPost.objects.all()
     serializer_class = JobPostDetailSerializer
     lookup_field = "slug"
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = JobPost.objects.select_related("user", "unit_group")
+
+        if user and user.is_authenticated:
+            queryset = queryset.annotate(
+                has_already_applied_annotated=Exists(
+                    JobApplication.objects.filter(job=OuterRef("pk"), applicant=user)
+                ),
+            )
+        return queryset.annotate(
+            total_applicant_count_annotated=F("applications_count")
+        )
 
 
 class JobPostViewCountView(views.APIView):
@@ -578,7 +633,9 @@ class AppliedJobsView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return JobApplication.objects.filter(applicant=user)
+            return JobApplication.objects.filter(applicant=user).select_related(
+                "job__unit_group", "job__user", "applicant"
+            )
         return JobApplication.objects.none()
 
 
@@ -589,7 +646,9 @@ class JobApplicationListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return JobApplication.objects.filter(applicant=user)
+            return JobApplication.objects.filter(applicant=user).select_related(
+                "job__unit_group", "job__user", "applicant"
+            )
         return JobApplication.objects.none()
 
 
@@ -600,7 +659,9 @@ class JobApplicationDetailView(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return JobApplication.objects.filter(applicant=user)
+            return JobApplication.objects.filter(applicant=user).select_related(
+                "job__unit_group", "job__user", "applicant"
+            )
         return JobApplication.objects.none()
 
 
@@ -611,7 +672,9 @@ class UpdateApplicationStatusView(generics.UpdateAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return JobApplication.objects.filter(applicant=user)
+            return JobApplication.objects.filter(applicant=user).select_related(
+                "job__unit_group", "job__user", "applicant"
+            )
         return JobApplication.objects.none()
 
 
@@ -639,7 +702,9 @@ class SavedJobListView(generics.ListAPIView):
 
     def get_queryset(self):
         if hasattr(self.request.user, "jobseeker"):
-            return SavedJob.objects.filter(job_seeker=self.request.user)
+            return SavedJob.objects.filter(job_seeker=self.request.user).select_related(
+                "job__unit_group", "job__user"
+            )
         return SavedJob.objects.none()
 
 
@@ -671,7 +736,9 @@ class HireRequestListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return HireRequest.objects.filter(job_seeker=user)
+            return HireRequest.objects.filter(job_seeker=user).select_related(
+                "job__unit_group", "job__user", "job_seeker"
+            )
         return HireRequest.objects.none()
 
 
@@ -682,7 +749,9 @@ class HireRequestDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return HireRequest.objects.filter(job_seeker=user)
+            return HireRequest.objects.filter(job_seeker=user).select_related(
+                "job__unit_group", "job__user", "job_seeker"
+            )
         return HireRequest.objects.none()
 
 
@@ -693,7 +762,9 @@ class HireRequestStatusUpdateView(generics.UpdateAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return HireRequest.objects.filter(job_seeker=user)
+            return HireRequest.objects.filter(job_seeker=user).select_related(
+                "job__unit_group", "job__user", "job_seeker"
+            )
         return HireRequest.objects.none()
 
 
@@ -969,7 +1040,9 @@ class WorkInterestFilterSet(django_filters.FilterSet):
 
 
 class WorkInterestListCreateView(generics.ListCreateAPIView):
-    queryset = WorkInterest.objects.all()
+    queryset = WorkInterest.objects.select_related(
+        "unit_group", "user"
+    ).prefetch_related("skills")
     serializer_class = WorkInterestSerializer
     filter_backends = [filters.SearchFilter, django_filters.DjangoFilterBackend]
     search_fields = ["title", "skills__name"]
@@ -988,7 +1061,9 @@ class WorkInterestListCreateView(generics.ListCreateAPIView):
 
 
 class WorkInterestDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = WorkInterest.objects.all()
+    queryset = WorkInterest.objects.select_related(
+        "unit_group", "user"
+    ).prefetch_related("skills")
     serializer_class = WorkInterestSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 

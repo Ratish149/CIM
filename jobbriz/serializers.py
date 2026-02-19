@@ -93,35 +93,45 @@ class JobListAllSerializer(serializers.ModelSerializer):
     is_applied = serializers.SerializerMethodField()
 
     def get_has_already_saved(self, obj):
+        # Check for annotated field first
+        if hasattr(obj, "has_already_saved_annotated"):
+            return obj.has_already_saved_annotated
+
         request = self.context.get("request")
         if request and hasattr(request, "user") and request.user.is_authenticated:
             try:
-                _ = JobSeeker.objects.get(user=request.user)
+                # Use prefetch cache if available
+                if hasattr(request.user, "saved_jobs_cache"):
+                    return obj.id in request.user.saved_jobs_cache
                 return SavedJob.objects.filter(
                     job=obj, job_seeker=request.user
                 ).exists()
-            except JobSeeker.DoesNotExist:
+            except Exception:
                 return False
         return False
 
     def get_total_applicant_count(self, obj):
-        request = self.context.get("request")
-        if request and hasattr(request, "user") and request.user.is_authenticated:
-            try:
-                return JobApplication.objects.filter(job=obj).count()
-            except JobApplication.DoesNotExist:
-                return 0
-        return 0
+        # Check for annotated field first
+        if hasattr(obj, "total_applicant_count_annotated"):
+            return obj.total_applicant_count_annotated
+
+        return getattr(obj, "applications_count", 0)
 
     def get_is_applied(self, obj):
+        # Check for annotated field first
+        if hasattr(obj, "is_applied_annotated"):
+            return obj.is_applied_annotated
+
         request = self.context.get("request")
         if request and hasattr(request, "user") and request.user.is_authenticated:
             try:
-                _ = JobSeeker.objects.get(user=request.user)
+                # Use prefetch cache if available
+                if hasattr(request.user, "applied_jobs_cache"):
+                    return obj.id in request.user.applied_jobs_cache
                 return JobApplication.objects.filter(
                     job=obj, applicant=request.user
                 ).exists()
-            except JobSeeker.DoesNotExist:
+            except Exception:
                 return False
         return False
 
@@ -192,14 +202,17 @@ class JobPostDetailSerializer(serializers.ModelSerializer):
     application_id = serializers.SerializerMethodField()
 
     def get_has_already_applied(self, obj):
+        # Check for annotated field first
+        if hasattr(obj, "has_already_applied_annotated"):
+            return obj.has_already_applied_annotated
+
         request = self.context.get("request")
         if request and hasattr(request, "user") and request.user.is_authenticated:
             try:
-                _ = JobSeeker.objects.get(user=request.user)
                 return JobApplication.objects.filter(
                     job=obj, applicant=request.user
                 ).exists()
-            except JobSeeker.DoesNotExist:
+            except Exception:
                 return False
         return False
 

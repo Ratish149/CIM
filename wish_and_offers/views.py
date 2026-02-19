@@ -70,19 +70,25 @@ def send_new_item_notification(item):
     """
     recipient_emails = set()
 
-    # Collect emails from all Offers
-    for offer in Offer.objects.all():
-        if offer.user and offer.user.email:
-            recipient_emails.add(offer.user.email)
-        elif offer.email:
-            recipient_emails.add(offer.email)
+    # Collect emails efficiently from all Offers
+    offer_user_emails = Offer.objects.filter(user__isnull=False).values_list(
+        "user__email", flat=True
+    )
+    offer_direct_emails = Offer.objects.filter(user__isnull=True).values_list(
+        "email", flat=True
+    )
+    recipient_emails.update(email for email in offer_user_emails if email)
+    recipient_emails.update(email for email in offer_direct_emails if email)
 
-    # Collect emails from all Wishes
-    for wish in Wish.objects.all():
-        if wish.user and wish.user.email:
-            recipient_emails.add(wish.user.email)
-        elif wish.email:
-            recipient_emails.add(wish.email)
+    # Collect emails efficiently from all Wishes
+    wish_user_emails = Wish.objects.filter(user__isnull=False).values_list(
+        "user__email", flat=True
+    )
+    wish_direct_emails = Wish.objects.filter(user__isnull=True).values_list(
+        "email", flat=True
+    )
+    recipient_emails.update(email for email in wish_user_emails if email)
+    recipient_emails.update(email for email in wish_direct_emails if email)
 
     if recipient_emails:
         item_type = "Wish" if isinstance(item, Wish) else "Offer"
@@ -126,6 +132,10 @@ class WishListCreateView(generics.ListCreateAPIView):
         else:
             queryset = Wish.objects.all()
 
+        queryset = queryset.select_related(
+            "product", "service", "subcategory", "event", "user"
+        )
+
         if self.request.user.is_authenticated:
             queryset = queryset.filter(
                 Q(user=self.request.user) | Q(email=self.request.user.email)
@@ -165,7 +175,9 @@ class WishListCreateView(generics.ListCreateAPIView):
 
 
 class WishRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Wish.objects.all()
+    queryset = Wish.objects.select_related(
+        "product", "service", "subcategory", "event", "user"
+    ).prefetch_related("matches__offer")
     serializer_class = WishSerializer
 
     def get(self, request, *args, **kwargs):
@@ -225,6 +237,10 @@ class OfferListCreateView(generics.ListCreateAPIView):
         else:
             queryset = Offer.objects.all()
 
+        queryset = queryset.select_related(
+            "product", "service", "subcategory", "event", "user"
+        )
+
         if self.request.user.is_authenticated:
             queryset = queryset.filter(
                 Q(user=self.request.user) | Q(email=self.request.user.email)
@@ -266,7 +282,9 @@ class OfferListCreateView(generics.ListCreateAPIView):
 
 
 class OfferRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Offer.objects.all()
+    queryset = Offer.objects.select_related(
+        "product", "service", "subcategory", "event", "user"
+    ).prefetch_related("matches__wish")
     serializer_class = OfferSerializer
 
     def get(self, request, *args, **kwargs):

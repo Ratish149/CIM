@@ -141,20 +141,27 @@ class JobPost(SlugMixin, models.Model):
     show_salary = models.BooleanField(default=True)
     requirements = models.TextField(blank=True, null=True)
     salary_range_min = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
+        max_digits=10, decimal_places=2, blank=True, null=True, db_index=True
     )
     salary_range_max = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
+        max_digits=10, decimal_places=2, blank=True, null=True, db_index=True
     )
     location = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default="Published"
+        max_length=20, choices=STATUS_CHOICES, default="Published", db_index=True
     )
-    posted_date = models.DateTimeField(auto_now_add=True)
+    posted_date = models.DateTimeField(auto_now_add=True, db_index=True)
     deadline = models.DateTimeField()
-    employment_type = models.CharField(max_length=20, choices=EMPLOYMENT_TYPE_CHOICES)
+    employment_type = models.CharField(
+        max_length=20, choices=EMPLOYMENT_TYPE_CHOICES, db_index=True
+    )
     views_count = models.PositiveIntegerField(default=0, blank=True)
     applications_count = models.PositiveIntegerField(default=0, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["status", "-posted_date"]),
+        ]
 
     def __str__(self):
         return f"{self.title} at {self.company_name}"
@@ -177,11 +184,16 @@ class JobApplication(models.Model):
     )
     applied_date = models.DateTimeField(auto_now_add=True)
     cover_letter = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="Pending", db_index=True
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("job", "applicant")
+        indexes = [
+            models.Index(fields=["job", "status"]),
+        ]
 
     def __str__(self):
         return f"Application for {self.job.title} by {self.applicant.username}"
@@ -226,17 +238,20 @@ class WorkInterest(models.Model):
         "Skill", blank=True, related_name="work_interest_profiles"
     )
     proficiency_level = models.CharField(
-        max_length=15, choices=PROFICIENCY_LEVEL_CHOICES
+        max_length=15, choices=PROFICIENCY_LEVEL_CHOICES, db_index=True
     )
     availability = models.CharField(
-        max_length=20, choices=AVAILABILITY_CHOICES, default="Full Time"
+        max_length=20, choices=AVAILABILITY_CHOICES, default="Full Time", db_index=True
     )
     preferred_locations = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["proficiency_level", "availability", "-created_at"]),
+        ]
 
     def __str__(self):
         return f"{self.title}"
@@ -284,7 +299,9 @@ class HireRequest(models.Model):
         CustomUser, on_delete=models.CASCADE, related_name="hire_requests"
     )
     requested_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="Pending", db_index=True
+    )
     message = models.TextField(blank=True, null=True)
     seeker_message = models.TextField(blank=True, null=True)
 

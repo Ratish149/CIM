@@ -18,7 +18,7 @@ class Detail(models.Model):
     designation = models.CharField(max_length=100, null=True, blank=True)
     mobile_no = models.CharField(max_length=15, null=True, blank=True)
     alternate_no = models.CharField(max_length=15, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True, db_index=True)
     company_name = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=200, null=True, blank=True)
     country = models.CharField(max_length=100, default="Nepal", null=True, blank=True)
@@ -37,7 +37,9 @@ class Category(models.Model):
         ("Product", "Product"),
         ("Service", "Service"),
     ]
-    type = models.CharField(max_length=10, choices=TYPE, null=True, blank=True)
+    type = models.CharField(
+        max_length=10, choices=TYPE, null=True, blank=True, db_index=True
+    )
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
     image = models.FileField(upload_to="category_images/", blank=True, null=True)
@@ -100,7 +102,12 @@ class Wish(Detail):
         Event, on_delete=models.CASCADE, related_name="wishes", null=True, blank=True
     )
     product = models.ForeignKey(
-        HSCode, on_delete=models.CASCADE, related_name="wishes", blank=True, null=True
+        HSCode,
+        on_delete=models.CASCADE,
+        related_name="wishes",
+        blank=True,
+        null=True,
+        db_index=True,
     )
     service = models.ForeignKey(
         Service,
@@ -108,6 +115,7 @@ class Wish(Detail):
         related_name="service_wishes",
         blank=True,
         null=True,
+        db_index=True,
     )
     subcategory = models.ForeignKey(
         SubCategory,
@@ -115,16 +123,25 @@ class Wish(Detail):
         related_name="service_wishes",
         blank=True,
         null=True,
+        db_index=True,
     )
-    status = models.CharField(max_length=10, choices=WISH_STATUS, default="Pending")
+    status = models.CharField(
+        max_length=10, choices=WISH_STATUS, default="Pending", db_index=True
+    )
     type = models.CharField(
         max_length=10,
         choices=[("Product", "Product"), ("Service", "Service")],
         default="Product",
+        db_index=True,
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["status", "type", "-created_at"]),
+        ]
 
     def __str__(self):
         return self.title
@@ -206,10 +223,20 @@ class Offer(Detail):
         Event, on_delete=models.CASCADE, related_name="offers", null=True, blank=True
     )
     product = models.ForeignKey(
-        HSCode, on_delete=models.CASCADE, related_name="offers", blank=True, null=True
+        HSCode,
+        on_delete=models.CASCADE,
+        related_name="offers",
+        blank=True,
+        null=True,
+        db_index=True,
     )
     service = models.ForeignKey(
-        Service, on_delete=models.CASCADE, related_name="offers", blank=True, null=True
+        Service,
+        on_delete=models.CASCADE,
+        related_name="offers",
+        blank=True,
+        null=True,
+        db_index=True,
     )
     subcategory = models.ForeignKey(
         SubCategory,
@@ -217,16 +244,25 @@ class Offer(Detail):
         related_name="service_offers",
         blank=True,
         null=True,
+        db_index=True,
     )
-    status = models.CharField(max_length=10, choices=OFFER_STATUS, default="Pending")
+    status = models.CharField(
+        max_length=10, choices=OFFER_STATUS, default="Pending", db_index=True
+    )
     type = models.CharField(
         max_length=10,
         choices=[("Product", "Product"), ("Service", "Service")],
         default="Product",
+        db_index=True,
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     match_percentage = models.IntegerField(default=0)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["status", "type", "-created_at"]),
+        ]
 
     def __str__(self):
         return self.title
