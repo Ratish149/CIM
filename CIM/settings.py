@@ -148,12 +148,12 @@ WSGI_APPLICATION = "CIM.wsgi.application"
 } """
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "baliyone_nepdora_db",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "cim_db",
         "USER": "ratish",
-        "PASSWORD": "Baliyo@123",
+        "PASSWORD": "ratish123",
         "HOST": "localhost",
-        "PORT": "5432",
+        "PORT": "",
     }
 }
 
