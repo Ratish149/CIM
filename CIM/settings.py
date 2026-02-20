@@ -39,10 +39,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://society-powell-lead-phrases.trycloudflare.com",
+    "https://crop-albuquerque-mambo-maps.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://society-powell-lead-phrases.trycloudflare.com",
+    "https://crop-albuquerque-mambo-maps.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",
@@ -136,7 +136,7 @@ WSGI_APPLICATION = "CIM.wsgi.application"
         "NAME": BASE_DIR / "db.sqlite3",
     }
 } """
-DATABASES = {
+""" DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("DB_NAME"),
@@ -145,8 +145,17 @@ DATABASES = {
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
     }
+} """
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "baliyone_nepdora_db",
+        "USER": "ratish",
+        "PASSWORD": "Baliyo@123",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
