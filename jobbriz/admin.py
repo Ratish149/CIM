@@ -158,6 +158,7 @@ class JobPostAdmin(ModelAdmin):
                     "description",
                     "posted_date",
                     "status",
+                    "email_to",
                 )
             },
         ),
