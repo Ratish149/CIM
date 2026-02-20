@@ -39,10 +39,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://crop-albuquerque-mambo-maps.trycloudflare.com",
+    "https://wives-william-purple-procedures.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://crop-albuquerque-mambo-maps.trycloudflare.com",
+    "https://wives-william-purple-procedures.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",

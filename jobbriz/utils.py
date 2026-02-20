@@ -13,18 +13,19 @@ def send_job_application_emails(application):
     2. To the Applicant: Confirmation of receipt.
     """
     job = application.job
-    company = job.company
+    job_poster = job.user
     user = application.applicant
+    company_name = job.company_name or "the company"
 
     # Common Context
     current_year = date.today().year
 
     # --- 1. Email to Applicant ---
-    subject_applicant = f"Application Received: {job.title} at {company.company_name}"
+    subject_applicant = f"Application Received: {job.title} at {company_name}"
     context_applicant = {
         "applicant_name": f"{user.first_name} {user.last_name}".strip()
         or user.username,
-        "company_name": company.company_name,
+        "company_name": company_name,
         "job_title": job.title,
         "applied_date": application.applied_date.strftime("%B %d, %Y"),
         "current_year": current_year,
@@ -44,9 +45,10 @@ def send_job_application_emails(application):
     msg_applicant.attach_alternative(html_content_applicant, "text/html")
     msg_applicant.send()
 
-    # --- 2. Email to Company ---
-    # Only send if company has an email
-    if company.company_email:
+    # --- 2. Email to Company or email_to (Priority: email_to > user.email) ---
+    recipient_email = job.email_to or (job_poster.email if job_poster else None)
+
+    if recipient_email:
         subject_company = (
             f"New Application: {job.title} - {context_applicant['applicant_name']}"
         )
@@ -84,7 +86,7 @@ def send_job_application_emails(application):
             subject_company,
             text_content_company,
             settings.DEFAULT_FROM_EMAIL,
-            [company.company_email],
+            [recipient_email],
         )
         msg_company.attach_alternative(html_content_company, "text/html")
         msg_company.send()
@@ -93,16 +95,14 @@ def send_job_application_emails(application):
     if settings.ADMIN_EMAIL:
         subject_admin = f"ADMIN ALERT: New Job Application - {job.title} - {context_applicant['applicant_name']}"
         context_admin = (
-            context_company.copy()
-            if company.company_email
-            else context_applicant.copy()
+            context_company.copy() if recipient_email else context_applicant.copy()
         )
         context_admin["is_admin_copy"] = True
 
         # Use company notification template as a base for admin if possible, else application confirmation
         template_admin = (
             "jobbriz/application_notification.html"
-            if company.company_email
+            if recipient_email
             else "jobbriz/application_confirmation.html"
         )
 

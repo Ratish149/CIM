@@ -190,6 +190,7 @@ class JobPostListSerializer(serializers.ModelSerializer):
             "responsibilities",
             "requirements",
             "unit_group",
+            "email_to",
         ]
         read_only_fields = ["slug", "views_count", "applications_count"]
 

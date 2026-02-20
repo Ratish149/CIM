@@ -157,6 +157,7 @@ class JobPost(SlugMixin, models.Model):
     )
     views_count = models.PositiveIntegerField(default=0, blank=True)
     applications_count = models.PositiveIntegerField(default=0, blank=True)
+    email_to = models.EmailField(null=True, blank=True)
 
     class Meta:
         indexes = [
