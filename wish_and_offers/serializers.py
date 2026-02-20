@@ -1,5 +1,6 @@
 # wish_and_offers/serializers.py
 
+from django.conf import settings
 from rest_framework import serializers
 
 from .models import Category, HSCode, Match, Offer, Service, SubCategory, Wish
@@ -308,7 +309,7 @@ class CombinedWishOfferSerializer(serializers.Serializer):
     municipality = serializers.CharField()
     ward = serializers.CharField()
     company_website = serializers.CharField()
-    image = serializers.FileField()
+    image = serializers.SerializerMethodField()
     title = serializers.CharField()
     description = serializers.CharField()
     status = serializers.CharField()
@@ -316,6 +317,15 @@ class CombinedWishOfferSerializer(serializers.Serializer):
     match_percentage = serializers.IntegerField()
     created_at = serializers.DateTimeField()
     updated_at = serializers.DateTimeField()
+
+    def get_image(self, obj):
+        image = obj.get("image")
+        if not image:
+            return None
+        request = self.context.get("request")
+        if request:
+            return request.build_absolute_uri(settings.MEDIA_URL + str(image))
+        return settings.MEDIA_URL + str(image)
 
     # Nested fields
     product = HSCodeSerializer(read_only=True)

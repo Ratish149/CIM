@@ -136,7 +136,7 @@ WSGI_APPLICATION = "CIM.wsgi.application"
         "NAME": BASE_DIR / "db.sqlite3",
     }
 } """
-""" DATABASES = {
+DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("DB_NAME"),
@@ -145,17 +145,8 @@ WSGI_APPLICATION = "CIM.wsgi.application"
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
     }
-} """
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "cim_db",
-        "USER": "ratish",
-        "PASSWORD": "ratish123",
-        "HOST": "localhost",
-        "PORT": "",
-    }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
