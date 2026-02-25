@@ -1,8 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from jobbriz_institute.models import Institute
-
 
 class CustomUser(AbstractUser):
     DESIGNATION_CHOICES = [
@@ -42,9 +40,6 @@ class CustomUser(AbstractUser):
         max_length=100, choices=DESIGNATION_CHOICES, default="Other"
     )
     has_institute = models.BooleanField(default=False)
-    institute = models.ForeignKey(
-        Institute, on_delete=models.SET_NULL, null=True, blank=True
-    )
     alternate_no = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):

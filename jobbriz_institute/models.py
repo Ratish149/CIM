@@ -1,5 +1,7 @@
 from django.db import models
 
+from accounts.models import CustomUser
+
 
 # Create your models here.
 class Institute(models.Model):
@@ -9,7 +11,14 @@ class Institute(models.Model):
         ("Training Centre", "Training Centre"),
         ("College", "College"),
     )
-    institute_name = models.CharField(max_length=100)
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="institute",
+    )
+    institute_name = models.CharField(max_length=100, unique=True)
     institute_type = models.CharField(max_length=100, choices=INSTITUTE_TYPE_CHOICES)
     province = models.CharField(max_length=100)
     district = models.CharField(max_length=100)
@@ -50,8 +59,19 @@ class GraduateRoster(models.Model):
         ("Not Available", "Not Available"),
     )
 
+    ROSTER_TYPE_CHOICES = (
+        ("Roster-Graduates", "Roster-Graduates"),
+        ("Individual", "Individual"),
+    )
+    roster_type = models.CharField(
+        max_length=50, choices=ROSTER_TYPE_CHOICES, null=True, blank=True
+    )
+
     institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, null=True, blank=True
+    )
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, null=True, blank=True
     )
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15)
@@ -69,9 +89,12 @@ class GraduateRoster(models.Model):
     current_municipality = models.CharField(max_length=255, null=True, blank=True)
     current_ward = models.CharField(max_length=255, null=True, blank=True)
 
+    institute_name = models.CharField(max_length=255, null=True, blank=True)
+
     level_completed = models.CharField(
         max_length=50, choices=LEVEL_COMPLETED_CHOICES, null=True, blank=True
     )
+
     subject_trade_stream = models.CharField(max_length=100, null=True, blank=True)
     specialization_key_skills = models.TextField(null=True, blank=True)
     passed_year = models.IntegerField(null=True, blank=True)

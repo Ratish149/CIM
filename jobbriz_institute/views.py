@@ -6,7 +6,6 @@ from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, permissions, status
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -50,9 +49,8 @@ class InstituteListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        institute = serializer.save()
+        institute = serializer.save(user=self.request.user)
         user = self.request.user
-        user.institute = institute
         user.has_institute = True
         user.save()
 
@@ -89,7 +87,7 @@ class ResendInstituteVerifyEmailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        institute = request.user.institute
+        institute = getattr(request.user, "institute", None)
         if not institute:
             return Response(
                 {"error": "User is not associated with any institute."},
@@ -115,7 +113,7 @@ class InstituteRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return self.request.user.institute
+        return getattr(self.request.user, "institute", None)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -138,13 +136,22 @@ class GraduateRosterListCreateView(generics.ListCreateAPIView):
         return GraduateRosterListSerializer
 
     def perform_create(self, serializer):
-        user = self.request.user
-        if not user.institute:
-            raise ValidationError(
-                "User must be associated with an institute to add graduates."
-            )
+        roster_type = self.request.data.get("roster_type")
+        if roster_type == "Individual":
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()
 
-        serializer.save(institute=user.institute)
+
+class MyGraduateRosterListView(generics.ListAPIView):
+    queryset = GraduateRoster.objects.all()
+    serializer_class = GraduateRosterSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = GraduateRosterFilter
+
+    def get_queryset(self):
+        user = self.request.user
+        return GraduateRoster.objects.filter(user=user)
 
 
 class GraduateRosterRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -159,4 +166,5 @@ class InstituteGraduateRosterListView(generics.ListAPIView):
     filterset_class = GraduateRosterFilter
 
     def get_queryset(self):
-        return GraduateRoster.objects.filter(institute=self.request.user.institute)
+        institute = getattr(self.request.user, "institute", None)
+        return GraduateRoster.objects.filter(institute=institute)
