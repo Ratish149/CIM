@@ -779,6 +779,7 @@ class WishAndOfferCombinedListView(generics.ListAPIView):
             "service_id",
             "status",
             "type",
+            "views_count",
             "match_percentage",
             "created_at",
             "updated_at",
