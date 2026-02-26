@@ -9,6 +9,8 @@ from .views import (
     DataConversionView,
     HSCodeBulkUploadView,
     HSCodeListView,
+    IncreaseOfferViewCountView,
+    IncreaseWishViewCountView,
     LatestWishAndOfferListView,
     MatchListView,
     OfferListCreateView,
@@ -97,4 +99,15 @@ urlpatterns = [
     path("hs-codes/", HSCodeListView.as_view(), name="hs-code-list"),
     path("hs-codes/upload/", HSCodeBulkUploadView.as_view(), name="hs-code-upload"),
     path("convert-data/", DataConversionView.as_view(), name="data-conversion"),
+    # View Count Increment URLs
+    path(
+        "wishes/<int:pk>/view/",
+        IncreaseWishViewCountView.as_view(),
+        name="increase-wish-view-count",
+    ),
+    path(
+        "offers/<int:pk>/view/",
+        IncreaseOfferViewCountView.as_view(),
+        name="increase-offer-view-count",
+    ),
 ]

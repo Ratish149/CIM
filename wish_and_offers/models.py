@@ -27,6 +27,7 @@ class Detail(models.Model):
     ward = models.CharField(max_length=100, null=True, blank=True)
     company_website = models.CharField(max_length=255, null=True, blank=True)
     image = models.FileField(upload_to="wish_and_offers/images", null=True, blank=True)
+    views_count = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True

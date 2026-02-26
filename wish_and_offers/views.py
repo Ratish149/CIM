@@ -6,7 +6,7 @@ import pandas as pd
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
-from django.db.models import CharField, IntegerField, Q, Value
+from django.db.models import CharField, F, IntegerField, Q, Value
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django_filters import rest_framework as django_filters
@@ -142,7 +142,7 @@ class WishListCreateView(generics.ListCreateAPIView):
                 Q(user=self.request.user) | Q(email=self.request.user.email)
             )
 
-        return queryset.order_by("-created_at")
+        return queryset.order_by("-views_count", "-created_at")
 
     def perform_create(self, serializer):
         user = self.request.user if self.request.user.is_authenticated else None
@@ -247,7 +247,7 @@ class OfferListCreateView(generics.ListCreateAPIView):
                 Q(user=self.request.user) | Q(email=self.request.user.email)
             )
 
-        return queryset.order_by("-created_at")
+        return queryset.order_by("-views_count", "-created_at")
 
     def perform_create(self, serializer):
         user = self.request.user if self.request.user.is_authenticated else None
@@ -788,14 +788,14 @@ class WishAndOfferCombinedListView(generics.ListAPIView):
         ]
 
         if model_type == "wish":
-            return w_qs.values(*common_fields).order_by("-created_at")
+            return w_qs.values(*common_fields).order_by("-views_count", "-created_at")
         elif model_type == "offer":
-            return o_qs.values(*common_fields).order_by("-created_at")
+            return o_qs.values(*common_fields).order_by("-views_count", "-created_at")
 
         combined = (
             w_qs.values(*common_fields)
             .union(o_qs.values(*common_fields))
-            .order_by("-created_at")
+            .order_by("-views_count", "-created_at")
         )
 
         return combined
@@ -825,3 +825,19 @@ class WishAndOfferCombinedListView(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class IncreaseWishViewCountView(APIView):
+    def post(self, request, pk):
+        Wish.objects.filter(pk=pk).update(views_count=F("views_count") + 1)
+        return Response(
+            {"message": "View count increased successfully"}, status=status.HTTP_200_OK
+        )
+
+
+class IncreaseOfferViewCountView(APIView):
+    def post(self, request, pk):
+        Offer.objects.filter(pk=pk).update(views_count=F("views_count") + 1)
+        return Response(
+            {"message": "View count increased successfully"}, status=status.HTTP_200_OK
+        )
