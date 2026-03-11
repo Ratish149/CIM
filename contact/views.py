@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,6 +21,8 @@ class CustomPagination(PageNumberPagination):
 
 
 class ContactView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         contacts = Contact.objects.all().order_by("-created_at")
         paginator = CustomPagination()
