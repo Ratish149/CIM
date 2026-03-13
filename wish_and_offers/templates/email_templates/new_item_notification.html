@@ -199,7 +199,7 @@
                 <div class="data-card">
                     <div class="item-name">{{ title }}</div>
                     {% if description %}
-                    <div class="item-desc">"{{ description|truncatewords:40 }}"</div>
+                    <div class="item-desc">{{ description|truncatewords_html:40|safe }}</div>
                     {% endif %}
                 </div>
 
