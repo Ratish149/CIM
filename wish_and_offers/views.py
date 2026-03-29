@@ -142,7 +142,7 @@ class WishListCreateView(generics.ListCreateAPIView):
                 Q(user=self.request.user) | Q(email=self.request.user.email)
             )
 
-        return queryset.order_by("-views_count", "-created_at")
+        return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
         user = self.request.user if self.request.user.is_authenticated else None
@@ -247,7 +247,7 @@ class OfferListCreateView(generics.ListCreateAPIView):
                 Q(user=self.request.user) | Q(email=self.request.user.email)
             )
 
-        return queryset.order_by("-views_count", "-created_at")
+        return queryset.order_by("-created_at")
 
     def perform_create(self, serializer):
         user = self.request.user if self.request.user.is_authenticated else None
