@@ -789,14 +789,14 @@ class WishAndOfferCombinedListView(generics.ListAPIView):
         ]
 
         if model_type == "wish":
-            return w_qs.values(*common_fields).order_by("-views_count", "-created_at")
+            return w_qs.values(*common_fields).order_by("-created_at")
         elif model_type == "offer":
-            return o_qs.values(*common_fields).order_by("-views_count", "-created_at")
+            return o_qs.values(*common_fields).order_by("-created_at")
 
         combined = (
             w_qs.values(*common_fields)
             .union(o_qs.values(*common_fields))
-            .order_by("-views_count", "-created_at")
+            .order_by("-created_at")
         )
 
         return combined
