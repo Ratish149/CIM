@@ -162,7 +162,7 @@ class WishListCreateView(generics.ListCreateAPIView):
         match_objects = Match.objects.filter(wish=wish)
 
         # Send email to both Wish and Offer creators
-        send_new_item_notification(wish)
+        # send_new_item_notification(wish)
 
         return Response(
             {
@@ -269,7 +269,7 @@ class OfferListCreateView(generics.ListCreateAPIView):
         match_objects = Match.objects.filter(offer=offer)
 
         # Send email to both Wish and Offer creators
-        send_new_item_notification(offer)
+        # send_new_item_notification(offer)
 
         return Response(
             {
@@ -794,7 +794,8 @@ class WishAndOfferCombinedListView(generics.ListAPIView):
             return o_qs.values(*common_fields).order_by("-created_at")
 
         combined = (
-            w_qs.values(*common_fields)
+            w_qs
+            .values(*common_fields)
             .union(o_qs.values(*common_fields))
             .order_by("-created_at")
         )
