@@ -7,6 +7,7 @@ from .views import (
     RunningSessionListCreateView,
     RunningSessionRetrieveUpdateDestroyView,
     SessionListCreateView,
+    SessionRetrieveUpdateDestroyView,
     TopQuestionView,
     UpdateSessionAcceptingQuestionsView,
     VotingCreateView,
@@ -31,6 +32,11 @@ urlpatterns = [
         name="questions_by_running_session",
     ),
     path("sessions/", SessionListCreateView.as_view(), name="session_list_create"),
+    path(
+        "sessions/<int:pk>/",
+        SessionRetrieveUpdateDestroyView.as_view(),
+        name="session-retrieve-update-destroy",
+    ),
     path(
         "running-sessions/",
         RunningSessionListCreateView.as_view(),

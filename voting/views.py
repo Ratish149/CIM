@@ -169,6 +169,11 @@ class SessionListCreateView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class SessionRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = SessionSerializer
+    queryset = Session.objects.all()
+
+
 class RunningSessionListCreateView(generics.ListCreateAPIView):
     serializer_class = RunningSessionSerializer
     queryset = RunningSession.objects.all().order_by("-id")
