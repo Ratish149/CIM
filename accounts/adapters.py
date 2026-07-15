@@ -79,6 +79,4 @@ class CustomHeadlessAdapter(DefaultHeadlessAdapter):
             # The frontend should handle this case
             ret["error"] = "Token creation failed"
 
-        print("CustomHeadlessAdapter serialize_user", ret)
-
         return ret

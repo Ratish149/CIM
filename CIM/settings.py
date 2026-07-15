@@ -92,6 +92,7 @@ SITE_ID = 1
 
 
 MIDDLEWARE = [
+    "CIM.middleware.BlockScannersMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -304,4 +305,27 @@ HEADLESS_ADAPTER = "accounts.adapters.CustomHeadlessAdapter"
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=365),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
+}
+
+# Logging configuration to suppress noisy bot scan logs (404s and Host header scans)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",  # Silences 404 WARNING logs, but still logs 500 SERVER ERROR logs
+            "propagate": False,
+        },
+        "django.security.DisallowedHost": {
+            "handlers": ["console"],
+            "level": "ERROR",  # Silences "Invalid HTTP_HOST header" warning logs from bots
+            "propagate": False,
+        },
+    },
 }
