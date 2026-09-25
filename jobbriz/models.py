@@ -402,8 +402,8 @@ class Location(models.Model):
 
 
 class CareerHistory(models.Model):
-    company_name = models.CharField(max_length=50)
-    job_title = models.CharField(max_length=50)
+    company_name = models.CharField(max_length=255)
+    job_title = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
     description = models.TextField(blank=True)
