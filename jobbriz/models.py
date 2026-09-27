@@ -143,6 +143,7 @@ class JobPost(SlugMixin, models.Model):
     salary_range_min = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True, db_index=True
     )
+    no_of_vacancy = models.PositiveIntegerField(default=1, blank=True)
     salary_range_max = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True, db_index=True
     )
