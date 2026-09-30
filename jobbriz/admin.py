@@ -145,52 +145,6 @@ class JobPostAdmin(ModelAdmin):
     date_hierarchy = "posted_date"
     list_editable = ["status"]
 
-    fieldsets = (
-        (
-            "Basic Information",
-            {
-                "fields": (
-                    "user",
-                    "company_name",
-                    "title",
-                    "slug",
-                    "unit_group",
-                    "description",
-                    "posted_date",
-                    "status",
-                    "email_to",
-                )
-            },
-        ),
-        (
-            "Requirements",
-            {
-                "fields": (
-                    "required_skill_level",
-                    "required_education",
-                    "responsibilities",
-                    "requirements",
-                )
-            },
-        ),
-        (
-            "Compensation & Location",
-            {
-                "fields": (
-                    "show_salary",
-                    "salary_range_min",
-                    "salary_range_max",
-                    "location",
-                )
-            },
-        ),
-        ("Job Details", {"fields": ("employment_type", "deadline")}),
-        (
-            "Statistics",
-            {"fields": ("views_count", "applications_count"), "classes": ("collapse",)},
-        ),
-    )
-
 
 @admin.register(JobApplication)
 class JobApplicationAdmin(ModelAdmin):

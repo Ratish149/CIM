@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Sum, Value, When
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from events.models import Event
@@ -17,7 +18,7 @@ def get_platform_statistics() -> Dict[str, Any]:
     - Offers count
     - Upcoming events count
     - Past events count
-    - Jobs count
+    - Jobs count (taking into account vacancies)
     - Skilled workforce roster / graduates count
     - Work interest count
     - Companies placing jobs count
@@ -47,7 +48,18 @@ def get_platform_statistics() -> Dict[str, Any]:
         .count()
     )
 
-    jobs_count = JobPost.objects.filter(status="Published").count()
+    jobs_count = JobPost.objects.filter(status="Published").aggregate(
+        total_vacancies=Coalesce(
+            Sum(
+                Case(
+                    When(no_of_vacancy__gt=0, then="no_of_vacancy"),
+                    default=Value(1),
+                    output_field=IntegerField(),
+                )
+            ),
+            0,
+        )
+    )["total_vacancies"]
 
     skilled_workforce_roster_count = GraduateRoster.objects.count()
 
