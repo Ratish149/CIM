@@ -1,4 +1,6 @@
-from django.conf import settings  # Import settings
+import logging
+
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -10,6 +12,8 @@ from rest_framework.views import APIView
 
 from .models import Contact, Newsletter
 from .serializers import ContactSerializer, NewsletterSerializer
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -36,25 +40,28 @@ class ContactView(APIView):
             contact = serializer.save()
 
             # Send email to admin with contact details
-            email_subject = "New Contact Received"
-            context = {"contact": contact}
-            html_message = render_to_string(
-                "email_templates/contact_notification.html", context
-            )
-            plain_message = strip_tags(html_message)
+            try:
+                email_subject = "New Contact Received"
+                context = {"contact": contact}
+                html_message = render_to_string(
+                    "email_templates/contact_notification.html", context
+                )
+                plain_message = strip_tags(html_message)
 
-            from_email = settings.DEFAULT_FROM_EMAIL
-            to_email = [settings.ADMIN_EMAIL]
+                from_email = settings.DEFAULT_FROM_EMAIL
+                to_email = [settings.ADMIN_EMAIL]
 
-            # Create and send the email
-            msg = EmailMultiAlternatives(
-                subject=email_subject,
-                body=plain_message,
-                from_email=from_email,
-                to=to_email,
-            )
-            msg.attach_alternative(html_message, "text/html")
-            msg.send(fail_silently=False)
+                # Create and send the email
+                msg = EmailMultiAlternatives(
+                    subject=email_subject,
+                    body=plain_message,
+                    from_email=from_email,
+                    to=to_email,
+                )
+                msg.attach_alternative(html_message, "text/html")
+                msg.send(fail_silently=False)
+            except Exception as e:
+                logger.error("Failed to send contact notification email: %s", e)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

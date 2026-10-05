@@ -1,6 +1,6 @@
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, permissions, status
+from rest_framework import filters, generics, permissions, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -90,10 +90,18 @@ class CustomPageNumberPagination(PageNumberPagination):
 
 
 class EventListCreateView(generics.ListCreateAPIView):
-    queryset = Event.objects.filter(status="Published").order_by("start_date")
-    filter_backends = (DjangoFilterBackend,)
+    queryset = (
+        Event.objects
+        .filter(status="Published")
+        .select_related("event_organizer")
+        .prefetch_related("tags")
+        .order_by("start_date")
+    )
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = EventFilter
     pagination_class = CustomPageNumberPagination
+    ordering_fields = ["start_date", "end_date", "created_at", "title"]
+    ordering = ["start_date"]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
