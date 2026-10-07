@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CIM Weekly Marketplace & Industry Pulse</title>
+    <style>
+        body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
+        img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; display: block; }
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            -webkit-font-smoothing: antialiased;
+        }
+        .outer-table {
+            width: 100%;
+            background-color: #f1f5f9;
+            padding: 32px 10px;
+        }
+        .card-container {
+            max-width: 580px;
+            width: 100%;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+        /* Top Branding Header */
+        .header-section {
+            padding: 24px 28px 18px 28px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        /* Logo Badge: Dark pill provides 100% contrast for white logo text & colorful emblem */
+        .logo-badge {
+            display: inline-block;
+            background-color: #0f172a;
+            border-radius: 6px;
+            padding: 6px 14px;
+            line-height: 0;
+        }
+        .logo-img {
+            height: 24px;
+            width: auto;
+            max-width: 135px;
+            border: 0;
+            display: block;
+        }
+        .header-date {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        /* Title & Greeting */
+        .intro-section {
+            padding: 20px 28px 14px 28px;
+            text-align: left;
+        }
+        .intro-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2563eb;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .intro-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            margin: 0 0 6px 0;
+        }
+        .intro-subtext {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
+            margin: 0 0 14px 0;
+        }
+        .greeting-text {
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.5;
+            margin: 0;
+        }
+        /* Compact Stats Strip */
+        .stats-wrapper {
+            padding: 0 28px 20px 28px;
+        }
+        .stats-table {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            width: 100%;
+        }
+        .stat-col {
+            text-align: center;
+            padding: 10px 4px;
+        }
+        .stat-num {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+        .stat-lbl {
+            font-size: 10px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 2px;
+        }
+        /* Content Sections */
+        .section-block {
+            padding: 0 28px 20px 28px;
+            text-align: left;
+        }
+        .section-divider {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+        .section-heading {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+        .section-link {
+            font-size: 11px;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .feed-item {
+            padding: 9px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+        .feed-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.35;
+        }
+        .feed-meta {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .tag-pill {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background-color: #f1f5f9;
+            color: #475569;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .event-badge {
+            display: inline-block;
+            font-size: 11px;
+            color: #475569;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-top: 3px;
+        }
+        .empty-state {
+            padding: 10px 12px;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+        }
+        /* CTA Section */
+        .cta-box {
+            padding: 18px 28px 22px 28px;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+        }
+        .cta-btn {
+            display: inline-block;
+            background-color: #0f172a;
+            color: #ffffff !important;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            letter-spacing: 0.01em;
+        }
+        .cta-sublinks {
+            margin-top: 12px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .cta-sublink {
+            color: #64748b;
+            text-decoration: none;
+            margin: 0 4px;
+        }
+        /* Clean, Light Seamless Footer */
+        .footer-section {
+            padding: 22px 28px;
+            background-color: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .footer-org {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+        .footer-location {
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .footer-note {
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .footer-links a {
+            color: #2563eb;
+            text-decoration: none;
+            margin: 0 4px;
+        }
+        .footer-copy {
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+        @media only screen and (max-width: 600px) {
+            .outer-table { padding: 10px 0 !important; }
+            .card-container { border-radius: 0 !important; border: none !important; }
+            .header-section, .intro-section, .stats-wrapper, .section-block, .cta-box, .footer-section {
+                padding-left: 18px !important;
+                padding-right: 18px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="outer-table">
+        <center>
+            <div class="card-container">
+
+                <!-- TOP BRANDING HEADER: High-contrast logo badge & date -->
+                <div class="header-section">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td align="left" valign="middle">
+                                <a href="https://biratbazaar.com/" target="_blank" style="text-decoration: none; display: inline-block;">
+                                    <table cellpadding="0" cellspacing="0" border="0" style="background-color: #0f172a; border-radius: 6px;">
+                                        <tr>
+                                            <td style="padding: 6px 14px; line-height: 0;" valign="middle">
+                                                <img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="Biratbazaar" class="logo-img">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </a>
+                            </td>
+                            <td align="right" valign="middle" class="header-date">
+                                {{ week_range|default:"Weekly Digest" }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- INTRO & GREETING -->
+                <div class="intro-section">
+                    <div class="intro-eyebrow">Chamber of Industries Morang</div>
+                    <h1 class="intro-title">Weekly Marketplace &amp; Industry Pulse</h1>
+                    <p class="intro-subtext">
+                        Your curated summary of new supply offers, buyer wishes, career openings, and trade events across Koshi Province.
+                    </p>
+                    <p class="greeting-text">
+                        Hello <strong>{{ recipient_name|default:"Member" }}</strong>, here is what transpired across the platform in the past 7 days:
+                    </p>
+                </div>
+
+                <!-- COMPACT STATS STRIP (Clean, slim 4-column bar) -->
+                <div class="stats-wrapper">
+                    <table cellpadding="0" cellspacing="0" border="0" class="stats-table">
+                        <tr>
+                            <td width="25%" class="stat-col" style="border-right: 1px solid #e2e8f0;">
+                                <div class="stat-num">{{ stats.offers_count|default:"0" }}</div>
+                                <div class="stat-lbl">Offers</div>
+                            </td>
+                            <td width="25%" class="stat-col" style="border-right: 1px solid #e2e8f0;">
+                                <div class="stat-num">{{ stats.wishes_count|default:"0" }}</div>
+                                <div class="stat-lbl">Wishes</div>
+                            </td>
+                            <td width="25%" class="stat-col" style="border-right: 1px solid #e2e8f0;">
+                                <div class="stat-num">{{ stats.jobs_count|default:"0" }}</div>
+                                <div class="stat-lbl">Jobs</div>
+                            </td>
+                            <td width="25%" class="stat-col">
+                                <div class="stat-num">{{ stats.events_created_count|default:"0" }}</div>
+                                <div class="stat-lbl">Events</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 01: OFFERS -->
+                <div class="section-block">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" class="section-divider">
+                        <tr>
+                            <td align="left">
+                                <span class="section-heading">01 / New Supply Offers</span>
+                            </td>
+                            <td align="right">
+                                <a href="https://biratbazaar.com/wishes-and-offers" class="section-link">View all &rarr;</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                    {% for offer in stats.recent_offers %}
+                    <div class="feed-item">
+                        <div class="feed-title">
+                            {{ offer.title }}
+                            {% if offer.type %}
+                            <span class="tag-pill">{{ offer.type }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="feed-meta">
+                            {% if offer.company_name %}
+                                By <strong>{{ offer.company_name }}</strong>
+                            {% elif offer.full_name %}
+                                By {{ offer.full_name }}
+                            {% else %}
+                                Verified Supplier
+                            {% endif %}
+                        </div>
+                        {% if offer.event %}
+                        <div>
+                            <span class="event-badge">Event: {{ offer.event.title }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        No new supply offers posted this week. Have products or services to sell? 
+                        <a href="https://biratbazaar.com/wishes-and-offers" style="color: #2563eb; font-weight: 600; text-decoration: none;">Post an offer &rarr;</a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- SECTION 02: WISHES -->
+                <div class="section-block">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" class="section-divider">
+                        <tr>
+                            <td align="left">
+                                <span class="section-heading">02 / Procurement Wishes</span>
+                            </td>
+                            <td align="right">
+                                <a href="https://biratbazaar.com/wishes-and-offers" class="section-link">View all &rarr;</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                    {% for wish in stats.recent_wishes %}
+                    <div class="feed-item">
+                        <div class="feed-title">
+                            {{ wish.title }}
+                            {% if wish.type %}
+                            <span class="tag-pill">{{ wish.type }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="feed-meta">
+                            {% if wish.company_name %}
+                                Sourcing by <strong>{{ wish.company_name }}</strong>
+                            {% elif wish.full_name %}
+                                Sourcing by {{ wish.full_name }}
+                            {% else %}
+                                Buyer Requirement
+                            {% endif %}
+                        </div>
+                        {% if wish.event %}
+                        <div>
+                            <span class="event-badge">Event: {{ wish.event.title }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        No new buyer wishes this week. Looking for specific raw materials or services? 
+                        <a href="https://biratbazaar.com/wishes-and-offers" style="color: #2563eb; font-weight: 600; text-decoration: none;">Post a wish &rarr;</a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- SECTION 03: JOBS -->
+                <div class="section-block">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" class="section-divider">
+                        <tr>
+                            <td align="left">
+                                <span class="section-heading">03 / Career Openings</span>
+                            </td>
+                            <td align="right">
+                                <a href="https://biratbazaar.com/jobbriz" class="section-link">View all &rarr;</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                    {% for job in stats.recent_jobs %}
+                    <div class="feed-item">
+                        <div class="feed-title">
+                            {{ job.title }}
+                            {% if job.employment_type %}
+                            <span class="tag-pill">{{ job.employment_type }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="feed-meta">
+                            {% if job.company_name %}<strong>{{ job.company_name }}</strong>{% endif %}
+                            {% if job.location %} &bull; {{ job.location }}{% endif %}
+                            &bull; {{ job.no_of_vacancy }} {% if job.no_of_vacancy > 1 %}Openings{% else %}Opening{% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        No new job posts this week. Explore current vacancies on Jobbriz. 
+                        <a href="https://biratbazaar.com/jobbriz" style="color: #2563eb; font-weight: 600; text-decoration: none;">Browse jobs &rarr;</a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- SECTION 04: EVENTS -->
+                <div class="section-block">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" class="section-divider">
+                        <tr>
+                            <td align="left">
+                                <span class="section-heading">04 / Expos &amp; Trade Events</span>
+                            </td>
+                            <td align="right">
+                                <a href="https://biratbazaar.com/events" class="section-link">Calendar &rarr;</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                    {% for event in stats.recent_events_created %}
+                    <div class="feed-item">
+                        <div class="feed-title">
+                            {{ event.title }}
+                            <span class="tag-pill" style="background-color: #e0f2fe; color: #0369a1;">New</span>
+                        </div>
+                        <div class="feed-meta">
+                            {% if event.start_date %}{{ event.start_date }}{% if event.end_date %} &ndash; {{ event.end_date }}{% endif %}{% endif %}
+                            {% if event.location %} &bull; {{ event.location }}{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% for event in stats.upcoming_events %}
+                    {% if event not in stats.recent_events_created %}
+                    <div class="feed-item">
+                        <div class="feed-title">
+                            {{ event.title }}
+                        </div>
+                        <div class="feed-meta">
+                            {% if event.start_date %}{{ event.start_date }}{% if event.end_date %} &ndash; {{ event.end_date }}{% endif %}{% endif %}
+                            {% if event.location %} &bull; {{ event.location }}{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% empty %}
+                    {% if not stats.recent_events_created %}
+                    <div class="empty-state">
+                        No upcoming industry events scheduled right now.
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- CTA -->
+                <div class="cta-box">
+                    <a href="https://biratbazaar.com/" target="_blank" class="cta-btn">
+                        Access Biratbazaar Platform &rarr;
+                    </a>
+                    <div class="cta-sublinks">
+                        <a href="https://biratbazaar.com/wishes-and-offers" class="cta-sublink">Offers</a> &bull;
+                        <a href="https://biratbazaar.com/wishes-and-offers" class="cta-sublink">Wishes</a> &bull;
+                        <a href="https://biratbazaar.com/jobbriz" class="cta-sublink">Jobs</a> &bull;
+                        <a href="https://biratbazaar.com/events" class="cta-sublink">Events</a>
+                    </div>
+                </div>
+
+                <!-- LIGHT, SEAMLESS FOOTER (No harsh dark blocks) -->
+                <div class="footer-section">
+                    <div class="footer-org">Chamber of Industries Morang (CIM)</div>
+                    <div class="footer-location">Biratnagar, Koshi Province, Nepal</div>
+                    <div class="footer-note">
+                        You received this automated intelligence digest because your email is registered on the CIM / Biratbazaar platform.
+                    </div>
+                    <div class="footer-links">
+                        <a href="https://biratbazaar.com/" target="_blank">Platform</a> &bull;
+                        <a href="https://biratbazaar.com/contact" target="_blank">Support</a> &bull;
+                        <a href="https://biratbazaar.com/privacy-policy" target="_blank">Privacy</a>
+                    </div>
+                    <div class="footer-copy">
+                        &copy; {{ current_year|default:"2026" }} Chamber of Industries Morang. All rights reserved.
+                    </div>
+                </div>
+
+            </div>
+        </center>
+    </div>
+</body>
+</html>
