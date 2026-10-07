@@ -155,6 +155,11 @@ urlpatterns = [
         views.WorkInterestHireCreateView.as_view(),
         name="work-interest-hire",
     ),
+    path(
+        "graduates/<int:pk>/hire/",
+        views.GraduateRosterHireCreateView.as_view(),
+        name="graduate-hire",
+    ),
     # Location URLs
     path("locations/", views.LocationListCreateView.as_view(), name="location-list"),
     # Industry URLs

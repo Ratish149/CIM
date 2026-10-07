@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from jobbriz.serializers import WorkInterestListSerializer
+from jobbriz_institute.models import GraduateRoster
 
 from .models import (
     ApprenticeshipApplication,
@@ -41,6 +42,7 @@ from .serializers import (
     CareerHistorySerializer,
     CertificationSerializer,
     EducationSerializer,
+    GraduateRosterHireSerializer,
     HireRequestSerializer,
     HireRequestStatusUpdateSerializer,
     ImportGroupsSerializer,
@@ -67,6 +69,7 @@ from .serializers import (
 )
 from .utils import (
     send_apprenticeship_application_emails,
+    send_graduate_roster_hire_emails,
     send_internship_registration_emails,
     send_job_application_emails,
     send_work_interest_hire_emails,
@@ -109,9 +112,10 @@ class JobSeekerDetailView(generics.RetrieveUpdateDestroyAPIView):
         try:
             return JobSeeker.objects.get(user=self.request.user)
         except JobSeeker.DoesNotExist:
-            raise NotFound(
-                {"code": "profile_not_found", "message": "JobSeeker profile not found."}
-            )
+            raise NotFound({
+                "code": "profile_not_found",
+                "message": "JobSeeker profile not found.",
+            })
 
     def get_serializer_class(self):
         if (
@@ -534,7 +538,8 @@ class JobPostListCreateView(generics.ListCreateAPIView):
             )
 
         return (
-            queryset.annotate(total_applicant_count_annotated=F("applications_count"))
+            queryset
+            .annotate(total_applicant_count_annotated=F("applications_count"))
             .order_by("-posted_date")
             .distinct()
         )
@@ -1090,3 +1095,25 @@ class WorkInterestHireCreateView(generics.CreateAPIView):
         except Exception as e:
             # Log error but don't fail the request
             print(f"Failed to send hire request emails: {e}")
+
+
+class GraduateRosterHireCreateView(generics.CreateAPIView):
+    queryset = WorkInterestHire.objects.all()
+    serializer_class = GraduateRosterHireSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        graduate_roster_id = self.kwargs.get("pk")
+        graduate_roster = get_object_or_404(
+            GraduateRoster.objects.select_related("user", "institute"),
+            pk=graduate_roster_id,
+        )
+
+        hire_request = serializer.save(gradutate_roster=graduate_roster)
+
+        # Send email notifications
+        try:
+            send_graduate_roster_hire_emails(hire_request)
+        except Exception as e:
+            # Log error but don't fail the request
+            print(f"Failed to send graduate roster hire request emails: {e}")

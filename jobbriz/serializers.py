@@ -734,3 +734,32 @@ class WorkInterestHireSerializer(serializers.ModelSerializer):
         if request and hasattr(request, "user") and request.user.is_authenticated:
             validated_data["user"] = request.user
         return super().create(validated_data)
+
+
+class GraduateRosterHireSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkInterestHire
+        fields = [
+            "id",
+            "gradutate_roster",
+            "name",
+            "email",
+            "phone",
+            "message",
+            "created_at",
+        ]
+        read_only_fields = ["created_at", "gradutate_roster"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user") and request.user.is_authenticated:
+            validated_data["user"] = request.user
+            if not validated_data.get("name"):
+                full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+                validated_data["name"] = full_name or request.user.username
+            if not validated_data.get("email") and request.user.email:
+                validated_data["email"] = request.user.email
+            if not validated_data.get("phone") and getattr(request.user, "phone", None):
+                validated_data["phone"] = request.user.phone
+        return super().create(validated_data)
+

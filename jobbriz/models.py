@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 
 from accounts.models import CustomUser
+from jobbriz_institute.models import GraduateRoster
 
 
 class SlugMixin:
@@ -267,6 +268,13 @@ class WorkInterestHire(models.Model):
         null=True,
         blank=True,
     )
+    gradutate_roster = models.ForeignKey(
+        GraduateRoster,
+        on_delete=models.CASCADE,
+        related_name="work_interest_roster_hires",
+        null=True,
+        blank=True,
+    )
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -284,7 +292,11 @@ class WorkInterestHire(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Hire Request for {self.work_interest.title}"
+        if self.work_interest:
+            return f"Hire Request for {self.work_interest.title}"
+        if self.gradutate_roster:
+            return f"Hire Request for Graduate Roster: {self.gradutate_roster.name}"
+        return f"Hire Request #{self.pk}"
 
 
 class HireRequest(models.Model):

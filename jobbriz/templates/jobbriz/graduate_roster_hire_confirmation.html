@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hire Request Confirmation</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f8fafc;
+            padding-bottom: 40px;
+        }
+
+        .main {
+            background-color: #ffffff;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .brand-header {
+            background-color: #2563eb;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 40px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 16px;
+            letter-spacing: -0.025em;
+        }
+
+        p {
+            margin: 0 0 20px;
+            font-size: 15px;
+            color: #475569;
+        }
+
+        .info-card {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 16px;
+            font-size: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            width: 120px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .info-value {
+            color: #0f172a;
+            flex: 1;
+        }
+
+        .footer {
+            padding: 32px 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer p {
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .social-links {
+            margin-top: 16px;
+        }
+
+        .social-link {
+            color: #64748b;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        @media screen and (max-width: 600px) {
+            .main {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+            .content, .footer {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <center>
+            <table class="main">
+                <tr>
+                    <td class="brand-header">
+                        <a href="https://biratbazaar.com/"><img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="BIRATBAZAR" style="height: 40px; width: auto; border: 0;"></a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="content">
+                        <h1>Hire Request Confirmed</h1>
+                        <p>Hello <strong>{{ hirer_name }}</strong>,</p>
+                        <p>Your hire request has been successfully delivered. We've notified the graduate candidate and they will review your details shortly.</p>
+
+                        <div class="info-card">
+                            <div class="info-title">Request Summary</div>
+                            <div class="info-row">
+                                <span class="info-label">Candidate</span>
+                                <span class="info-value">{{ candidate_name }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Stream / Level</span>
+                                <span class="info-value">{{ candidate_title }}</span>
+                            </div>
+                            {% if institute_name %}
+                            <div class="info-row">
+                                <span class="info-label">Institute</span>
+                                <span class="info-value">{{ institute_name }}</span>
+                            </div>
+                            {% endif %}
+                            {% if candidate_email %}
+                            <div class="info-row">
+                                <span class="info-label">Contact</span>
+                                <span class="info-value">{{ candidate_email }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <p>The candidate will review your request and may reach out to you directly via the contact information you provided.</p>
+                        
+                        <p>If you have any questions, feel free to reply to this email.</p>
+                        
+                        <p>Best regards,<br>The CIM Team</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="footer">
+                        <p>&copy; {{ current_year }} CIM. All rights reserved.</p>
+                        <p>Biratbazaar, Nepal</p>
+                        <div class="social-links">
+                            <a href="https://biratbazaar.com/" class="social-link">Website</a> &bull; 
+                            <a href="#" class="social-link">Support</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+</body>
+</html>

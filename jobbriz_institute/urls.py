@@ -24,6 +24,11 @@ urlpatterns = [
         name="my-graduate-roster-list",
     ),
     path(
+        "available-graduates/",
+        views.AvailableGraduateListView.as_view(),
+        name="available-graduates",
+    ),
+    path(
         "graduates/<int:pk>/",
         views.GraduateRosterRetrieveUpdateDestroyView.as_view(),
         name="graduate-roster-retrieve-update-destroy",

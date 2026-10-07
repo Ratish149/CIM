@@ -39,6 +39,16 @@ class GraduateRosterFilter(django_filters.FilterSet):
         lookup_expr="icontains",
         label="Institution Name",
     )
+    available_from = django_filters.DateFilter(
+        field_name="available_from",
+        lookup_expr="lte",
+        label="Available From (On or Before)",
+    )
+    available_from_after = django_filters.DateFilter(
+        field_name="available_from",
+        lookup_expr="gte",
+        label="Available From (On or After)",
+    )
 
     class Meta:
         model = GraduateRoster
@@ -52,4 +62,6 @@ class GraduateRosterFilter(django_filters.FilterSet):
             "status",
             "certifying_agency",
             "institution_name",
+            "available_from",
+            "available_from_after",
         ]

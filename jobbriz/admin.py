@@ -34,9 +34,23 @@ class WorkInterestAdmin(ModelAdmin):
 
 @admin.register(WorkInterestHire)
 class WorkInterestHireAdmin(ModelAdmin):
-    list_display = ("name", "email", "phone", "created_at", "updated_at")
+    list_display = (
+        "name",
+        "email",
+        "phone",
+        "work_interest",
+        "gradutate_roster",
+        "created_at",
+        "updated_at",
+    )
     list_filter = ("created_at", "updated_at")
-    search_fields = ("name", "email", "phone")
+    search_fields = (
+        "name",
+        "email",
+        "phone",
+        "work_interest__title",
+        "gradutate_roster__name",
+    )
     date_hierarchy = "created_at"
     readonly_fields = ("created_at", "updated_at")
 

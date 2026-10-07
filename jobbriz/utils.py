@@ -300,7 +300,13 @@ def send_work_interest_hire_emails(hire_request):
     1. To the Professional: Notification.
     2. To the Hirer: Confirmation.
     """
+    if not hire_request.work_interest and hire_request.gradutate_roster:
+        return send_graduate_roster_hire_emails(hire_request)
+
     work_interest = hire_request.work_interest
+    if not work_interest:
+        return
+
     professional_user = work_interest.user
     current_year = date.today().year
 
@@ -419,3 +425,148 @@ def send_work_interest_hire_emails(hire_request):
         )
         msg_hirer.attach_alternative(html_content_hirer, "text/html")
         msg_hirer.send()
+
+
+def send_graduate_roster_hire_emails(hire_request):
+    """
+    Sends email notifications for a new Graduate Roster hire request:
+    1. To the Graduate / Candidate: Notification of the inquiry.
+    2. To the Admin: Notification alert of the inquiry.
+    3. To the Institute (if linked): Notification of the inquiry.
+    4. To the Hirer: Confirmation of the submitted hire request.
+    """
+    graduate = hire_request.gradutate_roster
+    if not graduate:
+        return
+
+    graduate_user = graduate.user
+    institute = graduate.institute
+    current_year = date.today().year
+
+    # Candidate details
+    candidate_name = graduate.name or (
+        f"{graduate_user.first_name} {graduate_user.last_name}".strip()
+        if graduate_user
+        else "Candidate"
+    )
+    candidate_email = graduate.email or (
+        graduate_user.email if graduate_user else None
+    )
+    qualification_parts = [
+        p for p in [graduate.subject_trade_stream, graduate.level_completed] if p
+    ]
+    candidate_title = (
+        " - ".join(qualification_parts) if qualification_parts else "Skilled Graduate"
+    )
+    institute_name = (
+        institute.institute_name
+        if institute
+        else (graduate.institute_name or "")
+    )
+
+    # Hirer details
+    hirer_name = hire_request.name or (
+        f"{hire_request.user.first_name} {hire_request.user.last_name}".strip()
+        if hire_request.user
+        else "Someone"
+    )
+    hirer_email = hire_request.email or (
+        hire_request.user.email if hire_request.user else None
+    )
+    hirer_phone = hire_request.phone
+    message = hire_request.message
+
+    context_base = {
+        "candidate_name": candidate_name,
+        "candidate_title": candidate_title,
+        "institute_name": institute_name,
+        "hirer_name": hirer_name,
+        "hirer_email": hirer_email,
+        "hirer_phone": hirer_phone,
+        "message": message,
+        "current_year": current_year,
+    }
+
+    # --- 1. Email to Candidate ---
+    if candidate_email:
+        subject_candidate = f"New Hire Request: {candidate_name} ({candidate_title})"
+        context_candidate = {**context_base, "is_admin_copy": False, "is_institute_copy": False}
+
+        html_content_candidate = render_to_string(
+            "jobbriz/graduate_roster_hire_notification.html", context_candidate
+        )
+        text_content_candidate = strip_tags(html_content_candidate)
+
+        msg_candidate = EmailMultiAlternatives(
+            subject_candidate,
+            text_content_candidate,
+            settings.DEFAULT_FROM_EMAIL,
+            [candidate_email],
+        )
+        msg_candidate.attach_alternative(html_content_candidate, "text/html")
+        msg_candidate.send()
+
+    # --- 2. Separate Email to Admin ---
+    if getattr(settings, "ADMIN_EMAIL", None):
+        subject_admin = f"ADMIN ALERT: Graduate Roster Hire - {candidate_name}"
+        context_admin = {**context_base, "is_admin_copy": True, "is_institute_copy": False}
+        html_content_admin = render_to_string(
+            "jobbriz/graduate_roster_hire_notification.html", context_admin
+        )
+        text_content_admin = strip_tags(html_content_admin)
+
+        msg_admin = EmailMultiAlternatives(
+            subject_admin,
+            text_content_admin,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+        )
+        msg_admin.attach_alternative(html_content_admin, "text/html")
+        msg_admin.send()
+
+    # --- 3. Optional Email to Institute ---
+    institute_email = institute.email if institute else None
+    if institute_email and institute_email != candidate_email:
+        subject_inst = f"Hire Inquiry for Graduate: {candidate_name} - {candidate_title}"
+        context_inst = {**context_base, "is_admin_copy": False, "is_institute_copy": True}
+        html_content_inst = render_to_string(
+            "jobbriz/graduate_roster_hire_notification.html", context_inst
+        )
+        text_content_inst = strip_tags(html_content_inst)
+
+        msg_inst = EmailMultiAlternatives(
+            subject_inst,
+            text_content_inst,
+            settings.DEFAULT_FROM_EMAIL,
+            [institute_email],
+        )
+        msg_inst.attach_alternative(html_content_inst, "text/html")
+        msg_inst.send()
+
+    # --- 4. Email to Hirer ---
+    if hirer_email:
+        subject_hirer = f"Hire Request Sent: {candidate_name}"
+        context_hirer = {
+            "hirer_name": hirer_name,
+            "candidate_name": candidate_name,
+            "candidate_email": candidate_email,
+            "candidate_phone": graduate.phone_number,
+            "candidate_title": candidate_title,
+            "institute_name": institute_name,
+            "current_year": current_year,
+        }
+
+        html_content_hirer = render_to_string(
+            "jobbriz/graduate_roster_hire_confirmation.html", context_hirer
+        )
+        text_content_hirer = strip_tags(html_content_hirer)
+
+        msg_hirer = EmailMultiAlternatives(
+            subject_hirer,
+            text_content_hirer,
+            settings.DEFAULT_FROM_EMAIL,
+            [hirer_email],
+        )
+        msg_hirer.attach_alternative(html_content_hirer, "text/html")
+        msg_hirer.send()
+

@@ -1,6 +1,8 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -168,3 +170,25 @@ class InstituteGraduateRosterListView(generics.ListAPIView):
     def get_queryset(self):
         institute = getattr(self.request.user, "institute", None)
         return GraduateRoster.objects.filter(institute=institute)
+
+
+class AvailableGraduateListView(generics.ListAPIView):
+    serializer_class = GraduateRosterListSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_class = GraduateRosterFilter
+    search_fields = ["name", "specialization_key_skills", "subject_trade_stream"]
+    ordering_fields = ["created_at", "passed_year", "name", "available_from"]
+
+    def get_queryset(self):
+        today = timezone.now().date()
+        return (
+            GraduateRoster.objects.filter(job_status="Available for Job")
+            .filter(Q(available_from__lte=today) | Q(available_from__isnull=True))
+            .select_related("institute", "user")
+            .order_by("-created_at")
+        )
