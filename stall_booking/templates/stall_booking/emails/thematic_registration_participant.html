@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Received - CIM Thematic Session</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #0f172a;
+            -webkit-text-size-adjust: 100%;
+        }
+        .wrapper {
+            padding: 30px 15px;
+            background-color: #f1f5f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .brand-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            padding: 24px;
+            text-align: center;
+        }
+        .brand-header img {
+            height: 48px;
+            width: auto;
+            max-width: 100%;
+            display: inline-block;
+        }
+        .brand-subtitle {
+            color: #dbeafe;
+            font-size: 13px;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .hero {
+            padding: 28px 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .hero-badge {
+            display: inline-block;
+            background-color: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .hero h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+        }
+        .hero p {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .content {
+            padding: 24px;
+        }
+        .greeting {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #334155;
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 14px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table td {
+            padding: 6px 0;
+            vertical-align: top;
+            font-size: 13px;
+        }
+        .data-table td.label {
+            color: #64748b;
+            font-weight: 600;
+            width: 38%;
+        }
+        .data-table td.val {
+            color: #0f172a;
+            font-weight: 500;
+        }
+        .session-item {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #2563eb;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+        .session-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        .session-meta {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .callout {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 14px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .footer strong {
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <!-- Brand Header -->
+            <div class="brand-header">
+                <img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="CIM Logo">
+                <div class="brand-subtitle">Chamber of Industries Morang</div>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="hero">
+                <span class="hero-badge">Application Received</span>
+                <h1>Thank You for Registering!</h1>
+                <p>Your application for the CIM Thematic Session has been successfully received.</p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="content">
+                <p class="greeting">
+                    Dear <strong>{{ registration.name }}</strong>,<br><br>
+                    Thank you for showing interest and registering for the <strong>CIM Thematic Session</strong>. 
+                    Your application has been logged into our system and is currently under review by our organizing committee.
+                </p>
+
+                <!-- Participant Details Card -->
+                <div class="card">
+                    <div class="card-title">Registration Summary</div>
+                    <table class="data-table">
+                        <tr>
+                            <td class="label">Full Name:</td>
+                            <td class="val">{{ registration.name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Organization:</td>
+                            <td class="val">{{ registration.organization }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Designation:</td>
+                            <td class="val">{{ registration.designation }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Role:</td>
+                            <td class="val"><strong>{{ registration.participant }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Contact Number:</td>
+                            <td class="val">{{ registration.contact }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Email Address:</td>
+                            <td class="val">{{ registration.email }}</td>
+                        </tr>
+                        {% if registration.address %}
+                        <tr>
+                            <td class="label">Address:</td>
+                            <td class="val">{{ registration.address }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+
+                <!-- Selected Sessions Card -->
+                {% if sessions %}
+                <div class="card">
+                    <div class="card-title">Selected Thematic Sessions</div>
+                    {% for session in sessions %}
+                    <div class="session-item">
+                        <div class="session-title">{{ session.title }}</div>
+                        <div class="session-meta">
+                            📅 Date: {{ session.date }} &nbsp;|&nbsp; ⏰ Time: {{ session.start_time }}{% if session.end_time %} - {{ session.end_time }}{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Travel & Hospitality Card (if applicable) -->
+                {% if registration.food or registration.hotel_accomodation or registration.flight_no %}
+                <div class="card">
+                    <div class="card-title">Travel & Logistics</div>
+                    <table class="data-table">
+                        {% if registration.food %}
+                        <tr>
+                            <td class="label">Meal Preference:</td>
+                            <td class="val">{{ registration.food }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.hotel_accomodation %}
+                        <tr>
+                            <td class="label">Accommodation:</td>
+                            <td class="val">{{ registration.hotel_accomodation }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.flight_no %}
+                        <tr>
+                            <td class="label">Flight:</td>
+                            <td class="val">{{ registration.flight_no }}{% if registration.airline %} ({{ registration.airline }}){% endif %}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% endif %}
+
+                <!-- Informational Callout -->
+                <div class="callout">
+                    <strong>What happens next?</strong><br>
+                    Our event secretariat is reviewing submissions. You will receive further confirmation and session schedules prior to the event date.
+                </div>
+
+                <p style="font-size: 14px; color: #475569; margin-top: 24px;">
+                    Warm regards,<br>
+                    <strong>CIM Thematic Session Committee</strong><br>
+                    Chamber of Industries Morang (CIM)
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <strong>Chamber of Industries Morang (CIM)</strong><br>
+                Biratnagar, Koshi Province, Nepal<br>
+                Need assistance? Email us at <a href="mailto:info.cimbrt@gmail.com" style="color: #2563eb; text-decoration: none;">info.cimbrt@gmail.com</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -157,12 +157,20 @@ class ThematicRegistration(models.Model):
     ]
 
     name = models.CharField(max_length=255)
-    organization = models.CharField(max_length=255)
-    designation = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
-    email = models.EmailField()
-    contact = models.CharField(max_length=15)
-    participant = models.CharField(max_length=20, choices=PARTICIPANT_TYPE_CHOICES)
+    organization = models.CharField(max_length=255, null=True, blank=True)
+    designation = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    contact = models.CharField(max_length=15, null=True, blank=True)
+    participant = models.CharField(
+        max_length=20, choices=PARTICIPANT_TYPE_CHOICES, null=True, blank=True
+    )
+
+    opportunity_theme1 = models.CharField(max_length=255, null=True, blank=True)
+    opportunity_theme2 = models.CharField(max_length=255, null=True, blank=True)
+    opportunity_theme3 = models.CharField(max_length=255, null=True, blank=True)
+
+    business_connections = models.CharField(max_length=255, null=True, blank=True)
 
     arrival_date = models.DateField(null=True, blank=True)
     departure_date = models.DateField(null=True, blank=True)
@@ -182,6 +190,7 @@ class ThematicRegistration(models.Model):
 
     sessions = models.ManyToManyField(ThematicSession, related_name="registrations")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+    additional_info = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} - {self.organization}"

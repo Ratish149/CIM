@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN ALERT: New Thematic Session Registration</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #0f172a;
+            -webkit-text-size-adjust: 100%;
+        }
+        .wrapper {
+            padding: 30px 15px;
+            background-color: #f1f5f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .brand-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 24px;
+            text-align: center;
+        }
+        .brand-header img {
+            height: 48px;
+            width: auto;
+            max-width: 100%;
+            display: inline-block;
+        }
+        .brand-subtitle {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .hero {
+            padding: 24px 24px 18px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .hero-badge {
+            display: inline-block;
+            background-color: #fee2e2;
+            color: #b91c1c;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .hero h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+        .hero p {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0;
+        }
+        .content {
+            padding: 24px;
+        }
+        .card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+        }
+        .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table td {
+            padding: 6px 0;
+            vertical-align: top;
+            font-size: 13px;
+        }
+        .data-table td.label {
+            color: #64748b;
+            font-weight: 600;
+            width: 38%;
+        }
+        .data-table td.val {
+            color: #0f172a;
+            font-weight: 500;
+        }
+        .session-item {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #2563eb;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+        .session-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+        .session-meta {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <!-- Brand Header -->
+            <div class="brand-header">
+                <img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="CIM Logo">
+                <div class="brand-subtitle">CIM Administration Alert</div>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="hero">
+                <span class="hero-badge">New Registration</span>
+                <h1>New Thematic Session Registration</h1>
+                <p>A new participant application has been submitted.</p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="content">
+                <!-- Participant Information Card -->
+                <div class="card">
+                    <div class="card-title">Participant Information</div>
+                    <table class="data-table">
+                        <tr>
+                            <td class="label">Name:</td>
+                            <td class="val"><strong>{{ registration.name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Organization:</td>
+                            <td class="val">{{ registration.organization }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Designation:</td>
+                            <td class="val">{{ registration.designation }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Participant Type:</td>
+                            <td class="val"><strong>{{ registration.participant }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Email:</td>
+                            <td class="val"><a href="mailto:{{ registration.email }}" style="color: #2563eb; text-decoration: none;">{{ registration.email }}</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Contact:</td>
+                            <td class="val">{{ registration.contact }}</td>
+                        </tr>
+                        {% if registration.address %}
+                        <tr>
+                            <td class="label">Address:</td>
+                            <td class="val">{{ registration.address }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="label">Status:</td>
+                            <td class="val"><span style="color: #d97706; font-weight: 700;">{{ registration.status }}</span></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Selected Sessions Card -->
+                {% if sessions %}
+                <div class="card">
+                    <div class="card-title">Selected Thematic Sessions</div>
+                    {% for session in sessions %}
+                    <div class="session-item">
+                        <div class="session-title">{{ session.title }}</div>
+                        <div class="session-meta">
+                            📅 Date: {{ session.date }} &nbsp;|&nbsp; ⏰ Time: {{ session.start_time }}{% if session.end_time %} - {{ session.end_time }}{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Opportunities & Business Connections (if any) -->
+                {% if registration.opportunity_theme1 or registration.opportunity_theme2 or registration.opportunity_theme3 or registration.business_connections %}
+                <div class="card">
+                    <div class="card-title">Opportunities & Business Connections</div>
+                    <table class="data-table">
+                        {% if registration.opportunity_theme1 %}
+                        <tr>
+                            <td class="label">Theme 1:</td>
+                            <td class="val">{{ registration.opportunity_theme1 }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.opportunity_theme2 %}
+                        <tr>
+                            <td class="label">Theme 2:</td>
+                            <td class="val">{{ registration.opportunity_theme2 }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.opportunity_theme3 %}
+                        <tr>
+                            <td class="label">Theme 3:</td>
+                            <td class="val">{{ registration.opportunity_theme3 }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.business_connections %}
+                        <tr>
+                            <td class="label">Connections:</td>
+                            <td class="val">{{ registration.business_connections }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% endif %}
+
+                <!-- Travel & Hospitality (if any) -->
+                {% if registration.food or registration.hotel_accomodation or registration.flight_no or registration.hotel %}
+                <div class="card">
+                    <div class="card-title">Travel & Logistics</div>
+                    <table class="data-table">
+                        {% if registration.food %}
+                        <tr>
+                            <td class="label">Food Choice:</td>
+                            <td class="val">{{ registration.food }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.hotel_accomodation %}
+                        <tr>
+                            <td class="label">Accommodation:</td>
+                            <td class="val">{{ registration.hotel_accomodation }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.hotel %}
+                        <tr>
+                            <td class="label">Hotel:</td>
+                            <td class="val">{{ registration.hotel }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.check_in_date %}
+                        <tr>
+                            <td class="label">Check In:</td>
+                            <td class="val">{{ registration.check_in_date }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.check_out_date %}
+                        <tr>
+                            <td class="label">Check Out:</td>
+                            <td class="val">{{ registration.check_out_date }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.flight_no %}
+                        <tr>
+                            <td class="label">Arrival Flight:</td>
+                            <td class="val">{{ registration.flight_no }} ({{ registration.flight_time|default:"N/A" }}) - {{ registration.airline|default:"" }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.return_flight_no %}
+                        <tr>
+                            <td class="label">Return Flight:</td>
+                            <td class="val">{{ registration.return_flight_no }} ({{ registration.return_flight_time|default:"N/A" }})</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% endif %}
+
+                <!-- Additional Info -->
+                {% if registration.additional_info %}
+                <div class="card">
+                    <div class="card-title">Additional Info</div>
+                    <p style="font-size: 13px; color: #334155; margin: 0; line-height: 1.5;">{{ registration.additional_info }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                Automated Notification &bull; Chamber of Industries Morang (CIM)
+            </div>
+        </div>
+    </div>
+</body>
+</html>
