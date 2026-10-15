@@ -4,10 +4,13 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from rest_framework import generics, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, status
 from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from .filters import ThematicRegistrationFilter
 from .models import (
     GuidedTour,
     Invitation,
@@ -30,6 +33,12 @@ from .serializers import (
     ThematicSessionSerializer,
 )
 from .services.registration_email_service import send_thematic_registration_emails
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 1000
 
 
 def export(request):
@@ -190,8 +199,14 @@ class ThematicSessionRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPI
 
 # ListCreate view for ThematicRegistration
 class ThematicRegistrationListCreateView(generics.ListCreateAPIView):
-    queryset = ThematicRegistration.objects.all().prefetch_related("sessions")
+    queryset = (
+        ThematicRegistration.objects.all().prefetch_related("sessions").order_by("-id")
+    )
     serializer_class = ThematicRegistrationSerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = ThematicRegistrationFilter
+    search_fields = ["name", "contact", "organization"]
 
     def perform_create(self, serializer):
         sessions_data = self.request.data.get("sessions", [])
