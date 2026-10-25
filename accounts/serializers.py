@@ -4,11 +4,11 @@ from .models import (
     CustomUser,
     File,
     Organization,
-    PasswordResetCode,
 )
 from .services import (
     change_user_password_by_email,
     create_and_send_password_reset_code,
+    resend_password_reset_code,
     reset_password_with_code,
     verify_password_reset_code,
 )
@@ -166,6 +166,20 @@ class RequestPasswordResetSerializer(serializers.Serializer):
     def save(self, **kwargs):
         email = self.validated_data["email"]
         return create_and_send_password_reset_code(email)
+
+
+class ResendPasswordResetCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        email = value.strip()
+        if not CustomUser.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+        return email
+
+    def save(self, **kwargs):
+        email = self.validated_data["email"]
+        return resend_password_reset_code(email)
 
 
 class VerifyPasswordResetCodeSerializer(serializers.Serializer):

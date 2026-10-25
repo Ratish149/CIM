@@ -10,6 +10,7 @@ from .serializers import (
     OrganizationSerializer,
     RegisterSerializer,
     RequestPasswordResetSerializer,
+    ResendPasswordResetCodeSerializer,
     UserSerializer,
     VerifyPasswordResetCodeSerializer,
 )
@@ -133,6 +134,20 @@ class RequestPasswordResetCodeView(generics.GenericAPIView):
         serializer.save()
         return Response(
             {"detail": "Verification code has been sent to your email."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ResendPasswordResetCodeView(generics.GenericAPIView):
+    serializer_class = ResendPasswordResetCodeSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "Verification code has been resent to your email."},
             status=status.HTTP_200_OK,
         )
 

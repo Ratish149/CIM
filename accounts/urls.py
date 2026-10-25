@@ -9,6 +9,7 @@ from .views import (
     OrganizationListCreateView,
     OrganizationRetrieveUpdateDestroyView,
     RequestPasswordResetCodeView,
+    ResendPasswordResetCodeView,
     UserListCreateView,
     UserLoginView,
     UserRegistrationView,
@@ -34,6 +35,11 @@ urlpatterns = [
         "password-reset/request/",
         RequestPasswordResetCodeView.as_view(),
         name="password-reset-request",
+    ),
+    path(
+        "password-reset/resend/",
+        ResendPasswordResetCodeView.as_view(),
+        name="password-reset-resend",
     ),
     path(
         "password-reset/verify-code/",

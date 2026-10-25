@@ -80,6 +80,14 @@ def create_and_send_password_reset_code(email: str) -> PasswordResetCode:
     return reset_code
 
 
+def resend_password_reset_code(email: str) -> PasswordResetCode:
+    """
+    Resends a new password reset verification code to the user's email,
+    invalidating any previously generated codes.
+    """
+    return create_and_send_password_reset_code(email)
+
+
 def verify_password_reset_code(email: str, code: str) -> PasswordResetCode:
     """
     Validates that a verification code exists, is unused, and has not expired.
