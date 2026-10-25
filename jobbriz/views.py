@@ -647,22 +647,15 @@ class AppliedJobsView(generics.ListAPIView):
 
 class JobApplicationListView(generics.ListAPIView):
     serializer_class = JobApplicationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     filter_backends = [django_filters.DjangoFilterBackend]
     filterset_class = JobApplicationFilter
 
     def get_queryset(self):
-        user = self.request.user
-        if not user or not user.is_authenticated:
-            return JobApplication.objects.none()
-
         queryset = JobApplication.objects.select_related(
             "job__unit_group", "job__user", "applicant"
         )
-        if user.is_staff or user.is_superuser:
-            return queryset
-
-        return queryset.filter(Q(job__user=user) | Q(applicant=user))
+        return queryset
 
 
 class JobApplicationDetailView(generics.RetrieveUpdateAPIView):
