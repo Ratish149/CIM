@@ -4,8 +4,14 @@ from .models import (
     CustomUser,
     File,
     Organization,
+    PasswordResetCode,
 )
-from .services.user_service import change_user_password_by_email
+from .services import (
+    change_user_password_by_email,
+    create_and_send_password_reset_code,
+    reset_password_with_code,
+    verify_password_reset_code,
+)
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -146,3 +152,69 @@ class ChangePasswordByEmailSerializer(serializers.Serializer):
         email = self.validated_data["email"]
         new_password = self.validated_data["new_password"]
         return change_user_password_by_email(email=email, new_password=new_password)
+
+
+class RequestPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        email = value.strip()
+        if not CustomUser.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+        return email
+
+    def save(self, **kwargs):
+        email = self.validated_data["email"]
+        return create_and_send_password_reset_code(email)
+
+
+class VerifyPasswordResetCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    code = serializers.CharField(required=True, max_length=10)
+
+    def validate(self, attrs):
+        email = attrs.get("email", "").strip()
+        code = attrs.get("code", "").strip()
+        reset_record = verify_password_reset_code(email=email, code=code)
+        attrs["reset_record"] = reset_record
+        return attrs
+
+
+class ConfirmPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    code = serializers.CharField(required=True, max_length=10)
+    new_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={"input_type": "password"},
+        trim_whitespace=False,
+    )
+
+    def to_internal_value(self, data):
+        if isinstance(data, dict) and "password" in data and "new_password" not in data:
+            data = data.copy()
+            data["new_password"] = data["password"]
+        return super().to_internal_value(data)
+
+    def validate_new_password(self, value):
+        if len(value) < 6:
+            raise serializers.ValidationError(
+                "Password must be at least 6 characters long."
+            )
+        return value
+
+    def validate(self, attrs):
+        email = attrs.get("email", "").strip()
+        code = attrs.get("code", "").strip()
+        verify_password_reset_code(email=email, code=code)
+        return attrs
+
+    def save(self, **kwargs):
+        email = self.validated_data["email"]
+        code = self.validated_data["code"]
+        new_password = self.validated_data["new_password"]
+        return reset_password_with_code(
+            email=email,
+            code=code,
+            new_password=new_password,
+        )

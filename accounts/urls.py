@@ -3,14 +3,17 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .views import (
     ChangePasswordByEmailView,
+    ConfirmPasswordResetView,
     FileListCreateView,
     FileRetrieveUpdateDestroyView,
     OrganizationListCreateView,
     OrganizationRetrieveUpdateDestroyView,
+    RequestPasswordResetCodeView,
     UserListCreateView,
     UserLoginView,
     UserRegistrationView,
     UserRetrieveUpdateDestroyView,
+    VerifyPasswordResetCodeView,
 )
 
 urlpatterns = [
@@ -26,6 +29,21 @@ urlpatterns = [
         "change-password/",
         ChangePasswordByEmailView.as_view(),
         name="change-password-by-email",
+    ),
+    path(
+        "password-reset/request/",
+        RequestPasswordResetCodeView.as_view(),
+        name="password-reset-request",
+    ),
+    path(
+        "password-reset/verify-code/",
+        VerifyPasswordResetCodeView.as_view(),
+        name="password-reset-verify-code",
+    ),
+    path(
+        "password-reset/confirm/",
+        ConfirmPasswordResetView.as_view(),
+        name="password-reset-confirm",
     ),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

@@ -5,10 +5,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser, File, Organization
 from .serializers import (
     ChangePasswordByEmailSerializer,
+    ConfirmPasswordResetSerializer,
     FileSerializer,
     OrganizationSerializer,
     RegisterSerializer,
+    RequestPasswordResetSerializer,
     UserSerializer,
+    VerifyPasswordResetCodeSerializer,
 )
 
 
@@ -116,6 +119,47 @@ class ChangePasswordByEmailView(generics.GenericAPIView):
         serializer.save()
         return Response(
             {"detail": "Password has been changed successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class RequestPasswordResetCodeView(generics.GenericAPIView):
+    serializer_class = RequestPasswordResetSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "Verification code has been sent to your email."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class VerifyPasswordResetCodeView(generics.GenericAPIView):
+    serializer_class = VerifyPasswordResetCodeSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            {"detail": "Verification code is valid.", "valid": True},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ConfirmPasswordResetView(generics.GenericAPIView):
+    serializer_class = ConfirmPasswordResetSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "Password has been reset successfully."},
             status=status.HTTP_200_OK,
         )
 
