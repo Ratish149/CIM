@@ -15,6 +15,7 @@ from rest_framework.views import APIView
 from jobbriz.serializers import WorkInterestListSerializer
 from jobbriz_institute.models import GraduateRoster
 
+from .filters import JobApplicationFilter, WorkInterestFilterSet
 from .models import (
     ApprenticeshipApplication,
     CareerHistory,
@@ -647,14 +648,21 @@ class AppliedJobsView(generics.ListAPIView):
 class JobApplicationListView(generics.ListAPIView):
     serializer_class = JobApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [django_filters.DjangoFilterBackend]
+    filterset_class = JobApplicationFilter
 
     def get_queryset(self):
         user = self.request.user
-        if user:
-            return JobApplication.objects.filter(applicant=user).select_related(
-                "job__unit_group", "job__user", "applicant"
-            )
-        return JobApplication.objects.none()
+        if not user or not user.is_authenticated:
+            return JobApplication.objects.none()
+
+        queryset = JobApplication.objects.select_related(
+            "job__unit_group", "job__user", "applicant"
+        )
+        if user.is_staff or user.is_superuser:
+            return queryset
+
+        return queryset.filter(Q(job__user=user) | Q(applicant=user))
 
 
 class JobApplicationDetailView(generics.RetrieveUpdateAPIView):
@@ -1012,36 +1020,6 @@ class ApprenticeshipApplicationDetailView(generics.RetrieveUpdateDestroyAPIView)
     serializer_class: type[ApprenticeshipApplicationSerializer] = (
         ApprenticeshipApplicationSerializer
     )
-
-
-class WorkInterestFilterSet(django_filters.FilterSet):
-    unit_group = django_filters.NumberFilter(
-        field_name="unit_group__id", lookup_expr="exact"
-    )
-    proficiency_level = django_filters.CharFilter(
-        field_name="proficiency_level", lookup_expr="exact"
-    )
-    availability = django_filters.CharFilter(
-        field_name="availability", lookup_expr="exact"
-    )
-    skills = django_filters.CharFilter(method="filter_skills")
-
-    class Meta:
-        model = WorkInterest
-        fields = []
-
-    def filter_skills(self, queryset, name, value):
-        if not value:
-            return queryset
-        skill_names = [s.strip() for s in value.split(",") if s.strip()]
-        if not skill_names:
-            return queryset
-
-        query = Q()
-        for skill_name in skill_names:
-            query |= Q(skills__name__icontains=skill_name)
-
-        return queryset.filter(query).distinct()
 
 
 class WorkInterestListCreateView(generics.ListCreateAPIView):
