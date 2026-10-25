@@ -4,6 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import CustomUser, File, Organization
 from .serializers import (
+    ChangePasswordByEmailSerializer,
     FileSerializer,
     OrganizationSerializer,
     RegisterSerializer,
@@ -102,6 +103,20 @@ class UserLoginView(generics.CreateAPIView):
                 "access": str(refresh.access_token),
             },
             status=status.HTTP_201_CREATED,
+        )
+
+
+class ChangePasswordByEmailView(generics.GenericAPIView):
+    serializer_class = ChangePasswordByEmailSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "Password has been changed successfully."},
+            status=status.HTTP_200_OK,
         )
 
 

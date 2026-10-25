@@ -5,6 +5,7 @@ from .models import (
     File,
     Organization,
 )
+from .services.user_service import change_user_password_by_email
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -111,3 +112,37 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "logo",
             "files",
         )
+
+
+class ChangePasswordByEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    new_password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={"input_type": "password"},
+        trim_whitespace=False,
+    )
+
+    def to_internal_value(self, data):
+        if isinstance(data, dict) and "password" in data and "new_password" not in data:
+            data = data.copy()
+            data["new_password"] = data["password"]
+        return super().to_internal_value(data)
+
+    def validate_email(self, value):
+        email = value.strip()
+        if not CustomUser.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+        return email
+
+    def validate_new_password(self, value):
+        if len(value) < 6:
+            raise serializers.ValidationError(
+                "Password must be at least 6 characters long."
+            )
+        return value
+
+    def save(self, **kwargs):
+        email = self.validated_data["email"]
+        new_password = self.validated_data["new_password"]
+        return change_user_password_by_email(email=email, new_password=new_password)
