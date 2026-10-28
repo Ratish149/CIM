@@ -191,6 +191,12 @@ class ThematicRegistration(models.Model):
     sessions = models.ManyToManyField(ThematicSession, related_name="registrations")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
     additional_info = models.TextField(null=True, blank=True)
+    presentation_slide = models.FileField(
+        upload_to="presentation_slides/", blank=True, null=True
+    )
+    opportunity_wall = models.FileField(
+        upload_to="opportunity_walls/", blank=True, null=True
+    )
 
     def __str__(self):
         return f"{self.name} - {self.organization}"

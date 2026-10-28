@@ -95,6 +95,8 @@ class ThematicRegistrationSerializer(serializers.ModelSerializer):
             "status",
             "sessions",
             "additional_info",
+            "presentation_slide",
+            "opportunity_wall",
         ]
 
 
