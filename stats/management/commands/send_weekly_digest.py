@@ -6,7 +6,7 @@ from stats.services.weekly_digest_service import send_weekly_digest
 class Command(BaseCommand):
     help = (
         "Collects weekly platform updates (offers, wishes, jobs, events, stats) "
-        "and emails a digest to all registered users."
+        "and emails a personalized digest directly to registered users with rate limiting."
     )
 
     def add_arguments(self, parser):
@@ -30,8 +30,14 @@ class Command(BaseCommand):
         parser.add_argument(
             "--batch-size",
             type=int,
-            default=50,
-            help="Number of recipients per BCC batch (default: 50).",
+            default=25,
+            help="Number of individual recipient emails sent per SMTP batch (default: 25).",
+        )
+        parser.add_argument(
+            "--delay",
+            type=float,
+            default=1.5,
+            help="Pause in seconds between batches to avoid SMTP rate limiting (default: 1.5).",
         )
 
     def handle(self, *args, **options):
@@ -39,10 +45,12 @@ class Command(BaseCommand):
         test_email = options["test_email"]
         days = options["days"]
         batch_size = options["batch_size"]
+        delay = options["delay"]
 
         self.stdout.write(
             self.style.NOTICE(
-                f"Starting weekly digest (Window: last {days} days, Dry-run: {dry_run}, Test: {test_email or 'None'}, BCC Batch Size: {batch_size})..."
+                f"Starting weekly digest (Window: last {days} days, Dry-run: {dry_run}, "
+                f"Test: {test_email or 'All active users'}, Batch: {batch_size}, Delay: {delay}s)..."
             )
         )
 
@@ -51,6 +59,7 @@ class Command(BaseCommand):
             test_email=test_email,
             dry_run=dry_run,
             batch_size=batch_size,
+            delay_between_batches=delay,
         )
 
         stats = result["stats"]
@@ -60,18 +69,24 @@ class Command(BaseCommand):
         self.stdout.write(f"- New Jobs Posted: {stats['jobs_count']}")
         self.stdout.write(f"- Events Created: {stats['events_created_count']}")
         self.stdout.write(f"- Active Upcoming Events: {len(stats['upcoming_events'])}")
-        self.stdout.write(f"- New Skilled Graduates: {stats['graduates_count']}")
-        self.stdout.write("-------------------------------")
 
-        if dry_run:
+        if result["dry_run"]:
             self.stdout.write(
                 self.style.WARNING(
-                    f"[DRY RUN COMPLETE] Found {result['total_recipients']} eligible user(s). No emails were dispatched."
+                    f"[DRY-RUN] Processed {result['total_recipients']} recipients without dispatching."
+                )
+            )
+        elif result.get("quota_exhausted"):
+            self.stdout.write(
+                self.style.ERROR(
+                    f"Process stopped early! Daily SMTP quota was reached. "
+                    f"Sent: {result['sent_count']}, Failed: {result['failed_count']}."
                 )
             )
         else:
             self.stdout.write(
                 self.style.SUCCESS(
-                    f"Weekly digest dispatched successfully! Sent: {result['sent_count']}, Failed: {result['failed_count']} (Total targeted: {result['total_recipients']})"
+                    f"Completed: {result['sent_count']}/{result['total_recipients']} emails sent successfully "
+                    f"({result['failed_count']} failed)."
                 )
             )
