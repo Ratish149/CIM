@@ -38,10 +38,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://nextel-manufacture-oem-civilian.trycloudflare.com",
+    "https://evidence-proved-flickr-rent.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://nextel-manufacture-oem-civilian.trycloudflare.com",
+    "https://evidence-proved-flickr-rent.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",
@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     "experience_zone",
     "incubation_center",
     "stats",
+    "startup",
 ]
 
 SITE_ID = 1

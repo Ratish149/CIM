@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Registration Received — Startup &amp; Hackathon · Birat Expo 2026</title>
+    <style>
+        body, table, td, p, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+            border-collapse: collapse;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            outline: none;
+            text-decoration: none;
+            display: block;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrapper {
+            padding: 30px 15px;
+            background-color: #f1f5f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .brand-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            padding: 24px;
+            text-align: center;
+        }
+        .brand-header img {
+            height: 48px;
+            width: auto;
+            max-width: 100%;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        .brand-subtitle {
+            color: #dbeafe;
+            font-size: 13px;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .hero {
+            padding: 28px 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .hero-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .badge-makerspace {
+            background-color: #ecfeff;
+            color: #0e7490;
+            border: 1px solid #a5f3fc;
+        }
+        .badge-design {
+            background-color: #eef2ff;
+            color: #4f46e5;
+            border: 1px solid #c7d2fe;
+        }
+        .badge-growth {
+            background-color: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+        .badge-default {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .hero h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+            line-height: 1.25;
+        }
+        .hero p {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .content {
+            padding: 24px;
+        }
+        .greeting {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #334155;
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 14px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table td {
+            padding: 7px 0;
+            vertical-align: top;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table td.label {
+            color: #64748b;
+            font-weight: 600;
+            width: 40%;
+        }
+        .data-table td.val {
+            color: #0f172a;
+            font-weight: 500;
+        }
+        .callout {
+            background-color: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 16px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.55;
+            margin: 20px 0;
+        }
+        .callout-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .callout ol {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .callout li {
+            margin-bottom: 6px;
+            color: #1e40af;
+        }
+        .callout li:last-child {
+            margin-bottom: 0;
+        }
+        .notes-card {
+            background-color: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+        .expo-banner {
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 14px 16px;
+            text-align: center;
+            margin: 22px 0 20px;
+        }
+        .expo-banner-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .expo-banner-text {
+            font-size: 12px;
+            color: #475569;
+        }
+        .signature {
+            font-size: 14px;
+            color: #475569;
+            margin-top: 24px;
+            line-height: 1.6;
+        }
+        .signature strong {
+            color: #0f172a;
+        }
+        .footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .footer strong {
+            color: #334155;
+        }
+        .footer a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @media only screen and (max-width: 600px) {
+            .wrapper {
+                padding: 12px 8px;
+            }
+            .content, .hero {
+                padding: 18px 16px;
+            }
+            .data-table td.label {
+                width: 45%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+
+            <!-- Brand Header -->
+            <div class="brand-header">
+                <a href="https://biratbazaar.com/" target="_blank" style="text-decoration: none;">
+                    <img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="CIM Biratbazaar Logo">
+                </a>
+                <div class="brand-subtitle">Chamber of Industries Morang &bull; Startup &amp; Hackathon</div>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="hero">
+                {% if registration.track == "Makerspace" %}
+                <span class="hero-badge badge-makerspace">Room 1 &bull; Makerspace</span>
+                {% elif registration.track == "Design Studio" %}
+                <span class="hero-badge badge-design">Room 2 &bull; Design Studio</span>
+                {% elif registration.track == "Growth Room" %}
+                <span class="hero-badge badge-growth">Room 3 &bull; Growth Room</span>
+                {% else %}
+                <span class="hero-badge badge-default">Registration Received</span>
+                {% endif %}
+                <h1>Registration Received!</h1>
+                <p>Startup &amp; Hackathon &bull; Birat Expo 2026</p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="content">
+                <p class="greeting">
+                    Dear <strong>{{ contact_name }}</strong>,<br><br>
+                    Thank you for registering for the <strong>Startup &amp; Hackathon</strong> at Birat Expo 2026. 
+                    Your registration for the <strong>{{ registration.get_track_display }}</strong> track has been successfully recorded in our system. 
+                    Our organizing committee is reviewing your details.
+                </p>
+
+                <!-- General Summary Card -->
+                <div class="card">
+                    <div class="card-title">Registration Summary</div>
+                    <table class="data-table">
+                        <tr>
+                            <td class="label">Full Name:</td>
+                            <td class="val"><strong>{{ registration.full_name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Selected Track:</td>
+                            <td class="val"><strong>{{ registration.get_track_display }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Contact Number:</td>
+                            <td class="val">{{ registration.phone }}</td>
+                        </tr>
+                        {% if registration.email %}
+                        <tr>
+                            <td class="label">Email Address:</td>
+                            <td class="val">{{ registration.email }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.organization_name %}
+                        <tr>
+                            <td class="label">Organization / School / Team:</td>
+                            <td class="val">{{ registration.organization_name }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.role %}
+                        <tr>
+                            <td class="label">Role / Designation:</td>
+                            <td class="val">{{ registration.role }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.municipality %}
+                        <tr>
+                            <td class="label">Municipality / Location:</td>
+                            <td class="val">{{ registration.municipality }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="label">Submission Date:</td>
+                            <td class="val">{{ registration.created_at|date:"d M Y, g:i A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Track Specific Details -->
+                {% if registration.track == "Makerspace" %}
+                <div class="card">
+                    <div class="card-title">Makerspace Details (Schools &amp; Teachers)</div>
+                    <table class="data-table">
+                        {% if registration.school_request %}
+                        <tr>
+                            <td class="label">Request Type:</td>
+                            <td class="val">{{ registration.school_request }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_type %}
+                        <tr>
+                            <td class="label">School Type:</td>
+                            <td class="val">{{ registration.school_type }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_grades %}
+                        <tr>
+                            <td class="label">Target Grades:</td>
+                            <td class="val">{{ registration.school_grades }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_students_count %}
+                        <tr>
+                            <td class="label">Est. Students Count:</td>
+                            <td class="val">{{ registration.school_students_count }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_teachers_count %}
+                        <tr>
+                            <td class="label">Accompanying Teachers:</td>
+                            <td class="val">{{ registration.school_teachers_count }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_preferred_date_1 %}
+                        <tr>
+                            <td class="label">Preferred Date (1st):</td>
+                            <td class="val">{{ registration.school_preferred_date_1 }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_preferred_date_2 %}
+                        <tr>
+                            <td class="label">Preferred Date (2nd):</td>
+                            <td class="val">{{ registration.school_preferred_date_2 }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_session_slot %}
+                        <tr>
+                            <td class="label">Session Slot:</td>
+                            <td class="val">{{ registration.school_session_slot }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_session_month %}
+                        <tr>
+                            <td class="label">Preferred Month:</td>
+                            <td class="val">{{ registration.school_session_month }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_available_space %}
+                        <tr>
+                            <td class="label">Space Available at School:</td>
+                            <td class="val">{{ registration.school_available_space }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% elif registration.track == "Design Studio" %}
+                <div class="card">
+                    <div class="card-title">Design Studio Details (College &amp; Youth)</div>
+                    <table class="data-table">
+                        {% if registration.gender %}
+                        <tr>
+                            <td class="label">Gender:</td>
+                            <td class="val">{{ registration.gender }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.age_group %}
+                        <tr>
+                            <td class="label">Age Group:</td>
+                            <td class="val">{{ registration.age_group }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.college_programme %}
+                        <tr>
+                            <td class="label">Programme / Faculty:</td>
+                            <td class="val">{{ registration.college_programme }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.college_year %}
+                        <tr>
+                            <td class="label">Year / Semester:</td>
+                            <td class="val">{{ registration.college_year }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.idea_stage %}
+                        <tr>
+                            <td class="label">Idea Stage:</td>
+                            <td class="val">{{ registration.idea_stage }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.interested_topics %}
+                        <tr>
+                            <td class="label">Interested Topics:</td>
+                            <td class="val">{{ registration.interested_topics }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.preferred_contact_channel %}
+                        <tr>
+                            <td class="label">Preferred Channel:</td>
+                            <td class="val">{{ registration.preferred_contact_channel }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="label">Host Workshop at College:</td>
+                            <td class="val">{% if registration.willing_to_host_workshop %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                    </table>
+                </div>
+                {% elif registration.track == "Growth Room" %}
+                <div class="card">
+                    <div class="card-title">Growth Room Details (Business Owners &amp; SGBs)</div>
+                    <table class="data-table">
+                        {% if registration.district %}
+                        <tr>
+                            <td class="label">District:</td>
+                            <td class="val">{{ registration.district }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.business_registration_type %}
+                        <tr>
+                            <td class="label">Registration Type:</td>
+                            <td class="val">{{ registration.business_registration_type }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.trading_duration %}
+                        <tr>
+                            <td class="label">Trading Duration:</td>
+                            <td class="val">{{ registration.trading_duration }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.business_sector %}
+                        <tr>
+                            <td class="label">Business Sector:</td>
+                            <td class="val">{{ registration.business_sector }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.employees_count %}
+                        <tr>
+                            <td class="label">Number of Employees:</td>
+                            <td class="val">{{ registration.employees_count }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.annual_turnover %}
+                        <tr>
+                            <td class="label">Annual Turnover:</td>
+                            <td class="val">{{ registration.annual_turnover }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.ownership_diversity %}
+                        <tr>
+                            <td class="label">Ownership Diversity:</td>
+                            <td class="val">{{ registration.ownership_diversity }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.area_of_interest %}
+                        <tr>
+                            <td class="label">Area of Interest:</td>
+                            <td class="val">{{ registration.area_of_interest }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.expo_visit_day %}
+                        <tr>
+                            <td class="label">Planned Visit Day:</td>
+                            <td class="val">{{ registration.expo_visit_day }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.support_needs %}
+                        <tr>
+                            <td class="label">Specific Support Needs:</td>
+                            <td class="val">{{ registration.support_needs }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.biggest_challenge %}
+                        <tr>
+                            <td class="label">Biggest Challenge:</td>
+                            <td class="val">{{ registration.biggest_challenge }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% endif %}
+
+                <!-- Notes (if any) -->
+                {% if registration.notes %}
+                <div class="notes-card">
+                    <strong>Your Notes / Comments:</strong><br>
+                    {{ registration.notes }}
+                </div>
+                {% endif %}
+
+                <!-- What happens next Callout -->
+                <div class="callout">
+                    <div class="callout-title">What happens next?</div>
+                    <ol>
+                        {% if registration.track == "Makerspace" %}
+                        <li>Our team will verify the schedule and coordinate the preferred dates with you.</li>
+                        <li>We will call you within two working days to confirm details and provide pre-session guidance.</li>
+                        <li>Join us at <strong>Room 1 (Makerspace)</strong> during Birat Expo 2026 (17–26 December 2026) or during your scheduled onsite workshop.</li>
+                        {% elif registration.track == "Design Studio" %}
+                        <li>You have been prioritized for upcoming Design Thinking and Prototyping workshops.</li>
+                        <li>We will notify you via {{ registration.preferred_contact_channel|default:"email or phone" }} when workshop cohorts open.</li>
+                        <li>Visit <strong>Room 2 (Design Studio)</strong> at Birat Expo 2026 to engage with mentors, pitch your concepts, and participate in live sprint challenges.</li>
+                        {% elif registration.track == "Growth Room" %}
+                        <li>You are invited for a complimentary 1-on-1 <strong>Business Health Check-up</strong> at Room 3 (Growth Room) during Birat Expo 2026.</li>
+                        <li>Bring your company registration copy and rough annual financials for deeper advisory.</li>
+                        <li>Our team will also reach out when the next <strong>SGB Accelerator</strong> cohort opens applications.</li>
+                        {% else %}
+                        <li>Our organizing team will review your registration and contact you shortly.</li>
+                        {% endif %}
+                    </ol>
+                </div>
+
+                <!-- Event Details Banner -->
+                <div class="expo-banner">
+                    <div class="expo-banner-title">Birat Expo 2026 &bull; 17–26 December 2026</div>
+                    <div class="expo-banner-text">Biratnagar, Koshi Province, Nepal &bull; Startup &amp; Hackathon</div>
+                </div>
+
+                <div class="signature">
+                    Warm regards,<br>
+                    <strong>Startup &amp; Hackathon Organizing Committee</strong><br>
+                    Chamber of Industries Morang (CIM)
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <strong>Chamber of Industries Morang (CIM)</strong><br>
+                Biratnagar, Koshi Province, Nepal<br>
+                Need assistance? Contact us at <a href="mailto:info.cimbrt@gmail.com">info.cimbrt@gmail.com</a><br>
+                <span style="font-size: 11px; color: #94a3b8; display: inline-block; margin-top: 8px;">
+                    &copy; {{ current_year|default:"2026" }} Chamber of Industries Morang. All rights reserved.
+                </span>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

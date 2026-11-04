@@ -41,6 +41,7 @@ urlpatterns = [
     path("api/", include("experience_zone.urls")),
     path("api/", include("incubation_center.urls")),
     path("api/stats/", include("stats.urls")),
+    path("api/startup/", include("startup.urls")),
     path("accounts/", include("allauth.urls")),
     path("_allauth/", include("allauth.headless.urls")),
     path("accounts/", include("allauth.socialaccount.urls")),

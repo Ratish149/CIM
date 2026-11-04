@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ADMIN ALERT: New Startup &amp; Hackathon Registration #{{ registration.id }}</title>
+    <style>
+        body, table, td, p, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+            border-collapse: collapse;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            outline: none;
+            text-decoration: none;
+            display: block;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrapper {
+            padding: 30px 15px;
+            background-color: #f1f5f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .brand-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 24px;
+            text-align: center;
+        }
+        .brand-header img {
+            height: 48px;
+            width: auto;
+            max-width: 100%;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        .brand-subtitle {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .hero {
+            padding: 24px 24px 18px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .hero-badge {
+            display: inline-block;
+            background-color: #fee2e2;
+            color: #b91c1c;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            border: 1px solid #fecaca;
+        }
+        .hero h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+            line-height: 1.25;
+        }
+        .hero p {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+        }
+        .track-accent-bar {
+            padding: 10px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .accent-makerspace {
+            background-color: #ecfeff;
+            color: #0e7490;
+            border-left: 4px solid #0891b2;
+            border-bottom: 1px solid #cffafe;
+        }
+        .accent-design {
+            background-color: #eef2ff;
+            color: #4f46e5;
+            border-left: 4px solid #6366f1;
+            border-bottom: 1px solid #e0e7ff;
+        }
+        .accent-growth {
+            background-color: #fffbeb;
+            color: #b45309;
+            border-left: 4px solid #d97706;
+            border-bottom: 1px solid #fef3c7;
+        }
+        .accent-default {
+            background-color: #f1f5f9;
+            color: #334155;
+            border-left: 4px solid #64748b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .content {
+            padding: 24px;
+        }
+        .card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+        }
+        .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table td {
+            padding: 6px 0;
+            vertical-align: top;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table td.label {
+            color: #64748b;
+            font-weight: 600;
+            width: 40%;
+        }
+        .data-table td.val {
+            color: #0f172a;
+            font-weight: 500;
+        }
+        .data-table td.val a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .data-table td.val a:hover {
+            text-decoration: underline;
+        }
+        .notes-card {
+            background-color: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+        .admin-action-box {
+            background-color: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-left: 4px solid #3b82f6;
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+        .admin-action-box strong {
+            color: #1e3a8a;
+        }
+        .footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .footer strong {
+            color: #334155;
+        }
+        @media only screen and (max-width: 600px) {
+            .wrapper {
+                padding: 12px 8px;
+            }
+            .content, .hero {
+                padding: 18px 16px;
+            }
+            .data-table td.label {
+                width: 45%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+
+            <!-- Brand Header -->
+            <div class="brand-header">
+                <a href="https://biratbazaar.com/" target="_blank" style="text-decoration: none;">
+                    <img src="https://cim.baliyoventures.com/static/logo/b2blogo.png" alt="CIM Logo">
+                </a>
+                <div class="brand-subtitle">CIM Administration Alert &bull; Startup &amp; Hackathon Desk</div>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="hero">
+                <span class="hero-badge">NEW REGISTRATION &bull; ID #{{ registration.id }}</span>
+                <h1>{{ registration.full_name }}</h1>
+                <p>Birat Expo 2026 Startup &amp; Hackathon</p>
+            </div>
+
+            <!-- Track Accent Ribbon -->
+            {% if registration.track == "Makerspace" %}
+            <div class="track-accent-bar accent-makerspace">
+                Track: Room 1 &bull; Makerspace (Schools &amp; Teachers)
+            </div>
+            {% elif registration.track == "Design Studio" %}
+            <div class="track-accent-bar accent-design">
+                Track: Room 2 &bull; Design Studio (College Students)
+            </div>
+            {% elif registration.track == "Growth Room" %}
+            <div class="track-accent-bar accent-growth">
+                Track: Room 3 &bull; Growth Room (Business Owners)
+            </div>
+            {% else %}
+            <div class="track-accent-bar accent-default">
+                Track: {{ registration.get_track_display }}
+            </div>
+            {% endif %}
+
+            <!-- Content Section -->
+            <div class="content">
+
+                <!-- Registrant Contact Details -->
+                <div class="card">
+                    <div class="card-title">Registrant &amp; Contact Info</div>
+                    <table class="data-table">
+                        <tr>
+                            <td class="label">Full Name:</td>
+                            <td class="val"><strong>{{ registration.full_name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Phone:</td>
+                            <td class="val"><a href="tel:{{ registration.phone }}">{{ registration.phone }}</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label">Email:</td>
+                            <td class="val">
+                                {% if registration.email %}
+                                <a href="mailto:{{ registration.email }}">{{ registration.email }}</a>
+                                {% else %}
+                                <span style="color: #94a3b8;">Not provided</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if registration.organization_name %}
+                        <tr>
+                            <td class="label">Organization / Team / School:</td>
+                            <td class="val"><strong>{{ registration.organization_name }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.role %}
+                        <tr>
+                            <td class="label">Role / Designation:</td>
+                            <td class="val">{{ registration.role }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.municipality %}
+                        <tr>
+                            <td class="label">Municipality / Location:</td>
+                            <td class="val">{{ registration.municipality }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="label">Heard About Us:</td>
+                            <td class="val">{{ registration.heard_about_us|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Keep Updated:</td>
+                            <td class="val">{% if registration.keep_updated %}<span style="color: #16a34a; font-weight: 700;">Yes</span>{% else %}<span style="color: #64748b;">No</span>{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Submitted At:</td>
+                            <td class="val">{{ registration.created_at|date:"d M Y, g:i A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Track Specific Data -->
+                {% if registration.track == "Makerspace" %}
+                <div class="card">
+                    <div class="card-title">Room 1 &bull; Makerspace Submission Details</div>
+                    <table class="data-table">
+                        {% if registration.school_request %}
+                        <tr>
+                            <td class="label">Request Type:</td>
+                            <td class="val">{{ registration.school_request }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_type %}
+                        <tr>
+                            <td class="label">School Type:</td>
+                            <td class="val">{{ registration.school_type }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_grades %}
+                        <tr>
+                            <td class="label">Target Grades:</td>
+                            <td class="val">{{ registration.school_grades }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_students_count %}
+                        <tr>
+                            <td class="label">Student Count:</td>
+                            <td class="val"><strong>{{ registration.school_students_count }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_teachers_count %}
+                        <tr>
+                            <td class="label">Teacher Count:</td>
+                            <td class="val">{{ registration.school_teachers_count }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_preferred_date_1 %}
+                        <tr>
+                            <td class="label">1st Choice Date:</td>
+                            <td class="val"><strong>{{ registration.school_preferred_date_1 }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_preferred_date_2 %}
+                        <tr>
+                            <td class="label">2nd Choice Date:</td>
+                            <td class="val">{{ registration.school_preferred_date_2 }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_session_slot %}
+                        <tr>
+                            <td class="label">Session Slot:</td>
+                            <td class="val">{{ registration.school_session_slot }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_session_month %}
+                        <tr>
+                            <td class="label">Preferred Month:</td>
+                            <td class="val">{{ registration.school_session_month }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.school_available_space %}
+                        <tr>
+                            <td class="label">Space at School:</td>
+                            <td class="val">{{ registration.school_available_space }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% elif registration.track == "Design Studio" %}
+                <div class="card">
+                    <div class="card-title">Room 2 &bull; Design Studio Submission Details</div>
+                    <table class="data-table">
+                        {% if registration.gender %}
+                        <tr>
+                            <td class="label">Gender:</td>
+                            <td class="val">{{ registration.gender }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.age_group %}
+                        <tr>
+                            <td class="label">Age Group:</td>
+                            <td class="val">{{ registration.age_group }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.college_programme %}
+                        <tr>
+                            <td class="label">Programme / Faculty:</td>
+                            <td class="val">{{ registration.college_programme }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.college_year %}
+                        <tr>
+                            <td class="label">Year / Semester:</td>
+                            <td class="val">{{ registration.college_year }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.idea_stage %}
+                        <tr>
+                            <td class="label">Idea Stage:</td>
+                            <td class="val"><strong>{{ registration.idea_stage }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.interested_topics %}
+                        <tr>
+                            <td class="label">Topics of Interest:</td>
+                            <td class="val">{{ registration.interested_topics }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.preferred_contact_channel %}
+                        <tr>
+                            <td class="label">Preferred Contact:</td>
+                            <td class="val">{{ registration.preferred_contact_channel }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="label">Host at College?</td>
+                            <td class="val">{% if registration.willing_to_host_workshop %}<span style="color: #16a34a; font-weight: 700;">Yes</span>{% else %}No{% endif %}</td>
+                        </tr>
+                    </table>
+                </div>
+                {% elif registration.track == "Growth Room" %}
+                <div class="card">
+                    <div class="card-title">Room 3 &bull; Growth Room Submission Details</div>
+                    <table class="data-table">
+                        {% if registration.district %}
+                        <tr>
+                            <td class="label">District:</td>
+                            <td class="val">{{ registration.district }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.business_registration_type %}
+                        <tr>
+                            <td class="label">Registration Type:</td>
+                            <td class="val">{{ registration.business_registration_type }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.trading_duration %}
+                        <tr>
+                            <td class="label">Trading Duration:</td>
+                            <td class="val">{{ registration.trading_duration }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.business_sector %}
+                        <tr>
+                            <td class="label">Sector:</td>
+                            <td class="val"><strong>{{ registration.business_sector }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.employees_count %}
+                        <tr>
+                            <td class="label">Staff Count:</td>
+                            <td class="val">{{ registration.employees_count }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.annual_turnover %}
+                        <tr>
+                            <td class="label">Annual Turnover:</td>
+                            <td class="val">{{ registration.annual_turnover }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.ownership_diversity %}
+                        <tr>
+                            <td class="label">Ownership Diversity:</td>
+                            <td class="val">{{ registration.ownership_diversity }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.area_of_interest %}
+                        <tr>
+                            <td class="label">Area of Interest:</td>
+                            <td class="val">{{ registration.area_of_interest }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.expo_visit_day %}
+                        <tr>
+                            <td class="label">Expo Visit Day:</td>
+                            <td class="val">{{ registration.expo_visit_day }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.support_needs %}
+                        <tr>
+                            <td class="label">Support Needs:</td>
+                            <td class="val">{{ registration.support_needs }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if registration.biggest_challenge %}
+                        <tr>
+                            <td class="label">Biggest Challenge:</td>
+                            <td class="val"><em>{{ registration.biggest_challenge }}</em></td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+                {% endif %}
+
+                <!-- Notes / Additional Comments -->
+                {% if registration.notes %}
+                <div class="notes-card">
+                    <strong>User Notes &amp; Comments:</strong><br>
+                    {{ registration.notes }}
+                </div>
+                {% endif %}
+
+                <!-- Admin Action Reminder -->
+                <div class="admin-action-box">
+                    <strong>Recommended Next Step:</strong><br>
+                    {% if registration.track == "Makerspace" %}
+                    Contact <strong>{{ registration.full_name }}</strong> at <a href="tel:{{ registration.phone }}">{{ registration.phone }}</a> to lock in the preferred session slot and verify student logistics.
+                    {% elif registration.track == "Design Studio" %}
+                    Add <strong>{{ registration.full_name }}</strong> to the youth workshop invite list and notify them when the next cohort starts.
+                    {% elif registration.track == "Growth Room" %}
+                    Review business sector and prepare the diagnostic advisory sheet for the Business Health Check-up at Birat Expo 2026.
+                    {% else %}
+                    Review registration details and update status in the admin dashboard.
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <strong>Chamber of Industries Morang (CIM)</strong><br>
+                Biratnagar, Koshi Province, Nepal<br>
+                <span style="font-size: 11px; color: #94a3b8; display: inline-block; margin-top: 6px;">
+                    This is an automated administrative notification dispatched by the CIM Biratbazaar platform for the Startup &amp; Hackathon registration.
+                </span>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
