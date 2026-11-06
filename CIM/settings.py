@@ -38,10 +38,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://evidence-proved-flickr-rent.trycloudflare.com",
+    "https://brunette-representative-frame-light.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://evidence-proved-flickr-rent.trycloudflare.com",
+    "https://brunette-representative-frame-light.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BDS Connect — Registration Confirmed</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .header { background: linear-gradient(135deg, #1E9C9A 0%, #274EA3 100%); padding: 28px 30px; }
+    .header h1 { margin: 0; color: #fff; font-size: 22px; }
+    .header p  { margin: 6px 0 0; color: #DCEBFF; font-size: 14px; }
+    .body { padding: 28px 30px; }
+    .greeting { font-size: 16px; color: #1F2430; margin-bottom: 16px; }
+    .message  { font-size: 15px; color: #4b5563; line-height: 1.6; margin-bottom: 20px; }
+    .info-box { background: #F4FAFD; border-left: 4px solid #274EA3; border-radius: 0 8px 8px 0; padding: 18px 20px; margin-bottom: 20px; }
+    .info-box h2 { font-size: 15px; color: #274EA3; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .5px; }
+    .info-box p  { margin: 6px 0; font-size: 14px; color: #374151; }
+    .info-box p strong { color: #1F2430; display: inline-block; min-width: 150px; }
+    .tag-box { background: #FFF3DC; border-left: 4px solid #E19F1F; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 20px; font-size: 14px; color: #92400e; }
+    .footer { background: #1B3570; padding: 18px 30px; text-align: center; }
+    .footer p { margin: 4px 0; color: #C9D6F0; font-size: 13px; }
+    .divider { border: none; border-top: 1px solid #DCE3EE; margin: 20px 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>BIRATBAZAAR BDS Connect Pavilion</h1>
+    <p>Birat Expo 2026 &bull; Chamber of Industries Morang &bull; 17–26 December 2026</p>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <p class="greeting">Dear {{ registration.name }},</p>
+
+    {% if registration.track == 'business' %}
+    <p class="message">
+      Thank you for registering with the <strong>BDS Connect Pavilion</strong> at Birat Expo 2026.
+      Our team will call you before the Expo to confirm your Business Clinic visit.
+      Please find your registration details below.
+    </p>
+    {% else %}
+    <p class="message">
+      Thank you for registering as a <strong>Service Provider</strong> with the BDS Connect Pavilion at Birat Expo 2026.
+      CIM will contact you about joining the BDS network. Please find your registration details below.
+    </p>
+    {% endif %}
+
+    <!-- Personal Details -->
+    <div class="info-box">
+      <h2>Your Details</h2>
+      <p><strong>Name:</strong> {{ registration.name }}</p>
+      <p><strong>Phone:</strong> {{ registration.phone }}</p>
+      {% if registration.email %}<p><strong>Email:</strong> {{ registration.email }}</p>{% endif %}
+      {% if registration.gender %}<p><strong>Gender:</strong> {{ registration.gender }}</p>{% endif %}
+      <p><strong>District:</strong> {{ registration.district }}</p>
+    </div>
+
+    <!-- Business / Organisation Details -->
+    {% if registration.business_name %}
+    <div class="info-box">
+      {% if registration.track == 'business' %}
+      <h2>Business Details</h2>
+      {% else %}
+      <h2>Organisation Details</h2>
+      {% endif %}
+      <p><strong>Name:</strong> {{ registration.business_name }}</p>
+      {% if registration.sector %}<p><strong>Sector:</strong> {{ registration.sector }}</p>{% endif %}
+      {% if registration.registered %}<p><strong>Registration status:</strong> {{ registration.registered }}</p>{% endif %}
+      {% if registration.years %}<p><strong>Years in operation:</strong> {{ registration.years }}</p>{% endif %}
+      {% if registration.staff %}<p><strong>Number of staff:</strong> {{ registration.staff }}</p>{% endif %}
+      {% if registration.web %}<p><strong>Website:</strong> {{ registration.web }}</p>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Business Track specific -->
+    {% if registration.track == 'business' %}
+      {% if registration.want %}
+      <div class="info-box">
+        <h2>What you signed up for</h2>
+        <p>{{ registration.want }}</p>
+      </div>
+      {% endif %}
+
+      {% if registration.needs %}
+      <div class="info-box">
+        <h2>Areas where you need help</h2>
+        <p>{{ registration.needs }}</p>
+      </div>
+      {% endif %}
+
+      {% if registration.day or registration.time %}
+      <div class="info-box">
+        <h2>Your Visit</h2>
+        {% if registration.day %}<p><strong>Day:</strong> {{ registration.day }}</p>{% endif %}
+        {% if registration.time %}<p><strong>Time:</strong> {{ registration.time }}</p>{% endif %}
+      </div>
+      {% endif %}
+    {% endif %}
+
+    <!-- Provider Track specific -->
+    {% if registration.track == 'provider' %}
+      {% if registration.services %}
+      <div class="info-box">
+        <h2>Services you offer</h2>
+        <p>{{ registration.services }}</p>
+      </div>
+      {% endif %}
+
+      {% if registration.participation %}
+      <div class="info-box">
+        <h2>How you'd like to participate</h2>
+        <p>{{ registration.participation }}</p>
+      </div>
+      {% endif %}
+    {% endif %}
+
+    <div class="tag-box">
+      <strong>&#128222; Need help?</strong> Contact Dikshya, Program Manager at
+      <strong>9869812058</strong> or visit <a href="https://cim.org.np" style="color:#92400e">cim.org.np</a>
+    </div>
+
+    <hr class="divider">
+    <p class="message" style="font-size:13px; color:#6b7280;">
+      This is an automated email. Please do not reply directly to this message.
+      Your details are stored securely and will only be shared with a service provider when you request that service.
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>&copy; 2026 Chamber of Industries Morang &bull; Biratnagar Incubation Center</p>
+    <p>BIRATBAZAAR BDS Connect Pavilion &bull; Birat Expo 2026</p>
+  </div>
+
+</div>
+</body>
+</html>

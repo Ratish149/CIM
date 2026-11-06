@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New BDS Connect Registration</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
+    .container { max-width: 620px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .header { padding: 22px 30px; }
+    .header.business { background: #274EA3; }
+    .header.provider { background: #1E9C9A; }
+    .header h1 { margin: 0; color: #fff; font-size: 20px; }
+    .header p  { margin: 5px 0 0; color: rgba(255,255,255,.75); font-size: 13px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-top: 8px; }
+    .badge.business { background: #E19F1F; color: #1B1B1B; }
+    .badge.provider { background: #fff; color: #1E9C9A; }
+    .body { padding: 24px 30px; }
+    .section { margin-bottom: 20px; }
+    .section h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: #6b7280; margin: 0 0 10px; border-bottom: 1px solid #DCE3EE; padding-bottom: 6px; }
+    .row { display: flex; padding: 5px 0; font-size: 14px; }
+    .row .label { min-width: 170px; color: #6b7280; font-weight: 600; }
+    .row .value { color: #1F2430; flex: 1; }
+    .multi { background: #F4FAFD; border-radius: 6px; padding: 8px 12px; font-size: 14px; color: #374151; margin-top: 4px; }
+    .footer { background: #1B3570; padding: 16px 30px; text-align: center; }
+    .footer p { margin: 3px 0; color: #C9D6F0; font-size: 12px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header {% if registration.track == 'business' %}business{% else %}provider{% endif %}">
+    <h1>New BDS Connect Registration</h1>
+    <p>Submitted on {{ registration.created_at|date:"d M Y, h:i A" }} (Asia/Kathmandu)</p>
+    <span class="badge {% if registration.track == 'business' %}business{% else %}provider{% endif %}">
+      {% if registration.track == 'business' %}Business{% else %}Service Provider{% endif %}
+    </span>
+  </div>
+
+  <div class="body">
+
+    <!-- Contact Details -->
+    <div class="section">
+      <h2>Contact Details</h2>
+      <div class="row"><span class="label">Name</span><span class="value">{{ registration.name }}</span></div>
+      <div class="row"><span class="label">Phone</span><span class="value">{{ registration.phone }}</span></div>
+      {% if registration.email %}
+      <div class="row"><span class="label">Email</span><span class="value">{{ registration.email }}</span></div>
+      {% endif %}
+      {% if registration.gender %}
+      <div class="row"><span class="label">Gender</span><span class="value">{{ registration.gender }}</span></div>
+      {% endif %}
+      <div class="row"><span class="label">District</span><span class="value">{{ registration.district }}</span></div>
+    </div>
+
+    <!-- Business / Organisation -->
+    {% if registration.business_name %}
+    <div class="section">
+      <h2>{% if registration.track == 'business' %}Business Details{% else %}Organisation Details{% endif %}</h2>
+      <div class="row"><span class="label">Name</span><span class="value">{{ registration.business_name }}</span></div>
+      {% if registration.sector %}<div class="row"><span class="label">Sector</span><span class="value">{{ registration.sector }}</span></div>{% endif %}
+      {% if registration.registered %}<div class="row"><span class="label">Registered?</span><span class="value">{{ registration.registered }}</span></div>{% endif %}
+      {% if registration.years %}<div class="row"><span class="label">Years in operation</span><span class="value">{{ registration.years }}</span></div>{% endif %}
+      {% if registration.staff %}<div class="row"><span class="label">Staff count</span><span class="value">{{ registration.staff }}</span></div>{% endif %}
+      {% if registration.ledby %}<div class="row"><span class="label">Led by</span><span class="value">{{ registration.ledby }}</span></div>{% endif %}
+      {% if registration.web %}<div class="row"><span class="label">Website</span><span class="value">{{ registration.web }}</span></div>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Business Track -->
+    {% if registration.track == 'business' %}
+
+      {% if registration.want %}
+      <div class="section">
+        <h2>What they want</h2>
+        <div class="multi">{{ registration.want }}</div>
+      </div>
+      {% endif %}
+
+      {% if registration.needs %}
+      <div class="section">
+        <h2>Areas needing help</h2>
+        <div class="multi">{{ registration.needs }}</div>
+      </div>
+      {% endif %}
+
+      {% if registration.problem %}
+      <div class="section">
+        <h2>Biggest problem</h2>
+        <div class="multi">{{ registration.problem }}</div>
+      </div>
+      {% endif %}
+
+      {% if registration.day or registration.time %}
+      <div class="section">
+        <h2>Planned visit</h2>
+        {% if registration.day %}<div class="row"><span class="label">Day</span><span class="value">{{ registration.day }}</span></div>{% endif %}
+        {% if registration.time %}<div class="row"><span class="label">Time slot</span><span class="value">{{ registration.time }}</span></div>{% endif %}
+      </div>
+      {% endif %}
+
+    {% endif %}
+
+    <!-- Provider Track -->
+    {% if registration.track == 'provider' %}
+
+      {% if registration.services %}
+      <div class="section">
+        <h2>Services offered</h2>
+        <div class="multi">{{ registration.services }}</div>
+      </div>
+      {% endif %}
+
+      {% if registration.description %}
+      <div class="section">
+        <h2>Service description</h2>
+        <div class="multi">{{ registration.description }}</div>
+      </div>
+      {% endif %}
+
+      {% if registration.participation %}
+      <div class="section">
+        <h2>Participation preference</h2>
+        <div class="multi">{{ registration.participation }}</div>
+      </div>
+      {% endif %}
+
+    {% endif %}
+
+  </div>
+
+  <div class="footer">
+    <p>CIM Admin Notification &bull; BDS Connect Pavilion &bull; Birat Expo 2026</p>
+    <p>This email was automatically generated. Do not reply.</p>
+  </div>
+
+</div>
+</body>
+</html>
