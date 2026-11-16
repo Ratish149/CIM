@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Learn & Work Booking Request</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
+    .container { max-width: 620px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .header { background: #172751; padding: 22px 30px; }
+    .header h1 { margin: 0 0 4px; color: #fff; font-size: 20px; }
+    .header p  { margin: 0; color: rgba(255,255,255,.7); font-size: 13px; }
+    .body { padding: 24px 30px; }
+    .section { margin-bottom: 22px; }
+    .section h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .7px; color: #6b7280; margin: 0 0 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+    .row { display: flex; padding: 5px 0; font-size: 14px; }
+    .row .label { min-width: 160px; color: #6b7280; font-weight: 600; }
+    .row .value { color: #111827; flex: 1; }
+    .note-box { background: #f9fafb; border-radius: 6px; padding: 10px 14px; font-size: 14px; color: #374151; margin-top: 4px; border: 1px solid #e5e7eb; }
+    .footer { background: #172751; padding: 16px 30px; text-align: center; }
+    .footer p { margin: 3px 0; color: #93a8c8; font-size: 12px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>New Learn &amp; Work Booking Request</h1>
+    <p>Submitted on {{ booking.created_at|date:"d M Y, h:i A" }} &bull; Pending your confirmation</p>
+  </div>
+
+  <div class="body">
+
+    <!-- Session details -->
+    <div class="section">
+      <h2>Session Details</h2>
+      <div class="row"><span class="label">Zone</span><span class="value">{{ booking.zone }}</span></div>
+      <div class="row"><span class="label">Date</span><span class="value">{{ booking.date }}</span></div>
+      <div class="row"><span class="label">Session time</span><span class="value">{{ booking.time }}</span></div>
+    </div>
+
+    <!-- Group / School details -->
+    <div class="section">
+      <h2>Group Details</h2>
+      <div class="row"><span class="label">School / Group</span><span class="value">{{ booking.school }}</span></div>
+      <div class="row"><span class="label">Class / Grade</span><span class="value">{{ booking.grade }}</span></div>
+      <div class="row"><span class="label">Contact person</span><span class="value">{{ booking.teacher }}</span></div>
+      <div class="row"><span class="label">Mobile</span><span class="value">{{ booking.phone }}</span></div>
+      {% if booking.email %}
+      <div class="row"><span class="label">Email</span><span class="value">{{ booking.email }}</span></div>
+      {% endif %}
+      <div class="row"><span class="label">Number of students</span><span class="value">{{ booking.students }}</span></div>
+    </div>
+
+    <!-- Notes -->
+    {% if booking.note %}
+    <div class="section">
+      <h2>Additional Notes</h2>
+      <div class="note-box">{{ booking.note }}</div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <div class="footer">
+    <p>CIM Admin Notification &bull; Learn &amp; Work Platform &bull; Birat Expo 2026</p>
+    <p>This email was automatically generated. Do not reply.</p>
+  </div>
+
+</div>
+</body>
+</html>

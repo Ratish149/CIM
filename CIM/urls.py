@@ -40,6 +40,7 @@ urlpatterns = [
     path("api/", include("jobbriz_institute.urls")),
     path("api/", include("experience_zone.urls")),
     path("api/", include("incubation_center.urls")),
+    path("api/learn-and-work/", include("learn_and_work.urls")),
     path("api/stats/", include("stats.urls")),
     path("api/startup/", include("startup.urls")),
     path("accounts/", include("allauth.urls")),

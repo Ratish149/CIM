@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learn & Work Platform — Booking Request Received</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .header { background: linear-gradient(135deg, #172751 0%, #1e8294 100%); padding: 28px 30px; }
+    .header h1 { margin: 0 0 4px; color: #fff; font-size: 20px; }
+    .header p  { margin: 0; color: rgba(255,255,255,.75); font-size: 13px; }
+    .pending-badge { display: inline-block; margin-top: 12px; background: #f5a623; color: #1a1a1a; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; padding: 4px 12px; border-radius: 20px; }
+    .body { padding: 28px 30px; }
+    .greeting { font-size: 16px; color: #1F2430; margin-bottom: 14px; }
+    .message  { font-size: 15px; color: #4b5563; line-height: 1.65; margin-bottom: 20px; }
+    .pending-box { background: #fffbeb; border-left: 4px solid #f5a623; border-radius: 0 8px 8px 0; padding: 16px 18px; margin-bottom: 22px; }
+    .pending-box p { margin: 0; font-size: 14px; color: #92400e; line-height: 1.6; }
+    .info-box { background: #F4FAFD; border-left: 4px solid #172751; border-radius: 0 8px 8px 0; padding: 18px 20px; margin-bottom: 20px; }
+    .info-box h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: #172751; margin: 0 0 12px; }
+    .info-box p  { margin: 6px 0; font-size: 14px; color: #374151; }
+    .info-box p strong { color: #1F2430; display: inline-block; min-width: 140px; }
+    .contact-box { background: #f0fdf4; border-left: 4px solid #1e8294; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 20px; font-size: 14px; color: #065f46; }
+    .divider { border: none; border-top: 1px solid #DCE3EE; margin: 20px 0; }
+    .footer { background: #172751; padding: 18px 30px; text-align: center; }
+    .footer p { margin: 3px 0; color: #93a8c8; font-size: 12px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Learn &amp; Work Platform</h1>
+    <p>Birat Expo 2026 &bull; 17–26 December &bull; Chamber of Industries Morang</p>
+    <span class="pending-badge">&#9679; Pending Confirmation</span>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <p class="greeting">Dear {{ booking.teacher }},</p>
+
+    <p class="message">
+      Thank you for submitting a group training session booking request for the
+      <strong>Learn &amp; Work Platform</strong> at Birat Expo 2026.
+      We have received your request and it is currently <strong>pending confirmation</strong>.
+    </p>
+
+    <!-- Pending notice -->
+    <div class="pending-box">
+      <p>
+        <strong>&#9888; This is not a confirmed booking.</strong><br>
+        Your session will be reserved once CIM reviews the request and contacts you by
+        <strong>phone or email</strong> to confirm. Please do not treat this email as a confirmed booking.
+        We aim to respond within 1–2 working days.
+      </p>
+    </div>
+
+    <!-- Session details -->
+    <div class="info-box">
+      <h2>Session Details</h2>
+      <p><strong>Zone:</strong> {{ booking.zone }}</p>
+      <p><strong>Date:</strong> {{ booking.date }}</p>
+      <p><strong>Session:</strong> {{ booking.time }}</p>
+    </div>
+
+    <!-- Group details -->
+    <div class="info-box">
+      <h2>Group Details</h2>
+      <p><strong>School / Group:</strong> {{ booking.school }}</p>
+      <p><strong>Class / Grade:</strong> {{ booking.grade }}</p>
+      <p><strong>Contact person:</strong> {{ booking.teacher }}</p>
+      <p><strong>Mobile:</strong> {{ booking.phone }}</p>
+      {% if booking.email %}<p><strong>Email:</strong> {{ booking.email }}</p>{% endif %}
+      <p><strong>Number of students:</strong> {{ booking.students }}</p>
+      {% if booking.note %}<p><strong>Notes:</strong> {{ booking.note }}</p>{% endif %}
+    </div>
+
+    <!-- Contact -->
+    <div class="contact-box">
+      &#128222; Questions? Call <strong>9869812058</strong> or email
+      <a href="mailto:info.cimbrt@gmail.com" style="color:#065f46">info.cimbrt@gmail.com</a>
+    </div>
+
+    <hr class="divider">
+    <p class="message" style="font-size:13px; color:#6b7280;">
+      This is an automated acknowledgement. Please do not reply directly to this email.
+      Your booking is <strong>not confirmed</strong> until CIM contacts you separately.
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>&copy; 2026 Chamber of Industries Morang &bull; Biratnagar Incubation Center</p>
+    <p>Learn &amp; Work Platform &bull; Birat Expo 2026</p>
+  </div>
+
+</div>
+</body>
+</html>

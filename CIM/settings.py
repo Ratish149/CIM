@@ -38,10 +38,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.biratbazaar.com",
     "https://biratbazaar.com",
     "https://cim.baliyoventures.com",
-    "https://brunette-representative-frame-light.trycloudflare.com",
+    "https://important-attending-easy-titanium.trycloudflare.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://brunette-representative-frame-light.trycloudflare.com",
+    "https://important-attending-easy-titanium.trycloudflare.com",
     "http://127.0.0.1",
     "https://cim.baliyoventures.com",
     "https://biratbazaar.com",
@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "incubation_center",
     "stats",
     "startup",
+    "learn_and_work",
 ]
 
 SITE_ID = 1
